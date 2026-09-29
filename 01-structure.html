@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Структура программы</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="top"><a href="01-structure.html">Язык C</a></div>
+<main class="wrap">
+<header class="hero"><div class="stamp">C · GCC</div><h1>Язык C</h1><p>Структура программы</p></header>
+<nav class="grid" aria-label="Темы курса">
+<a href="01-structure.html"><b>01</b>Структура программы</a>
+<a href="02-types.html"><b>02</b>Базовые типы</a>
+<a href="03-constants.html"><b>03</b>Константы</a>
+<a href="04-struct-union.html"><b>04</b>Структуры и объединения</a>
+<a href="05-arithmetic.html"><b>05</b>Арифметика</a>
+<a href="06-logic.html"><b>06</b>Логика</a>
+<a href="07-pointers.html"><b>07</b>Указатели</a>
+<a href="08-scope-lifetime.html"><b>08</b>Область видимости</a>
+<a href="09-functions.html"><b>09</b>Функции</a>
+<a href="10-loops.html"><b>10</b>Циклы</a>
+<a href="11-conditions-goto.html"><b>11</b>Условия и goto</a>
+<a href="12-strings.html"><b>12</b>Строки</a>
+<a href="13-text-files.html"><b>13</b>Текстовые файлы</a>
+<a href="14-binary-files.html"><b>14</b>Бинарные файлы</a>
+<a href="15-dynamic-memory.html"><b>15</b>malloc / realloc / free</a>
+<a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+<div class="trail">
+<section class="wp" data-t="Структура программы"><h2>Общая структура С-программы</h2><p class="sub">Директивы препроцессора → объявления → функции → main().</p>
+<p>Программа на C состоит из функций; выполнение начинается с <code>main</code>. Обычный порядок: подключение заголовков (<code>#include</code>), макросы (<code>#define</code>), типы, глобальные переменные, прототипы функций, <code>main</code>, определения остальных функций.</p>
+<script type="text/x-c" data-f="structure.c">#include <stdio.h>          /* 1. заголовки */
+#define PI 3.14159            /* 2. макрос */
+
+typedef struct { double r; } Circle;   /* 3. свои типы */
+
+int counter = 0;              /* 4. глобальная переменная */
+
+double area(Circle c);        /* 5. прототип функции */
+
+int main(void)                /* 6. точка входа */
+{
+    Circle c = { 2.0 };
+    counter++;
+    printf("Площадь круга: %.2f (вызов #%d)\n", area(c), counter);
+    return 0;                 /* 0 = успех */
+}
+
+double area(Circle c)         /* 7. определение функции */
+{
+    return PI * c.r * c.r;
+}</script>
+<h3>Разбор вызова printf</h3>
+<script type="text/x-c" data-f="structure.c (фрагмент)">printf("Площадь круга: %.2f (вызов #%d)\n", area(c), counter);</script>
+<table><thead><tr><th>Часть строки</th><th>Что означает</th></tr></thead><tbody>
+<tr><td><code>%.2f</code></td><td>спецификатор формата для числа типа <code>double</code>/<code>float</code>: <code>%f</code> — вывести число с плавающей точкой в обычном (десятичном) виде, <code>.2</code> — точность: ровно 2 знака после запятой. Примеры: <code>12.56637</code> → <code>12.57</code>, <code>3.1</code> → <code>3.10</code>, <code>5.0</code> → <code>5.00</code>. Используется для красивого вывода площади или длины окружности.</td></tr>
+<tr><td><code>(вызов #</code></td><td>обычный текст, выводится как есть.</td></tr>
+<tr><td><code>%d</code></td><td>спецификатор формата для целого числа (<code>int</code>): вставляет значение переменной <code>counter</code>. Например, если <code>counter == 1</code>, то <code>%d</code> заменится на <code>1</code>.</td></tr>
+<tr><td><code>)\n</code></td><td>закрывающая скобка и перевод строки (<code>\n</code>).</td></tr></tbody></table>
+<p>В итоге при <code>area(c) = 12.56637</code> и <code>counter = 1</code> получится:</p>
+<div class="win-c out"><div class="hd"><span>text</span></div><pre><code>Площадь круга: 12.57 (вызов #1)</code></pre></div>
+<h3>Три стадии сборки</h3>
+<p>Код на C проходит три стадии: препроцессор, компиляция и линковка. Прототип функции нужен, чтобы на этапе компиляции компилятор уже знал «форму» функции (её сигнатуру), даже если тело написано ниже или в другом файле.</p>
+<div class="win-c"><div class="hd"><span>Схема сборки</span></div><pre><code>structure.c ──► [препроцессор] ──► [компилятор] ──► structure.o ──► [линковщик] ──► structure
+                #include, #define    типы, сигнатуры    объектный код    + libc (printf ...)   исполняемый файл</code></pre></div>
+<h3>1) Препроцессор</h3>
+<p>Обрабатывает директивы, начинающиеся с <code>#</code>: <code>#include</code>, <code>#define</code>, <code>#ifdef</code> и т.п. Для нашего примера:</p>
+<ul><li><code>#include &lt;stdio.h&gt;</code> — вставляет содержимое заголовочного файла <code>stdio.h</code> прямо в ваш файл;</li>
+<li><code>#define PI 3.14159</code> — везде в коде заменяет <code>PI</code> на <code>3.14159</code>.</li></ul>
+<p>Результат — один большой «раскрытый» исходный файл, где нет <code>#include</code> и <code>#define</code>, но есть весь код заголовков и подставленные макросы. Посмотреть его можно командой <code>gcc -E structure.c</code>.</p>
+<h3>2) Компиляция</h3>
+<p>Берёт результат работы препроцессора и переводит его в объектный код (машинные инструкции для конкретного процессора), но ещё не в готовую программу. Проверяет типы, синтаксис, соответствие сигнатур функций и т.д. Для каждого исходного файла создаётся свой объектный файл (например, <code>main.o</code>, <code>area.o</code>, если функции лежат в разных файлах): <code>gcc -c structure.c</code>.</p>
+<p>Здесь и важен прототип. Строка <code>double area(Circle c);</code> говорит компилятору:</p>
+<ul><li>есть функция с именем <code>area</code>;</li><li>она принимает один параметр типа <code>Circle</code>;</li><li>возвращает <code>double</code>.</li></ul>
+<p>Благодаря этому в <code>main</code> можно написать <code>area(c)</code> до того, как компилятор увидит определение <code>double area(Circle c) { ... }</code>. Без прототипа компилятор либо выдал бы ошибку «неизвестный идентификатор <code>area</code>», либо (в старом стандарте C) предположил бы неверную сигнатуру, что привело бы к ошибкам линковки или странному поведению. Прототип — это «контракт»: он фиксирует, как правильно вызывать функцию, чтобы компилятор мог проверить все вызовы.</p>
+<h3>3) Линковка (компоновка)</h3>
+<p>Берёт несколько объектных файлов (например, <code>main.o</code>, <code>area.o</code>, плюс стандартные библиотеки вроде libc) и соединяет их в один исполняемый файл. Линковщик разрешает «внешние ссылки»: в <code>main.o</code> есть вызовы <code>area</code> и <code>printf</code>, но их адреса ещё неизвестны. Линковщик находит определение <code>area</code> в <code>area.o</code>, а <code>printf</code> — в стандартной библиотеке, и подставляет реальные адреса. Если какой-то функции не хватает (например, забыли файл с определением <code>area</code>), линковщик выдаст ошибку <code>undefined reference to 'area'</code>.</p>
+<table><thead><tr><th>Стадия</th><th>Что делает</th><th>Типичная ошибка</th></tr></thead><tbody>
+<tr><td>Препроцессор</td><td>раскрывает макросы и включения</td><td><code>fatal error: xxx.h: No such file</code></td></tr>
+<tr><td>Компилятор</td><td>переводит в объектный код, проверяет типы по прототипам</td><td>неизвестный идентификатор, несовпадение типов</td></tr>
+<tr><td>Линковщик</td><td>собирает объектные файлы и библиотеки, связывает вызовы с функциями</td><td><code>undefined reference to ...</code></td></tr></tbody></table>
+<div class="note win"><b>ЗАПОМНИТЕ</b>Препроцессор раскрывает макросы и включения; компилятор переводит код в объектный и проверяет типы, используя прототипы; линковщик собирает всё в одну программу, связывая вызовы с реальными функциями.</div>
+<div class="task"><b>Задача.</b> Добавьте функцию <code>perimeter</code> и выведите длину окружности.</div></section>
+</div>
+</main>
+</body>
+</html>

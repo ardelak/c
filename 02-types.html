@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Базовые типы</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="top"><a href="01-structure.html">Язык C</a></div>
+<main class="wrap">
+<header class="hero"><div class="stamp">C · GCC</div><h1>Язык C</h1><p>Базовые типы</p></header>
+<nav class="grid" aria-label="Темы курса">
+<a href="01-structure.html"><b>01</b>Структура программы</a>
+<a href="02-types.html"><b>02</b>Базовые типы</a>
+<a href="03-constants.html"><b>03</b>Константы</a>
+<a href="04-struct-union.html"><b>04</b>Структуры и объединения</a>
+<a href="05-arithmetic.html"><b>05</b>Арифметика</a>
+<a href="06-logic.html"><b>06</b>Логика</a>
+<a href="07-pointers.html"><b>07</b>Указатели</a>
+<a href="08-scope-lifetime.html"><b>08</b>Область видимости</a>
+<a href="09-functions.html"><b>09</b>Функции</a>
+<a href="10-loops.html"><b>10</b>Циклы</a>
+<a href="11-conditions-goto.html"><b>11</b>Условия и goto</a>
+<a href="12-strings.html"><b>12</b>Строки</a>
+<a href="13-text-files.html"><b>13</b>Текстовые файлы</a>
+<a href="14-binary-files.html"><b>14</b>Бинарные файлы</a>
+<a href="15-dynamic-memory.html"><b>15</b>malloc / realloc / free</a>
+<a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+<div class="trail">
+<section class="wp" data-t="Базовые типы"><h2>Типы базовых переменных</h2><p class="sub">Описание, определение, инициализация.</p>
+<table><thead><tr><th>Тип</th><th>Размер (обычно)</th><th>Назначение</th></tr></thead><tbody>
+<tr><td><code>char</code></td><td>1 байт</td><td>символ / малое целое</td></tr><tr><td><code>short</code>, <code>int</code>, <code>long</code>, <code>long long</code></td><td>2 / 4 / 4–8 / 8</td><td>целые (есть <code>unsigned</code>)</td></tr>
+<tr><td><code>float</code>, <code>double</code></td><td>4 / 8</td><td>вещественные</td></tr></tbody></table>
+<p><b>Объявление</b> (<code>extern int x;</code>) сообщает имя и тип; <b>определение</b> (<code>int x;</code>) выделяет память; <b>инициализация</b> задаёт начальное значение (<code>int x = 5;</code>). Неинициализированная локальная переменная содержит мусор.</p>
+<script type="text/x-c" data-f="types.c">#include <stdio.h>
+#include <limits.h>
+#include <float.h>
+
+extern int shared;            /* объявление */
+int shared = 7;               /* определение + инициализация */
+
+int main(void)
+{
+    char c = 'A';
+    short s = -100;
+    int i = 42;
+    unsigned int u = 4000000000u;
+    long long big = 9000000000LL;
+    float f = 3.14f;
+    double d = 2.718281828;
+
+    printf("char=%c (%d), short=%d, int=%d\n", c, c, s, i);
+    printf("unsigned=%u, long long=%lld\n", u, big);
+    printf("float=%.2f, double=%.9f\n", f, d);
+    printf("sizeof: char=%zu int=%zu long long=%zu double=%zu\n",
+           sizeof(char), sizeof(int), sizeof(long long), sizeof(double));
+    printf("INT_MAX=%d, DBL_EPSILON=%g, shared=%d\n", INT_MAX, DBL_EPSILON, shared);
+    return 0;
+}</script>
+<div class="note watch"><b>ЛОВУШКА</b>Переполнение знакового <code>int</code> — неопределённое поведение. Целочисленное деление <code>7/2</code> даёт 3, а не 3.5.</div>
+<div class="task"><b>Задача.</b> Выведите <code>sizeof</code> всех типов и <code>INT_MIN</code>/<code>INT_MAX</code> на вашей машине.</div></section>
+</div>
+</main>
+</body>
+</html>
