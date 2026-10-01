@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Константы</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+</head>
+<body>
+<div class="top"><a href="01-structure.html">Язык C</a></div>
+<main class="wrap">
+<header class="hero"><div class="stamp">C · GCC</div><h1>Язык C</h1><p>Константы</p></header>
+<nav class="grid" aria-label="Темы курса">
+<a href="01-structure.html"><b>01</b>Структура программы</a>
+<a href="02-types.html"><b>02</b>Базовые типы</a>
+<a href="03-constants.html"><b>03</b>Константы</a>
+<a href="04-struct-union.html"><b>04</b>Структуры и объединения</a>
+<a href="05-arithmetic.html"><b>05</b>Арифметика</a>
+<a href="06-logic.html"><b>06</b>Логика</a>
+<a href="07-pointers.html"><b>07</b>Указатели</a>
+<a href="08-scope-lifetime.html"><b>08</b>Область видимости</a>
+<a href="09-functions.html"><b>09</b>Функции</a>
+<a href="10-loops.html"><b>10</b>Циклы</a>
+<a href="11-conditions-goto.html"><b>11</b>Условия и goto</a>
+<a href="12-strings.html"><b>12</b>Строки</a>
+<a href="13-text-files.html"><b>13</b>Текстовые файлы</a>
+<a href="14-binary-files.html"><b>14</b>Бинарные файлы</a>
+<a href="15-dynamic-memory.html"><b>15</b>malloc / realloc / free</a>
+<a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+<div class="trail">
+<section class="wp" data-t="Константы"><h2>Константы</h2><p class="sub">Литералы, именованные значения, суффиксы и неизменяемые данные.</p>
+<p>Константа задаёт значение, которое программа не должна менять. В C используют литералы, макросы препроцессора, объекты с квалификатором <code>const</code> и константы перечисления.</p>
+<h3>Способы объявления</h3>
+<ul>
+<li><b>Макрос <code>#define</code></b> — текстовая подстановка до компиляции. У макроса нет типа и собственной памяти; компилятор проверяет только результат подстановки.</li>
+<li><b>Квалификатор <code>const</code></b> — типизированный объект, который нельзя изменять через это имя. Он занимает память, а компилятор проверяет тип и попытки записи.</li>
+<li><b><code>enum</code></b> — именованные целочисленные константы, удобные для связанных состояний, кодов и флагов.</li>
+</ul>
+<script type="text/x-c" data-f="constant-kinds.c">#include <stdio.h>
+
+#define BUFFER_SIZE 1024
+const double PI = 3.14159265;
+
+enum Status {
+    STATUS_OK = 0,
+    STATUS_WARN = 1,
+    STATUS_ERR = -1
+};
+
+int main(void)
+{
+    printf("buffer=%d, pi=%.5f, status=%d\n",
+           BUFFER_SIZE, PI, STATUS_OK);
+    return 0;
+}</script>
+<h3>Литералы, системы счисления и суффиксы</h3>
+<p>Литерал — записанное прямо в исходном коде значение. Его форма определяет тип; суффикс позволяет выбрать тип явно.</p>
+<div class="table-scroll"><table><thead><tr><th>Категория</th><th>Форма записи</th><th>Тип</th><th>Пример</th></tr></thead><tbody>
+<tr><td>Целые, системы счисления</td><td><code>0...</code> (oct), <code>0x...</code> (hex), <code>0b...</code> (bin)</td><td><code>int</code> либо подходящий целый тип</td><td><code>077</code>, <code>0xFF</code>, <code>0b1011</code></td></tr>
+<tr><td>Целые, суффиксы</td><td><code>u/U</code>, <code>l/L</code>, <code>ll/LL</code></td><td><code>unsigned</code>, <code>long</code>, <code>long long</code></td><td><code>42U</code>, <code>10000000000LL</code></td></tr>
+<tr><td>Вещественные</td><td>Точка или экспонента <code>e/E</code></td><td><code>double</code> по умолчанию</td><td><code>0.0</code>, <code>1e-4</code>, <code>6.022e23</code></td></tr>
+<tr><td>Вещественные, суффиксы</td><td><code>f/F</code>, <code>l/L</code></td><td><code>float</code>, <code>long double</code></td><td><code>3.14f</code>, <code>1.6180339887L</code></td></tr>
+<tr><td>Символьные</td><td>Одинарные кавычки</td><td><code>int</code> в C</td><td><code>'Z'</code>, <code>'\x1B'</code>, <code>'\n'</code></td></tr>
+<tr><td>Строковые</td><td>Двойные кавычки</td><td>Массив <code>char</code> с завершающим <code>'\0'</code></td><td><code>"Hello, World!"</code></td></tr>
+</tbody></table></div>
+<div class="note tip"><b>ПОРТАТИВНОСТЬ</b>Запись чисел с префиксом <code>0b</code> поддерживается в C23 и многими компиляторами как расширение. Для более старых стандартов C используйте шестнадцатеричную запись или вычисляйте значение иначе. Восьмеричное число начинается с <code>0</code>: например, <code>010</code> равно 8.</div>
+<div class="note watch"><b>СТРОКОВЫЙ ЛИТЕРАЛ</b>Строковый литерал нельзя изменять. Запись <code>char *s = "text";</code> сама по себе допустима, но изменение <code>s[0]</code> приводит к неопределённому поведению и может завершиться ошибкой доступа к памяти. Для чтения используйте <code>const char *s</code>.</div>
+<h3>Квалификатор const и указатели</h3>
+<p>Место <code>const</code> относительно звёздочки показывает, что именно защищено:</p>
+<ul>
+<li><code>const int *ptr</code> (то же, что <code>int const *ptr</code>) — данные нельзя менять через <code>ptr</code>, но сам указатель можно перенаправить.</li>
+<li><code>int * const ptr</code> — адрес указателя неизменяем, а значение по этому адресу менять можно.</li>
+<li><code>const int * const ptr</code> — нельзя менять ни адрес, ни данные через этот указатель.</li>
+</ul>
+<script type="text/x-c" data-f="const-pointers.c">int value = 10;
+int another_value = 20;
+
+const int *read_only_data = &value;
+read_only_data = &another_value;  /* можно перенаправить указатель */
+/* *read_only_data = 30; */       /* ошибка: данные только для чтения */
+
+int * const fixed_address = &value;
+*fixed_address = 30;              /* можно изменить данные */
+/* fixed_address = &another_value; */ /* ошибка: адрес неизменяем */
+
+const int * const fixed_read_only = &value;</script>
+<h3>Практические задания</h3>
+<div class="task"><b>Задание 1. Системы счисления и маски.</b><ol><li>Подключите <code>&lt;stdint.h&gt;</code> и задайте <code>uint8_t flags = 0b10101100</code>.</li><li>Выведите значение в десятичном, восьмеричном и шестнадцатеричном виде с помощью <code>%u</code>, <code>%#o</code> и <code>%#X</code>. Для печати <code>uint8_t</code> передайте в <code>printf</code> приведение к <code>unsigned</code>. Стандартный <code>%#X</code> выводит префикс <code>0X</code> (заглавная X).</li><li>Объявите <code>MASK_EXEC = 0x08</code> через макрос или <code>enum</code>; проверьте бит выражением <code>flags &amp; MASK_EXEC</code> и выведите <code>ENABLED</code> или <code>DISABLED</code>.</li></ol></div>
+<script type="text/x-c" data-f="flags-skeleton.c">#include <stdio.h>
+#include <stdint.h>
+
+enum { MASK_EXEC = 0x08 };
+
+int main(void)
+{
+    uint8_t flags = 0b10101100;
+
+    printf("decimal: %u\n", (unsigned)flags);
+    printf("octal: ");       /* TODO: вывести flags с форматом %#o */
+    printf("hex: ");         /* TODO: вывести flags с форматом %#X */
+
+    if (flags & MASK_EXEC) {
+        /* TODO: вывести ENABLED */
+    } else {
+        /* TODO: вывести DISABLED */
+    }
+    return 0;
+}</script>
+<div class="task"><b>Задание 2. Константная геометрия.</b><ol><li>Задайте <code>const double PI = 3.1415926535</code>.</li><li>Реализуйте <code>double sphere_volume(const double radius)</code> для формулы <code>V = (4.0 / 3.0) * PI * radius * radius * radius</code>. Вещественное деление важно: <code>4 / 3</code> в C равно 1.</li><li>Напишите <code>void print_report(const char *label, double value)</code>, которая печатает <code>[СФЕРА] &lt;метка&gt;: &lt;значение&gt;</code> с тремя знаками после запятой.</li></ol></div>
+<script type="text/x-c" data-f="sphere-skeleton.c">#include <stdio.h>
+
+const double PI = 3.1415926535;
+
+double sphere_volume(const double radius)
+{
+    /* TODO: вернуть объем сферы; используйте вещественное деление */
+    return 0.0;
+}
+
+void print_report(const char *label, double value)
+{
+    printf("[СФЕРА] %s: ", label);
+    /* TODO: вывести value с тремя знаками после запятой и переводом строки */
+}
+
+int main(void)
+{
+    double volume = sphere_volume(2.0);
+    print_report("Объем", volume);
+    return 0;
+}</script>
+<div class="task"><b>Задание 3. Code review.</b> Отметьте строки, которые не компилируются или приводят к неопределённому поведению, и объясните причину. Какие изменения допустимы?</div>
+<script type="text/x-c" data-f="review.c">#include <stdio.h>
+
+#define COEFFICIENT 1.25
+
+int main(void) {
+    const int max_score = 100;
+    int current_score = 80;
+
+    max_score = 120;                  /* Строка A */
+    COEFFICIENT = 1.5;                /* Строка B */
+
+    char *title = "Game Over";
+    title[0] = 'g';                   /* Строка C */
+
+    const int *ptr = &current_score;
+    *ptr = 90;                        /* Строка D */
+    ptr = &max_score;                 /* Строка E */
+
+    int * const const_ptr = &current_score;
+    *const_ptr = 95;                  /* Строка F */
+    const_ptr = &max_score;           /* Строка G */
+
+    return 0;
+}</script>
+<details class="note win"><summary><b>Ответы к заданию 3</b></summary><ol>
+<li><b>A.</b> Нарушение ограничений: <code>max_score</code> объявлена как <code>const int</code>, присваивать ей новое значение нельзя.</li>
+<li><b>B.</b> Нарушение ограничений: макрос раскрывается в литерал <code>1.25</code>, которому нельзя присваивать значение.</li>
+<li><b>C.</b> Неопределённое поведение: строковый литерал нельзя изменять. Segmentation fault возможен, но стандартом не гарантирован.</li>
+<li><b>D.</b> Нарушение ограничений: через <code>const int *</code> нельзя изменять значение по указателю.</li>
+<li><b>E.</b> Корректно: указатель на <code>const int</code> может указывать на константный объект.</li>
+<li><b>F.</b> Корректно: адрес <code>const_ptr</code> неизменяем, но значение <code>*const_ptr</code> имеет тип <code>int</code> и может изменяться.</li>
+<li><b>G.</b> Нарушение ограничений: присваивание указателя удаляет квалификатор <code>const</code> у типа, на который он указывает.</li>
+</ol></details>
+<div class="note tip"><b>ЗАЧЕМ НУЖНО ЭКРАНИРОВАНИЕ</b>В строковом литерале обратная косая черта начинает escape-последовательность: например, <code>\n</code> означает перевод строки, а <code>\t</code> — символ табуляции. Поэтому одиночный слэш в пути нужно записывать как <code>\\</code>, чтобы программа вывела именно <code>\</code>, а кавычку <code>"</code> — как <code>\"</code>, иначе она завершит строковый литерал. Апостроф внутри строки в двойных кавычках можно писать напрямую; <code>\'</code> тоже допустимо и обозначает сам апостроф. В задании нужны именно видимые символы <code>\t</code>, а не табуляция: для этого слэш удваивают — <code>\\t</code>. Соседние строковые литералы компилятор склеивает, поэтому длинный путь можно разбить на части для удобства чтения.</div>
+<div class="task"><b>Задание 4. Экранирование.</b> Напишите программу, которая выводит ровно одну строку <code>C:\Program Files\"My App"\run.exe -param '\t'</code> и перевод строки после неё. Разбейте путь на две соседние строковые константы; используйте экранирование <code>\\</code>, <code>\"</code> и <code>\'</code>. Последовательность <code>\t</code> должна быть выведена как два символа, а не как табуляция.</div>
+<script type="text/x-c" data-f="escaped-path-skeleton.c">#include <stdio.h>
+
+int main(void)
+{
+    printf("C:\\Program Files\\"
+           "\"My App\"\\run.exe -param "
+           /* TODO: добавьте соседний литерал с текстом '\\t' и \n */ "\n");
+    return 0;
+}</script>
+</section>
+</div>
+</main>
+</body>
+</html>
