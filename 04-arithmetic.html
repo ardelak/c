@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Арифметика</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+/* Если styles.css не подключен локально, оставляем базовые стили из шаблона */
+:root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:4rem}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Karla',sans-serif}
+h1,h2,h3{font-family:'Newsreader',serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem 'Newsreader',serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
+.hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.8rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
+.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem 'JetBrains Mono',monospace}
+.obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
+.grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem 'JetBrains Mono',monospace}
+.trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem 'JetBrains Mono',monospace}
+.wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem 'JetBrains Mono',monospace;margin-bottom:.2rem}
+.tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
+.win-c{overflow:hidden;margin:1rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem 'JetBrains Mono',monospace}
+.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem 'JetBrains Mono',monospace;cursor:pointer}
+.out{background:#111417}.out pre{color:#9fe0b4}
+pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 'JetBrains Mono',monospace;tab-size:4}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem 'JetBrains Mono',monospace}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em 'JetBrains Mono',monospace}
+pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+.task{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:6px;padding:.8rem 1.1rem;margin:1rem 0}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2.1rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
+</style>
+</head>
+<body>
+<div class="top"><a href="01-structure.html">Язык C: Учебник</a></div>
+<main class="wrap">
+
+<header class="hero">
+  <div class="stamp">C · GCC</div>
+  <h1>Язык C</h1>
+  <p>Арифметические операции и преобразование типов</p>
+</header>
+
+<!-- ОБНОВЛЕННАЯ НАВИГАЦИЯ -->
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+
+<section class="obj">
+  <h2>Цель урока</h2>
+  <p>Для успешной сдачи зачета по программированию критически важно понимать, как компилятор C обрабатывает арифметику. Язык C — низкоуровневый, поэтому он не будет вас защищать от переполнения памяти или потери точности при делении. В этом разделе мы разберем бинарные и унарные операторы, неявные преобразования типов и опасные ситуации (Undefined Behavior).</p>
+</section>
+
+<div class="trail">
+
+<!-- ТЕМА 1 -->
+<section class="wp" data-t="Базовая арифметика">
+  <h2>Базовые операции и Целочисленное деление</h2>
+  <p class="sub">Сложение, вычитание, умножение, деление и остаток.</p>
+  
+  <p>В языке C используются 5 основных <b>бинарных арифметических операторов</b> (они называются бинарными, так как принимают два операнда — слева и справа): <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>.</p>
+  
+  <ul>
+    <li><b>Сложение (<code>+</code>), Вычитание (<code>-</code>), Умножение (<code>*</code>):</b> Работают стандартно. Опасность кроется только в переполнении (когда результат превышает допустимый максимум для типа данных).</li>
+    <li><b>Остаток от деления (<code>%</code>):</b> Оператор <i>modulo</i>. Возвращает остаток от целочисленного деления. <b>Применяется только к целым типам</b> (int, char, long). Запись <code>5.5 % 2</code> вызовет ошибку компиляции!</li>
+    <li><b>Деление (<code>/</code>):</b> Самый коварный оператор на зачетах. Его поведение полностью зависит от типов операндов.</li>
+  </ul>
+
+<script type="text/x-c" data-f="basic_arith.c">#include <stdio.h>
+
+int main(void)
+{
+    int a = 17, b = 5;
+    
+    /* 
+     * ЦЕЛОЧИСЛЕННОЕ ДЕЛЕНИЕ:
+     * Если ОБА операнда целые (int), компилятор выполняет целочисленное деление.
+     * Дробная часть просто отбрасывается (не округляется!).
+     * 17 / 5 = 3 (а не 3.4 и не 3.5)
+     */
+    printf("17 / 5 = %d\n", a / b); 
+    
+    /* ОСТАТОК ОТ ДЕЛЕНИЯ: 17 = 5 * 3 + 2, остаток равен 2 */
+    printf("17 %% 5 = %d\n", a % b); 
+    
+    /* 
+     * ВЕЩЕСТВЕННОЕ ДЕЛЕНИЕ:
+     * Если хотя бы один операнд вещественный (float/double),
+     * результат будет вещественным.
+     */
+    double c = 17.0;
+    printf("17.0 / 5 = %.2f\n", c / b); /* Выведет 3.40 */
+
+    return 0;
+}</script>
+
+  <div class="note watch"><b>ЛОВУШКА ДЛЯ ЗАЧЕТА</b><p>Запись <code>double res = 7 / 2;</code> сохранит в <code>res</code> число <b>3.0</b>, а не 3.5! Сначала выполняется целочисленное деление справа (получается 3), и только потом целая "тройка" приводится к типу <code>double</code> для сохранения в переменную.</p></div>
+</section>
+
+<!-- ТЕМА 2 -->
+<section class="wp" data-t="Инкремент и декремент">
+  <h2>Унарные операторы: Инкремент и Декремент</h2>
+  <p class="sub">Операторы ++ и --, префиксная и постфиксная формы.</p>
+
+  <p><b>Инкремент (<code>++</code>)</b> увеличивает значение переменной на 1. <b>Декремент (<code>--</code>)</b> уменьшает его на 1. Это <i>унарные</i> операторы, они работают только с одной переменной. Существует две формы их записи, которые ведут себя совершенно по-разному внутри сложных выражений:</p>
+
+  <ul>
+    <li><b>Префиксная (<code>++x</code>):</b> "Сначала измени, потом используй". Значение переменной увеличивается на 1, и в текущем выражении используется уже НОВОЕ значение.</li>
+    <li><b>Постфиксная (<code>x++</code>):</b> "Сначала используй, потом измени". В выражении используется СТАРОЕ (текущее) значение, а увеличение переменной на 1 происходит после этого шага.</li>
+  </ul>
+
+<script type="text/x-c" data-f="increment.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 10;
+    
+    /* ПОСТФИКС: сначала в y записывается 10, потом x становится 11 */
+    int y = x++; 
+    printf("Постфикс: y = %d, x = %d\n", y, x); /* Выведет: y = 10, x = 11 */
+
+    int a = 10;
+    /* ПРЕФИКС: сначала a становится 11, потом это 11 записывается в b */
+    int b = ++a; 
+    printf("Префикс: b = %d, a = %d\n", b, a);  /* Выведет: b = 11, a = 11 */
+
+    return 0;
+}</script>
+
+  <div class="note watch"><b>UNDEFINED BEHAVIOR (НЕОПРЕДЕЛЕННОЕ ПОВЕДЕНИЕ)</b>Никогда не изменяйте одну и ту же переменную более одного раза внутри одной инструкции. Код <code>i = i++ + ++i;</code> — это классический пример UB (Undefined Behavior). Разные компиляторы (GCC, Clang, MSVC) могут выдать совершенно разные ответы (например, 13, 14 или вообще ошибку). За такое на зачете снижают баллы.</div>
+</section>
+
+<!-- ТЕМА 3 -->
+<section class="wp" data-t="Составное присваивание">
+  <h2>Составное присваивание</h2>
+  <p class="sub">Короткая запись для изменения текущего значения: +=, -=, *=, /=</p>
+
+  <p>Если вам нужно выполнить операцию над переменной и сохранить результат обратно в нее же, в языке C принято использовать <b>составные операторы присваивания</b>. Это делает код чище и иногда позволяет компилятору лучше его оптимизировать.</p>
+
+<script type="text/x-c" data-f="assignment.c">#include <stdio.h>
+
+int main(void)
+{
+    int k = 20;
+
+    k += 5;  /* Эквивалентно: k = k + 5. Теперь k = 25 */
+    k -= 3;  /* Эквивалентно: k = k - 3. Теперь k = 22 */
+    k *= 2;  /* Эквивалентно: k = k * 2. Теперь k = 44 */
+    k /= 4;  /* Эквивалентно: k = k / 4. Теперь k = 11 */
+    k %= 3;  /* Эквивалентно: k = k % 3. Теперь k = 2  */
+
+    printf("Финальное значение k = %d\n", k);
+    return 0;
+}</script>
+</section>
+
+<!-- ТЕМА 4 -->
+<section class="wp" data-t="Приведение типов">
+  <h2>Приведение типов (Type Casting)</h2>
+  <p class="sub">Как заставить компилятор C считать целое число вещественным.</p>
+
+  <p>Мы выяснили, что <code>7 / 2 = 3</code>. Что делать, если у нас есть две целые переменные (например, сумма элементов и их количество), и мы хотим найти их точное среднее значение?</p>
+  <p>Нам нужно использовать <b>явное приведение типов (Explicit Type Casting)</b>. Синтаксис: <code>(тип)выражение</code>. Это говорит компилятору временно рассматривать переменную как другой тип для текущей операции.</p>
+
+<script type="text/x-c" data-f="casting.c">#include <stdio.h>
+
+int main(void)
+{
+    int sum = 25;
+    int count = 4;
+    
+    /* 
+     * НЕВЕРНО: sum / count даст 6.
+     * Приведение (double)(6) даст 6.0000 
+     */
+    double bad_avg = (double)(sum / count); 
+    
+    /* 
+     * ВЕРНО: Мы "на лету" превращаем sum в 25.0.
+     * Теперь операция выглядит как 25.0 / 4.
+     * Компилятор автоматически преобразует 4 в 4.0 (неявное приведение).
+     * Результат: 6.25 
+     */
+    double good_avg = (double)sum / count; 
+
+    printf("Плохое среднее: %.2f\n", bad_avg);
+    printf("Хорошее среднее: %.2f\n", good_avg);
+
+    return 0;
+}</script>
+</section>
+
+<!-- ПРАКТИКА -->
+<section class="wp" data-t="Практикум">
+  <h2>Практические задания для подготовки к зачету</h2>
+  
+  <div class="task"><b>Задача 1: Извлечение цифр числа.</b><br>
+  Вам дано целое двузначное число <code>int n = 83;</code>. Используя только операторы <code>/</code> и <code>%</code>, напишите код, который найдет сумму его цифр (т.е. 8 + 3 = 11). Помните: <code>% 10</code> «отрезает» последнюю цифру, а <code>/ 10</code> сдвигает число вправо.</div>
+
+  <div class="task"><b>Задача 2: Секунды в часы.</b><br>
+  Напишите программу, которая переводит заданное количество секунд (например, <code>int total_sec = 3665;</code>) в часы, минуты и секунды. Выведите результат в формате <code>HH:MM:SS</code> (подсказка: используйте деление для часов и остаток для остального).</div>
+</section>
+
+</div>
+</main>
+
+<script>
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
+ const w=document.createElement('div');w.className='win-c';
+ w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
+ w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
+ s.replaceWith(w)});
+const g=document.getElementById('grid');
+document.querySelectorAll('.wp').forEach((s,i)=>{s.id='t'+(i+1);const n=document.createElement('span');n.className='num';n.textContent=i+1;s.prepend(n);
+ const a=document.createElement('a');a.href='#t'+(i+1);a.innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b>'+s.dataset.t;g.appendChild(a)});
+</script>
+</body>
+</html>
