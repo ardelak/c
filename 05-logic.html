@@ -4,37 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Язык C: Логика и логические операторы</title>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
-<script src="code-display.js" defer></script>
 <style>
 /* Базовые стили шаблона */
 :root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:4rem}
-body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Karla',sans-serif}
-h1,h2,h3{font-family:'Newsreader',serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
-.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem 'Newsreader',serif}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Helvetica Neue', Arial, sans-serif}
+h1,h2,h3{font-family:Georgia, serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem Georgia, serif}
 .wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
 .hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.8rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
-.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem 'JetBrains Mono',monospace}
+.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem monospace}
 .obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
 .grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
-.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem 'JetBrains Mono',monospace}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem monospace}
 .trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
-.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem 'JetBrains Mono',monospace}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem monospace}
 .wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
-.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem 'JetBrains Mono',monospace;margin-bottom:.2rem}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem monospace;margin-bottom:.2rem}
 .tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
 .win-c{overflow:hidden;margin:1rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
-.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem 'JetBrains Mono',monospace}
-.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem 'JetBrains Mono',monospace;cursor:pointer}
+.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem monospace}
+.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem monospace;cursor:pointer}
 .out{background:#111417}.out pre{color:#9fe0b4}
-pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 'JetBrains Mono',monospace;tab-size:4}
-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem 'JetBrains Mono',monospace}
-code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em 'JetBrains Mono',monospace}
+pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 monospace;tab-size:4}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem monospace}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em monospace}
 pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
 .task{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:6px;padding:.8rem 1.1rem;margin:1rem 0}
+details summary{cursor:pointer;font-weight:700;outline:none}
 @media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2.1rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
 </style>
 </head>
@@ -48,7 +46,7 @@ pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
   <p>Логика и логические операторы</p>
 </header>
 
-<!-- ОБНОВЛЕННАЯ НАВИГАЦИЯ -->
+<!-- НАВИГАЦИЯ -->
 <nav class="grid" aria-label="Темы курса">
   <a href="01-structure.html"><b>01</b>Структура программы</a>
   <a href="02-types.html"><b>02</b>Базовые типы</a>
@@ -153,11 +151,93 @@ int main(void)
 </section>
 
 <!-- ТЕМА 3 -->
+<section class="wp" data-t="Побитовые операторы">
+  <h2>Побитовые операторы (Bitwise Operators)</h2>
+  <p class="sub">Работа напрямую с битами числа.</p>
+
+  <p>В отличие от логических операторов, которые рассматривают всё число целиком как «Истину» или «Ложь», побитовые операторы применяют логическую операцию к <b>каждому отдельному биту</b> двух чисел.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Оператор</th>
+        <th>Название</th>
+        <th>Описание</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>&</code></td>
+        <td>Побитовое И (AND)</td>
+        <td>Сравнивает биты. Результат равен 1, только если оба соответствующих бита равны 1. (Часто используется для наложения масок).</td>
+      </tr>
+      <tr>
+        <td><code>|</code></td>
+        <td>Побитовое ИЛИ (OR)</td>
+        <td>Сравнивает биты. Результат равен 1, если хотя бы один из соответствующих битов равен 1. (Часто используется для установки флагов).</td>
+      </tr>
+       <tr>
+        <td><code>^</code></td>
+        <td>Побитовое ИСКЛЮЧАЮЩЕЕ ИЛИ (XOR)</td>
+        <td>Сравнивает биты. Результат равен 1, только если биты <i>разные</i> (один 1, другой 0).</td>
+      </tr>
+      <tr>
+        <td><code>~</code></td>
+        <td>Побитовое НЕ (NOT / Инверсия)</td>
+        <td>Унарный оператор. Инвертирует каждый бит числа (0 становится 1, 1 становится 0).</td>
+      </tr>
+       <tr>
+        <td><code><<</code> / <code>>></code></td>
+        <td>Битовые сдвиги</td>
+        <td>Сдвигает все биты влево (умножение на степени двойки) или вправо (целочисленное деление на степени двойки).</td>
+      </tr>
+    </tbody>
+  </table>
+
+<script type="text/x-c" data-f="bitwise.c">#include <stdio.h>
+
+int main(void)
+{
+    /* 
+     *  a = 12 (в двоичной: 1100)
+     *  b = 10 (в двоичной: 1010)
+     */
+    int a = 12, b = 10;
+
+    /*
+     * Побитовое И (&):
+     *   1100
+     * & 1010
+     * ------
+     *   1000  (в десятичной: 8)
+     */
+    printf("a & b = %d\n", a & b);
+
+    /*
+     * Побитовое ИЛИ (|):
+     *   1100
+     * | 1010
+     * ------
+     *   1110  (в десятичной: 14)
+     */
+    printf("a | b = %d\n", a | b);
+
+    /*
+     * Сдвиг влево на 1 позицию (эквивалентно умножению на 2^1):
+     * 12 (1100) << 1 = 24 (11000)
+     */
+    printf("a << 1 = %d\n", a << 1);
+
+    return 0;
+}</script>
+</section>
+
+<!-- ТЕМА 4 -->
 <section class="wp" data-t="Короткое замыкание">
   <h2>Правило короткого замыкания (Short-Circuit Evaluation)</h2>
   <p class="sub">Как C экономит ресурсы и защищает от сбоев.</p>
 
-  <p>Правило короткого замыкания (short-circuit evaluation) — важнейший принцип языка C. Он означает, что компилятор вычисляет логическое выражение слева направо и <b>останавливается сразу же, как только итоговый результат становится гарантированно известен</b>.</p>
+  <p>Правило короткого замыкания (short-circuit evaluation) означает, что компилятор вычисляет <b>логическое</b> выражение слева направо и <b>останавливается сразу же, как только итоговый результат становится гарантированно известен</b>:</p>
 
   <ul>
     <li>Для оператора <code>&&</code>: если левый операнд равен <code>0</code> (ложь), то всё выражение точно будет ложным. <b>Правый операнд даже не вычисляется!</b></li>
@@ -195,61 +275,82 @@ int main(void)
     return 0;
 }</script>
 
-  <div class="note win"><b>ЗАПОМНИТЕ: БЕЗОПАСНАЯ ПРОВЕРКА</b><br>
-  Короткое замыкание критически важно для защиты от ошибок сегментации (Segfault). Классический паттерн:<br>
+  <div class="note win"><b>ЗАЩИТА ОТ SEGFAULT</b><br>
+  <b>Segmentation Fault (Segfault)</b> — это критическая ошибка выполнения, которая происходит, когда программа пытается обратиться к памяти, к которой у неё нет доступа (например, разыменовать NULL-указатель или выйти далеко за границы массива). Операционная система немедленно принудительно завершает такую программу.<br><br>
+  Короткое замыкание критически важно для защиты от Segfault. Классический паттерн:<br>
   <code>if (ptr != NULL && *ptr == 42) { ... }</code><br>
-  Если указатель <code>ptr</code> равен NULL, левое условие ложно. Правое условие (где происходит разыменование <code>*ptr</code>) <b>не выполнится</b>, и программа не упадет! Если бы здесь был побитовый оператор <code>&</code>, программа бы попыталась разыменовать NULL и завершилась аварийно.</div>
+  Если указатель <code>ptr</code> равен NULL, левое условие ложно. Правое условие (где происходит разыменование <code>*ptr</code>) <b>не выполнится</b>, и программа не упадет. Если бы вы ошибочно использовали побитовое <code>&</code> (у которого нет короткого замыкания), программа попыталась бы вычислить <code>*ptr</code> даже при <code>ptr == NULL</code> и мгновенно упала бы с ошибкой Segfault.</div>
 </section>
 
-<!-- ТЕМА 4 -->
+<!-- ТЕМА 5 -->
 <section class="wp" data-t="Практикум">
   <h2>Практические задания для зачета</h2>
   
   <div class="task"><b>Задача 1: Високосный год.</b><br>
-  Напишите одно логическое выражение внутри <code>if</code>, которое определяет, является ли год високосным. <br>
-  <i>Правило:</i> Год високосный, если он кратен 4, <b>НО</b> при этом не кратен 100, <b>ИЛИ</b> кратен 400.
+  Напишите одно логическое выражение внутри условия <code>if</code>, которое определяет, является ли год високосным.<br>
+  <i>Правило:</i> Год является високосным, если он кратен 4, <b>НО</b> при этом не кратен 100, <b>ИЛИ</b> кратен 400.
   </div>
 
-<script type="text/x-c" data-f="task1_solution.c">/* Решение Задачи 1 */
-#include <stdio.h>
+<script type="text/x-c" data-f="leap_year_skeleton.c">#include <stdio.h>
 
 int main(void)
 {
     int year = 2024;
-    
-    /* 
-     * Приоритет оператора && выше, чем у ||.
-     * Скобки добавлены для лучшей читаемости.
-     */
-    if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) {
-        printf("%d год - високосный!\n", year);
+
+    /* TODO: Замените 0 на составное логическое выражение с && и || */
+    if (0) {
+        printf("%d год — високосный!\n", year);
     } else {
-        printf("%d год - не високосный.\n", year);
+        printf("%d год — невисокосный.\n", year);
     }
-    
+
     return 0;
 }</script>
 
+  <details class="note win">
+    <summary><b>Показать ответ к Задаче 1 (фрагмент выражения)</b></summary>
+    <p style="margin-top:0.6rem;">Искомое условие для оператора <code>if</code>:</p>
+    <pre><code>if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))</code></pre>
+    <p><b>Разбор логики:</b></p>
+    <ul>
+      <li><code>year % 4 == 0 && year % 100 != 0</code> — проверка деления на 4 без остатка при условии, что год не вековой.</li>
+      <li><code>|| (year % 400 == 0)</code> — исключение для годов, делящихся на 400 (например, 1600, 2000, 2400 — всегда високосные).</li>
+      <li>Оператор <code>&&</code> имеет более высокий приоритет, чем <code>||</code>, но внешние скобки поставлены для наглядности структуры на зачете.</li>
+    </ul>
+  </details>
+
   <div class="task"><b>Задача 2: Безопасный доступ к массиву.</b><br>
-  У вас есть массив <code>int arr[5] = {10, 20, 30, 40, 50};</code> и индекс <code>index</code>, вводимый пользователем. Напишите условие <code>if</code>, которое безопасно проверяет, находится ли индекс в допустимых пределах (от 0 до 4), и если да, проверяет, больше ли элемент по этому индексу числа 25. Используйте правило короткого замыкания, чтобы избежать обращения к памяти за границами массива.
+  У вас есть массив <code>int arr[5] = {10, 20, 30, 40, 50};</code> и индекс <code>index</code>, вводимый пользователем. Напишите условие <code>if</code>, которое безопасно проверяет, находится ли индекс в допустимых пределах (от 0 до 4 включительно), и если да, проверяет, больше ли элемент по этому индексу числа 25. Используйте правило короткого замыкания, чтобы избежать обращения к памяти за границами массива (Out of Bounds).
   </div>
+  
+  <details class="note win">
+    <summary><b>Показать ответ к Задаче 2 (фрагмент выражения)</b></summary>
+    <p style="margin-top:0.6rem;">Искомое условие для оператора <code>if</code>:</p>
+    <pre><code>if (index >= 0 && index < 5 && arr[index] > 25)</code></pre>
+    <p><b>Разбор логики:</b></p>
+    <ul>
+      <li>Сначала мы проверяем, что индекс не отрицательный: <code>index >= 0</code>.</li>
+      <li>Затем проверяем верхнюю границу: <code>index < 5</code>.</li>
+      <li>Только если ОБА эти условия истинны (благодаря короткому замыканию), программа выполнит <code>arr[index] > 25</code>. Это гарантирует, что мы не обратимся к <code>arr[5]</code> или <code>arr[-1]</code>, что могло бы вызвать Segfault.</li>
+    </ul>
+  </details>
 
-</section>
+  <div class="task"><b>Задача 3: Маскирование битов.</b><br>
+  У вас есть переменная <code>unsigned char flags = 0b10101100;</code>. Вам необходимо проверить, установлен ли в единицу третий бит справа (индекс бита 2, так как счет идет с нуля: 0, 1, 2). Напишите выражение внутри <code>if</code>, используя побитовое И (<code>&</code>) и подходящую битовую маску, чтобы вывести сообщение "Бит 2 установлен".
+  </div>
+  
+  <details class="note win">
+    <summary><b>Показать ответ к Задаче 3 (фрагмент выражения)</b></summary>
+    <p style="margin-top:0.6rem;">Искомое условие для оператора <code>if</code>:</p>
+    <pre><code>if (flags & 0b00000100) { printf("Бит 2 установлен!\n"); }</code></pre>
+    <p>Или используя сдвиг:</p>
+    <pre><code>if (flags & (1 << 2)) { printf("Бит 2 установлен!\n"); }</code></pre>
+    <p><b>Разбор логики:</b></p>
+    <ul>
+      <li>Маска <code>0b00000100</code> имеет единицу только в позиции интересующего нас бита.</li>
+      <li>Побитовое И (<code>&</code>) обнулит все остальные биты переменной <code>flags</code>. Если интересующий бит в <code>flags</code> был равен 1, то результат будет ненулевым (истинным). Если он был равен 0, результат будет 0 (ложным).</li>
+    </ul>
+  </details>
 
-</div>
-</main>
-
-<script>
-/* Скрипт шаблона: создает кликабельные окна с кодом и автонумерацию навигации */
-const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
- const w=document.createElement('div');w.className='win-c';
- w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
- w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
- s.replaceWith(w)});
-const g=document.getElementById('grid');
-document.querySelectorAll('.wp').forEach((s,i)=>{s.id='t'+(i+1);const n=document.createElement('span');n.className='num';n.textContent=i+1;s.prepend(n);
- const a=document.createElement('a');a.href='#t'+(i+1);a.innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b>'+s.dataset.t;g.appendChild(a)});
-</script>
-</body>
-</html>
+  <div class="task"><b>Задача 4: Инверсия флага с помощью XOR.</b><br>
+  Представьте, что у вас есть переключатель состояний (toggle), представленный переменной <code>int is_active = 1;</code>. Как с помощью одного побитового оператора ИСКЛЮЧАЮЩЕЕ ИЛИ (<code>^</code>) изменить значение переменной на противоположное (с 1 на 0,
