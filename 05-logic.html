@@ -353,4 +353,38 @@ int main(void)
   </details>
 
   <div class="task"><b>Задача 4: Инверсия флага с помощью XOR.</b><br>
-  Представьте, что у вас есть переключатель состояний (toggle), представленный переменной <code>int is_active = 1;</code>. Как с помощью одного побитового оператора ИСКЛЮЧАЮЩЕЕ ИЛИ (<code>^</code>) изменить значение переменной на противоположное (с 1 на 0,
+  Представьте, что у вас есть переключатель состояний (toggle), представленный переменной <code>int is_active = 1;</code>. Как с помощью одного побитового оператора ИСКЛЮЧАЮЩЕЕ ИЛИ (<code>^</code>) изменить значение переменной на противоположное (с 1 на 0, и с 0 на 1)? Напишите соответствующую короткую строку кода.
+  </div>
+  
+  <details class="note win">
+    <summary><b>Показать ответ к Задаче 4</b></summary>
+    <p style="margin-top:0.6rem;">Решение:</p>
+    <pre><code>is_active ^= 1;</code></pre>
+    <p><b>Разбор логики:</b></p>
+    <ul>
+      <li>Оператор <code>^</code> возвращает 1 только если биты разные.</li>
+      <li>Если <code>is_active</code> равно 1: <code>1 ^ 1</code> даст 0.</li>
+      <li>Если <code>is_active</code> равно 0: <code>0 ^ 1</code> даст 1.</li>
+      <li>Таким образом, выполнение <code>is_active ^= 1;</code> всегда инвертирует младший бит, работая как идеальный переключатель (toggle).</li>
+    </ul>
+  </details>
+
+</section>
+
+</div>
+</main>
+
+<script>
+/* Скрипт шаблона: создает кликабельные окна с кодом и автонумерацию навигации */
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
+ const w=document.createElement('div');w.className='win-c';
+ w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
+ w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
+ s.replaceWith(w)});
+const g=document.getElementById('grid');
+document.querySelectorAll('.wp').forEach((s,i)=>{s.id='t'+(i+1);const n=document.createElement('span');n.className='num';n.textContent=i+1;s.prepend(n);
+ const a=document.createElement('a');a.href='#t'+(i+1);a.innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b>'+s.dataset.t;g.appendChild(a)});
+</script>
+</body>
+</html>
