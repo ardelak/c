@@ -1,0 +1,356 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Функции</title>
+<style>
+/* Базовые стили шаблона */
+:root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:4rem}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Helvetica Neue', Arial, sans-serif}
+h1,h2,h3{font-family:Georgia, serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem Georgia, serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
+.hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.8rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
+.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem monospace}
+.obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
+.grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem monospace}
+.trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem monospace}
+.wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem monospace;margin-bottom:.2rem}
+.tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
+.win-c{overflow:hidden;margin:1rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem monospace}
+.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem monospace;cursor:pointer}
+.out{background:#111417}.out pre{color:#9fe0b4}
+pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 monospace;tab-size:4}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem monospace}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em monospace}
+pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+.task{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:6px;padding:.8rem 1.1rem;margin:1rem 0}
+details summary{cursor:pointer;font-weight:700;outline:none}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2.1rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
+</style>
+</head>
+<body>
+<div class="top"><a href="01-structure.html">Язык C: Учебник</a></div>
+<main class="wrap"><header class="hero">
+  <div class="stamp">C · GCC</div>
+  <h1>Язык C</h1>
+  <p>Функции: Прототипы, Определение и Рекурсия</p>
+</header><nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav><section class="obj">
+  <h2>Цель урока</h2>
+  <p>Освоить модульное программирование на C. Функция — это фундаментальный строительный блок любой программы на C (ведь даже точка входа <code>main</code> — это функция). Мы разберем, как компилятор узнает о функции до ее вызова (прототипы), как передавать данные в функцию (аргументы по значению) и как функция может вызывать саму себя (рекурсия). Эти концепции жизненно важны для сдачи зачета на мехмате, так как они ложатся в основу работы со структурами данных и алгоритмами.</p>
+</section><div class="trail"><section class="wp" data-t="Прототипы и определения">
+  <h2>Прототипы (Объявления) и Определения Функций</h2>
+  <p class="sub">Как компилятор C узнает о функции до ее фактического кода.</p>  <p>В языке C существует строгое правило: <b>компилятор должен знать "форму" функции (ее сигнатуру) до того, как вы попытаетесь ее вызвать</b>. Это связано с тем, что код компилируется сверху вниз (в один проход). Если вы вызываете функцию <code>calculate()</code> в <code>main</code>, а ее код написан ниже, компилятор выдаст ошибку (или неявное предупреждение), так как не будет знать, сколько аргументов она принимает и что возвращает.</p>  <p>Решение — использование <b>прототипов функций</b> (Function Prototypes).</p>  <ul>
+      <li><b>Прототип (Объявление / Declaration):</b> Сообщает компилятору имя функции, тип возвращаемого значения и типы принимаемых параметров. Тела у прототипа нет, он заканчивается точкой с запятой <code>;</code>. (Например: <code>int add(int a, int b);</code>). Имена переменных в прототипе писать необязательно, важны только типы.</li>
+      <li><b>Определение (Definition):</b> Это сама функция с ее логикой внутри фигурных скобок <code>{ ... }</code>.</li>
+  </ul><script type="text/x-c" data-f="prototypes.c">#include <stdio.h>
+
+/* 
+ * 1. ПРОТОТИПЫ (Declarations)
+ * Мы "обещаем" компилятору, что эти функции будут реализованы где-то дальше.
+ * Благодаря этому мы можем безопасно вызывать их в main().
+ */
+int add(int, int);       // Имена аргументов можно опустить в прототипе
+void print_hello(void);  // void в скобках означает, что функция не принимает аргументов
+
+int main(void)
+{
+print_hello(); // Вызов функцииint sum = add(5, 7); // Вызов с аргументами
+
+printf("Сумма: %d\n", sum);
+
+return 0; // 0 сигнализирует ОС об успешном завершении программ
+ы
+}
+
+/*
+
+ОПРЕДЕЛЕНИЯ (Definitions)
+Здесь мы пишем сам код функций. Они должны точно соответствовать прототипам.
+*/
+void print_hello(void)
+{
+// Функция типа void ничего не возвращает (нет оператора return с вычисляемым значением)
+printf("Привет из функции!\n");
+}
+
+int add(int a, int b)
+{
+// Оператор return завершает функцию и возвращает значение в вызывающий код
+return a + b;
+}</script><div class="note win"><b>ЗАПОМНИТЕ: ПРАВИЛО ПРОТОТИПОВ</b><br>
+  На зачете всегда пишите прототипы функций перед <code>main()</code>, а их реализацию — после. Это классический, читаемый и безопасный стиль написания программ на C. Прототипы обычно группируют и выносят в заголовочные файлы (<code>.h</code>).</div></section><section class="wp" data-t="Передача по значению">
+  <h2>Передача аргументов "По Значению" (Pass by Value)</h2>
+  <p class="sub">В C функции работают с копиями данных, а не с оригиналами.</p>  <p>Это важнейшая концепция для сдачи зачета. Когда вы передаете переменную в функцию (например, <code>calculate(x)</code>), язык C <b>всегда копирует</b> значение <code>x</code> в новую, локальную переменную внутри функции. </p>
+  <p>Следовательно: любые изменения, которые функция делает со своими аргументами, <b>не влияют</b> на оригинальную переменную в вызывающем коде.</p><script type="text/x-c" data-f="pass_by_value.c">#include <stdio.h>
+
+void try_to_change(int x);
+
+int main(void)
+{
+int my_val = 10;printf("До вызова функции: my_val = %d\n", my_val); // Выведет 10
+
+/* 
+
+ * Мы передаем my_val в функцию. 
+
+ * Функция получает КОПИЮ значения (число 10), а не саму переменную my_val.
+
+ */
+
+try_to_change(my_val); 
+
+/* Значение my_val останется прежним, так как функция меняла только свою копию. */
+
+printf("После вызова функции: my_val = %d\n", my_val); // Снова выведет 10!
+
+return 0
+;
+}
+
+/* Функция принимает копию значения и называет ее 'x' */
+void try_to_change(int x)
+{
+x = 99; // Мы меняем только локальную копию 'x'. Оригинал 'my_val' в безопасности.
+printf("Внутри функции: x = %d\n", x); // Выведет 99
+}</script><div class="note tip"><b>СОВЕТ: КАК ИЗМЕНИТЬ ОРИГИНАЛ?</b><br>
+  Если вы хотите, чтобы функция действительно изменила исходную переменную (например, функция обмена значений <code>swap(a, b)</code> или функция, возвращающая несколько результатов), вам нужно передавать <b>адреса</b> переменных с помощью указателей (<code>swap(&a, &b)</code>). Эту тему (Pass by Reference через указатели) мы детально разберем в уроке про указатели.</div>
+</section><section class="wp" data-t="Стек вызовов">
+  <h2>Стек вызовов (Call Stack)</h2>
+  <p class="sub">Как программа помнит, куда возвращаться.</p>  <p>Когда одна функция вызывает другую, выполнение первой функции "ставится на паузу". Программа должна запомнить, где она остановилась, чтобы вернуться туда после завершения вызванной функции. Этот процесс управляется структурой данных в оперативной памяти, которая называется <b>Стек Вызовов (Call Stack)</b>.</p>  <ol>
+      <li>При вызове функции в Стек добавляется новый "кадр" (Stack Frame). В нем сохраняются аргументы функции, её локальные переменные и <b>адрес возврата</b>.</li>
+      <li>Если эта функция вызывает третью, в Стек добавляется еще один кадр поверх предыдущего.</li>
+      <li>Когда функция завершается (достигает <code>return</code> или конца блока <code>}</code>), её кадр "снимается" (уничтожается) со Стека, локальные переменные стираются из памяти, а программа возобновляет работу с сохраненного адреса возврата.</li>
+  </ol>  <div class="note watch"><b>ЛОВУШКА ДЛЯ ЭКЗАМЕНА (STACK OVERFLOW)</b><br>
+  Размер Стека строго ограничен (обычно несколько мегабайт). Если функции будут бесконечно вызывать друг друга, Стек переполнится, и программа аварийно завершится с ошибкой <b>Stack Overflow</b>. Это частая проблема при неправильном написании рекурсивных функций.</div>
+</section><section class="wp" data-t="Рекурсия">
+  <h2>Рекурсия (Recursion)</h2>
+  <p class="sub">Когда функция вызывает саму себя.</p>  <p>Рекурсия — это мощный инструмент для решения задач, которые можно разбить на более мелкие подзадачи того же типа (например, обход деревьев, фракталы, алгоритмы сортировки вроде QuickSort). Вместо использования циклов (итерации), функция вызывает саму себя.</p>  <p><b>Золотое правило рекурсии:</b> Любая рекурсивная функция обязана иметь <b>Базовый случай (Base Case)</b> — условие, при котором рекурсия останавливается и функция возвращает результат без дальнейших вызовов. Без базового случая функция будет вызывать себя бесконечно, что приведет к переполнению стека (Stack Overflow).</p><script type="text/x-c" data-f="recursion.c">#include <stdio.h>
+
+/* Прототип рекурсивной функции для вычисления факториала (n!) */
+long factorial(int n);
+
+int main(void)
+{
+    int num = 5;
+printf("Факториал %d! = %ld\n", num, factorial(num));
+return 0;
+}
+
+/* Определение функции */
+long factorial(int n)
+{
+/* 1. БАЗОВЫЙ СЛУЧАЙ (Условие выхода) /
+/ Если n равно 0 или 1, факториал равен 1. Мы прекращаем вызовы. */
+if (n <= 1) {
+return 1;
+}/* 
+
+ * 2. РЕКУРСИВНЫЙ ШАГ
+
+ * Факториал n! это n * (n-1)!
+
+ * Функция вызывает саму себя, но с УМЕНЬШЕННЫМ аргументом (n - 1).
+
+ * Это гарантирует, что мы рано или поздно дойдем до базового случая.
+
+ */
+
+return n * factorial(n - 1);
+
+}</script></section><section class="wp" data-t="Практикум">
+  <h2>Практические задания для подготовки к зачету</h2>  <div class="task"><b>Задача 1: Написание прототипов.</b><br>
+  Напишите прототипы для следующих функций (только прототипы, реализация не нужна):<br>
+  1. Функция <code>find_max</code>, которая принимает массив целых чисел и его размер (int), и возвращает целое число.<br>
+  2. Функция <code>is_even</code>, которая принимает одно целое число и возвращает целое число (0 или 1 как булево значение).<br>
+  3. Функция <code>print_menu</code>, которая ничего не принимает и ничего не возвращает.
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 1</b></summary>
+    <script type="text/x-c" data-f="task1_prototypes.c">/* Прототипы функций (объявления перед main) */
+
+/* 1. Массив передается как указатель, размер массива обязателен */
+int find_max(int array[], int size);
+// Альтернативная запись (эквивалентна): int find_max(int *array, int size);
+
+/* 2. Простая передача по значению */
+int is_even(int number);
+// Альтернативная запись без имени переменной: int is_even(int);
+
+/* 3. Использование void для явного указания отсутствия параметров/возврата */
+void print_menu(void);</script></details><div class="task"><b>Задача 2: Функция степени (Итерация).</b><br>
+  Напишите функцию <code>double power(double base, int exponent)</code>, которая возводит число <code>base</code> в положительную целую степень <code>exponent</code>, используя цикл (итеративный подход). В функции <code>main</code> вызовите ее для вычисления $2.5^3$ и выведите результат.
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 2</b></summary>
+    <script type="text/x-c" data-f="task2_power_iter.c">#include <stdio.h>
+
+/* Прототип */
+double power(double base, int exponent);
+
+int main(void)
+{
+double b = 2.5;
+int e = 3;
+printf("%.2f в степени %d = %.4f\n", b, e, power(b, e));
+return 0;
+}
+
+/* Определение: Итеративный подход (с помощью цикла) */
+double power(double base, int exponent)
+{
+double result = 1.0;// Умножаем результат на base в цикле exponent раз
+
+for (int i = 0; i < exponent; i++) {
+
+    result *= base;
+
+}
+
+return result
+;
+}</script></details><div class="task"><b>Задача 3: Функция степени (Рекурсия).</b><br>
+  Перепишите функцию возведения в степень из предыдущей задачи так, чтобы она использовала <b>рекурсию</b> вместо цикла. <br>
+  <i>Подсказка:</i> Базовый случай — степень равна 0 (любое число в нулевой степени равно 1). Рекурсивный шаг: $base^{exponent} = base \times base^{exponent - 1}$.
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 3</b></summary>
+    <script type="text/x-c" data-f="task3_power_rec.c">#include <stdio.h>
+
+/* Прототип */
+double power_recursive(double base, int exponent);
+
+int main(void)
+{
+printf("2.5 в степени 3 (рекурсивно) = %.4f\n", power_recursive(2.5, 3));
+return 0;
+}
+
+/* Определение: Рекурсивный подход */
+double power_recursive(double base, int exponent)
+{
+/* Базовый случай: степень 0. Возвращаем 1.0, останавливаем вызовы. */
+if (exponent == 0) {
+return 1.0;
+}/* 
+
+ * Рекурсивный шаг: умножаем base на результат вызова функции,
+
+ * но с уменьшенной на 1 степенью.
+
+ */
+
+return base * power_recursive(base, exponent - 1);
+
+}</script></details><div class="task"><b>Задача 4: Сумма цифр числа.</b><br>
+  Напишите функцию <code>int sum_of_digits(int n)</code>, которая возвращает сумму цифр целого числа. Используйте цикл <code>while</code> внутри функции. В <code>main</code> считайте число и выведите результат вызова функции.
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 4</b></summary>
+    <script type="text/x-c" data-f="task4_sum_digits.c">#include <stdio.h>
+
+/* Прототип */
+int sum_of_digits(int n);
+
+int main(void)
+{
+int number = 835;
+printf("Сумма цифр числа %d равна %d\n", number, sum_of_digits(number));
+return 0;
+}
+
+/* Определение: Функция суммирования цифр */
+int sum_of_digits(int n)
+{
+int sum = 0;/* Если передано отрицательное число, делаем его положительным */
+
+if (n < 0) {
+
+    n = -n; 
+
+}
+
+while (n > 0) {
+
+    sum += (n % 10); /* Добавляем последнюю цифру к сумме */
+
+    n /= 10;         /* Отбрасываем последнюю цифру */
+
+}
+
+return sum
+;
+}</script></details><div class="task"><b>Задача 5: Алгоритм Евклида (НОД).</b><br>
+  Наибольший общий делитель (НОД / GCD) двух чисел — это наибольшее число, на которое они оба делятся без остатка. Алгоритм Евклида гласит: НОД(a, b) равен НОД(b, a % b), пока остаток (b) не станет равен 0. <br>
+  Напишите <b>рекурсивную</b> функцию <code>int gcd(int a, int b)</code>, реализующую этот алгоритм. В <code>main</code> проверьте её работу для чисел 48 и 18 (ожидаемый ответ: 6).
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 5</b></summary>
+    <script type="text/x-c" data-f="task5_gcd.c">#include <stdio.h>
+
+/* Прототип */
+int gcd(int a, int b);
+
+int main(void)
+{
+int x = 48;
+int y = 18;
+printf("НОД(%d, %d) = %d\n", x, y, gcd(x, y));
+return 0;
+}
+
+/* Определение: Рекурсивный алгоритм Евклида */
+int gcd(int a, int b)
+{
+/*
+* Базовый случай: когда остаток (b) становится равным 0,
+* последнее ненулевое число (a) и есть наш НОД.
+*/
+if (b == 0) {
+return a;
+}/* 
+
+ * Рекурсивный шаг: 
+
+ * Число 'a' заменяется на число 'b'.
+
+ * Число 'b' заменяется на остаток от деления a на b.
+
+ */
+
+return gcd(b, a % b);
+
+}</script></details></section></div>
+</main><script>
+/* Скрипт шаблона: создает кликабельные окна с кодом и автонумерацию навигации */
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
+ const w=document.createElement('div');w.className='win-c';
+ w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
+
+w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
+s.replaceWith(w)});
+const g=document.querySelector('.grid');
+document.querySelectorAll('.wp').forEach((s,i)=>{s.id='t'+(i+1);const n=document.createElement('span');n.className='num';n.textContent=i+1;s.prepend(n);
+const a=document.createElement('a');a.href='#t'+(i+1);a.innerHTML=''+String(i+1).padStart(2,'0')+''+s.dataset.t;g.appendChild(a)});
+</script>
+</body>
+</html>
