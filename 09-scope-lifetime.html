@@ -1,0 +1,396 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Область видимости и время жизни</title>
+<style>
+/* Базовые стили шаблона */
+:root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:4rem}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Helvetica Neue', Arial, sans-serif}
+h1,h2,h3{font-family:Georgia, serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem Georgia, serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
+.hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.8rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
+.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem monospace}
+.obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
+.grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem monospace}
+.trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem monospace}
+.wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem monospace;margin-bottom:.2rem}
+.tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
+.win-c{overflow:hidden;margin:1rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem monospace}
+.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem monospace;cursor:pointer}
+.out{background:#111417}.out pre{color:#9fe0b4}
+pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 monospace;tab-size:4}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem monospace}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em monospace}
+pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+.task{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:6px;padding:.8rem 1.1rem;margin:1rem 0}
+details summary{cursor:pointer;font-weight:700;outline:none}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2.1rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
+</style>
+</head>
+<body>
+<div class="top"><a href="01-structure.html">Язык C: Учебник</a></div>
+<main class="wrap"><header class="hero">
+  <div class="stamp">C · GCC</div>
+  <h1>Язык C</h1>
+  <p>Область видимости и время жизни переменных</p>
+</header><nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav><section class="obj">
+  <h2>Цель урока</h2>
+  <p>Разобраться с двумя важнейшими концепциями, которые определяют поведение переменных в программе: <b>где</b> переменную можно использовать (область видимости) и <b>когда</b> она существует в памяти (время жизни). Понимание этих механизмов — включая модификатор <code>static</code> и затенение переменных (shadowing) — обязательно для успешной сдачи зачета и написания безопасного кода без утечек и ошибок доступа к памяти.</p>
+</section><div class="trail"><section class="wp" data-t="Основные понятия">
+  <h2>Область видимости и время жизни</h2>
+  <p class="sub">Две разные оси существования переменной.</p>  <p>В языке C каждая переменная характеризуется двумя основными свойствами, которые часто путают:</p>
+  <ul>
+      <li><b>Область видимости (Scope):</b> Это <i>пространственное</i> свойство. Оно определяет ту часть исходного кода, в которой имя переменной известно и может быть использовано. Если вы попытаетесь обратиться к переменной вне ее области видимости, компилятор выдаст ошибку (например, <code>'x' undeclared</code>).</li>
+      <li><b>Время жизни (Lifetime):</b> Это <i>временное</i> свойство во время выполнения программы. Оно определяет, с какого момента для переменной выделяется память и в какой момент эта память освобождается (уничтожается).</li>
+  </ul>  <table>
+    <thead>
+      <tr>
+        <th>Вид переменной</th>
+        <th>Область видимости (Где видна?)</th>
+        <th>Время жизни (Когда существует?)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Локальная (auto)</b></td>
+        <td>Внутри блока <code>{ ... }</code></td>
+        <td>До выхода из блока (память выделяется на стеке)</td>
+      </tr>
+      <tr>
+        <td><b>Локальная <code>static</code></b></td>
+        <td>Внутри блока <code>{ ... }</code></td>
+        <td><b>Вся программа</b> (память выделяется в сегменте данных)</td>
+      </tr>
+      <tr>
+        <td><b>Глобальная</b></td>
+        <td>От места объявления до конца файла (и в других файлах через <code>extern</code>)</td>
+        <td>Вся программа</td>
+      </tr>
+      <tr>
+        <td><b>Глобальная <code>static</code></b></td>
+        <td>Только внутри текущего <code>.c</code> файла</td>
+        <td>Вся программа</td>
+      </tr>
+      <tr>
+        <td><b>Динамическая</b></td>
+        <td>Доступна через указатель</td>
+        <td>От <code>malloc()</code> до ручного вызова <code>free()</code></td>
+      </tr>
+    </tbody>
+  </table></section><section class="wp" data-t="Локальные и глобальные">
+  <h2>Локальные и глобальные переменные</h2>
+  <p class="sub">Стек вызовов против статического сегмента данных.</p>  <p><b>Локальные переменные</b> создаются при входе в блок (например, в тело функции) и уничтожаются при выходе из него. Если локальная переменная не инициализирована явно, она содержит "мусор" (случайные данные, оставшиеся в памяти).</p>  <p><b>Глобальные переменные</b> объявляются вне всех функций. Они автоматически инициализируются нулем (0), если им не задано значение. Однако, использование глобальных переменных считается плохой практикой (за исключением констант), так как любая функция может их изменить, что усложняет отладку.</p><script type="text/x-c" data-f="scope_basic.c">#include <stdio.h>
+
+/* Глобальная переменная. 
+   Видна всем функциям в этом файле после её объявления.
+Автоматически инициализируется 0. */
+int global_counter = 0;
+
+void increment_counter(void) {
+/* Функция видит и может изменять глобальную переменную */
+global_counter++;/* Локальная переменная. Существует только внутри этой функции. */
+
+int local_val = 10; 
+
+printf("Локальная: %d, Глобальная: %d\n", loca
+l_val, global_counter);
+} /* Здесь local_val уничтожается */
+
+int main(void)
+{
+increment_counter();
+increment_counter();/* ОШИБКА КОМПИЛЯЦИИ: main не видит local_val из increment_counter */
+
+/* printf("%d", local_val); */ 
+
+printf("Финальное значение глобальной: %d\n", global_counter);
+
+return 0;
+}</script>  <div class="note win"><b>ЗАПОМНИТЕ: static VS global</b>
+  <p class="sub">Что происходит, когда имена совпадают.</p>  <p>В C можно открывать новые блоки кода <code>{ ... }</code> внутри других блоков (например, внутри <code>if</code>, циклов <code>for</code> или просто так). Каждая переменная видна только в том блоке, где она объявлена, и во всех вложенных в него блоках.</p>  <p>Если во вложенном блоке объявить переменную с таким же именем, как во внешнем, произойдет <b>затенение (shadowing)</b>. Внешняя переменная временно станет недоступной, пока не завершится вложенный блок.</p><script type="text/x-c" data-f="shadowing.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 1; // Переменная внешнего блока (функции main)printf("Внешний блок: x = %d\n", x); // Выведет 1
+
+{ // Начало вложенного блока
+
+    
+
+    /* 
+
+     * Объявляем НОВУЮ локальную переменную с тем же именем.
+
+     * Она "затеняет" (перекрывает) внешний x.
+
+     */
+
+    int x = 2; 
+
+    
+
+    printf("Вложенный блок: x = %d\n", x); // Выведет 2
+
+    
+
+} // Конец вложенного блока. Внутренняя переменная x = 2 уничтожена.
+
+/* Внешний x снова доступен и его значение не изменилось */
+
+printf("Снова внешний блок: x = %d\n", x); // Выведет 1
+
+/*
+
+ * ОШИБКА: переменная i видна только внутри цикла for.
+
+ */
+
+for (int i = 0; i < 3; i++) {
+
+    // ...
+
+}
+
+// printf("%d", i); // Ошибка: i undeclared (out of scope)
+
+return 0;
+}</script></section><section class="wp" data-t="Модификатор static">
+  <h2>Модификатор static: Сохранение состояния</h2>
+  <p class="sub">Локальная видимость, но глобальное время жизни.</p>  <p>Ключевое слово <code>static</code> полностью меняет правила игры для локальных переменных. Если объявить локальную переменную как <code>static</code>, она не будет уничтожена при выходе из функции. Она сохранит свое значение между вызовами функции!</p>
+  <p>При этом её область видимости останется локальной — она будет видна только внутри своей функции.</p><script type="text/x-c" data-f="static_var.c">#include <stdio.h>
+
+int generate_id(void)
+{
+/*
+* Инициализация static-переменной происходит ровно ОДИН раз
+* при первом вызове функции.
+* После выхода из функции память не освобождается.
+*/
+static int current_id = 0;current_id++; // Увеличиваем сохраненное значение
+
+return current_id;
+
+}
+
+int main(void)
+{
+// Каждый вызов возвращает новое, инкрементированное значение
+printf("ID 1: %d\n", generate_id()); // 1
+printf("ID 2: %d\n", generate_id()); // 2
+printf("ID 3: %d\n", generate_id()); // 3/* ОШИБКА: main не имеет доступа к current_id, так как её область видимости локальна! */
+
+/* current_id = 100; */
+
+return 0;
+}
+</script>  <div class="note win"><b>ЗАПОМНИТЕ: static VS global</b>Использование локальных <code>static</code> переменных гораздо безопаснее глобальных. Глобальную переменную может испортить любая другая функция в программе. Локальную <code>static</code> переменную может изменить только та функция, внутри которой она объявлена, при этом состояние (значение) надежно сохраняется.</div>  <div class="note watch"><b>ЛОВУШКА ДЛЯ ЗАЧЕТА: ВОЗВРАТ УКАЗАТЕЛЯ</b><br>
+  Никогда не возвращайте из функции указатель на обычную локальную переменную! Как только функция завершится, память очистится, и указатель станет "висячим" (dangling pointer), указывая на мусор.<br><br>
+  <b>НЕПРАВИЛЬНО:</b> <code>int* get_ptr() { int a = 5; return &a; }</code><br>
+  <b>ПРАВИЛЬНО:</b> Либо возвращайте значение (<code>return a;</code>), либо выделяйте память динамически через <code>malloc</code>, либо делайте переменную статической: <code>static int a = 5; return &a;</code> (хотя последнее тоже считается плохим тоном в многопоточных программах).
+  </div></section><section class="wp" data-t="Практикум">
+  <h2>Практические задания для подготовки к зачету</h2>  <div class="task"><b>Задача 1: Счётчик вызовов функции.</b><br>
+  Напишите функцию <code>void call_counter(void)</code>. Внутри неё используйте локальную переменную с модификатором <code>static</code>, чтобы функция при каждом вызове печатала на экран: <code>"Функция вызвана X раз(а)"</code>, где X увеличивается с каждым вызовом. В функции <code>main</code> вызовите её 5 раз в цикле.
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 1</b></summary>
+    <script type="text/x-c" data-f="task1_counter.c">#include <stdio.h>
+
+void call_counter(void)
+{
+/*
+* Инициализация 'count' происходит только один раз.
+* Значение сохраняется между вызовами функции.
+*/
+static int count = 0;
+count++;printf("Функция вызвана %d раз(а)\n", count);
+
+}
+
+int main(void)
+{
+// Вызываем функцию 5 раз
+for (int i = 0; i < 5; i++) {
+call_counter();
+}
+return 0;
+}</script>  </details>  <div class="task"><b>Задача 2: Генератор чисел Фибоначчи.</b><br>
+  Напишите функцию <code>int next_fibonacci(void)</code>, которая при каждом вызове возвращает следующее число из ряда Фибоначчи (0, 1, 1, 2, 3, 5, 8...). <br>
+  <i>Подсказка:</i> Вам понадобятся две <code>static</code> переменные для хранения текущего и предыдущего числа Фибоначчи. Начальные значения: <code>static int a = 0, b = 1;</code>.
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 2</b></summary>
+    <script type="text/x-c" data-f="task2_fibonacci.c">#include <stdio.h>
+
+int next_fibonacci(void)
+{
+/*
+* Используем две статические переменные для сохранения
+* состояния между вызовами. Они инициализируются только один раз.
+*/
+static int a = 0;
+static int b = 1;// Сохраняем текущее значение, которое нужно вернуть
+
+int result = a;
+
+// Вычисляем следующее число Фибоначчи
+
+int next = a + b;
+
+// Сдвигаем переменные для следующего вызова
+
+a = b;
+
+b = next;
+
+return result;
+
+}
+
+int main(void)
+{
+printf("Первые 10 чисел Фибоначчи:\n");
+for (int i = 0; i < 10; i++) {
+printf("%d ", next_fibonacci());
+}
+printf("\n");return 0;
+}</script>  </details>  <div class="task"><b>Задача 3: Анализ области видимости (Code Review).</b><br>
+  Внимательно изучите следующий код. Что будет выведено на экран в результате его работы? Почему компилятор не выдаст ошибку переопределения переменной <code>val</code>? Объясните механизм затенения (shadowing) на этом примере.
+<pre><code>int val = 100;
+int main(void) {
+    int val = 50;
+    {
+        int val = 10;
+        printf("%d ", val);
+    }
+    printf("%d ", val);
+    return 0;
+}</code></pre>
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 3</b></summary>
+    <p style="margin-top:0.6rem;"><b>Вывод программы:</b> <code>10 50</code></p>
+    <p><b>Разбор:</b></p>
+    <ul>
+      <li>В коде объявлено три абсолютно <i>разные</i> переменные, которым разработчик (в качестве плохой практики) дал одинаковое имя <code>val</code>.</li>
+      <li>Глобальная переменная <code>val = 100</code> перекрывается (затеняется) локальной переменной <code>val = 50</code> сразу при входе в <code>main</code>.</li>
+      <li>Когда открывается вложенный блок <code>{ ... }</code>, внутри него объявляется третья переменная <code>val = 10</code>. Она затеняет переменную из <code>main</code>. Поэтому первый <code>printf</code> выводит <b>10</b>.</li>
+      <li>Как только вложенный блок закрывается <code>}</code>, переменная <code>val = 10</code> уничтожается. Область видимости возвращается к переменной <code>val = 50</code> из функции <code>main</code>. Поэтому второй <code>printf</code> выводит <b>50</b>.</li>
+      <li>Глобальная <code>val = 100</code> так и осталась нетронутой и недоступной из-за полного перекрытия имен.</li>
+    </ul>
+  </details>  <div class="task"><b>Задача 4: Банковский аккаунт (Инкапсуляция состояния).</b><br>
+  Напишите две функции: <code>void deposit(int amount)</code> и <code>void withdraw(int amount)</code>, которые имитируют работу с банковским счетом. Текущий баланс должен храниться как <b>глобальная статическая переменная</b> <code>static int balance = 0;</code>. <br>
+  <i>Особые условия:</i><br>
+  1. Функция <code>withdraw</code> не должна позволять снимать больше денег, чем есть на балансе (если недостаточно, вывести сообщение об ошибке).<br>
+  2. В функции <code>main</code> произведите несколько пополнений и снятий, чтобы продемонстрировать работу функций.
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 4</b></summary>
+    <script type="text/x-c" data-f="task4_bank.c">#include <stdio.h>
+
+/*
+
+Глобальная статическая переменная.
+Модификатор 'static' здесь означает, что переменная 'balance'
+видна ТОЛЬКО внутри этого .c файла. Никакой другой файл
+в проекте не сможет получить к ней доступ даже через 'extern'.
+Это простейшая форма инкапсуляции в C.
+*/
+static int balance = 0;
+
+void deposit(int amount)
+{
+if (amount > 0) {
+balance += amount;
+printf("Пополнение на %d. Текущий баланс: %d\n", amount, balance);
+}
+}
+
+void withdraw(int amount)
+{
+if (amount <= 0) {
+printf("Ошибка: Сумма снятия должна быть положительной.\n");
+return;
+}// Проверка на достаточность средств
+
+if (balance >= amount) {
+
+    balance -= amount;
+
+    printf("Снятие %d. Текущий баланс: %d\n", amount, balance);
+
+} else {
+
+    printf("Отказ в операции: Недостаточно средств (Баланс: %d, Запрос: %d)\n", balance, amount);
+
+}
+
+}
+
+int main(void)
+{
+deposit(1000);   // Баланс: 1000
+deposit(500);    // Баланс: 1500
+withdraw(300);   // Баланс: 1200
+withdraw(2000);  // Ошибка! (1200 < 2000)
+withdraw(1200);  // Баланс: 0
+return 0;
+}</script>  </details>  <div class="task"><b>Задача 5: Возврат указателя (Поиск ошибки).</b><br>
+  Студент на зачете написал следующую функцию, которая должна возвращать указатель на максимальное из двух переданных чисел. Однако при компиляции с флагом <code>-Wall</code> компилятор выдал предупреждение (Warning), а программа упала с ошибкой при выполнении. 
+  <br>Найдите ошибку в коде и объясните причину (опираясь на правила времени жизни локальных переменных). Как исправить этот код?
+<pre><code>int* get_max_pointer(int a, int b) {
+    int max;
+    if (a > b) {
+        max = a;
+    } else {
+        max = b;
+    }
+    return &max;
+}</code></pre>
+  </div>  <details class="note win">
+    <summary><b>Показать решение Задачи 5</b></summary>
+    <p style="margin-top:0.6rem;"><b>В чем ошибка:</b></p>
+    <p>Студент возвращает адрес (<code>&max</code>) <b>локальной переменной</b> <code>max</code>. Проблема в том, что время жизни переменной <code>max</code> (которая выделяется на стеке) заканчивается ровно в момент выполнения инструкции <code>return</code> и выхода из функции. Память, где лежало это значение, освобождается и может быть немедленно перезаписана другими данными операционной системы.</p>
+    <p>Функция <code>main</code> получит указатель на недействительную (уничтоженную) область памяти. Попытка прочитать данные по этому адресу приведет к неопределенному поведению (UB), выводу "мусора" или ошибке Segmentation Fault.</p><p><b>Как исправить:</b></p>
+
+<p>Никогда не возвращать указатели на локальные <code>auto</code>-переменные. Если нужно вернуть само значение, измените сигнатуру функции, чтобы она возвращала <code>int</code>, а не <code>int*</code>.</p>
+
+<pre><code>// Исправленный вариант: возвращаем значение, а не адрес
+
+int get_max(int a, int b) {
+int max = (a > b) ? a : b;
+return max; // Возвращается КОПИЯ значения, что абсолютно безопасно
+}</code></pre>  </details></section></div>
+</main><script>
+/* Скрипт шаблона: создает кликабельные окна с кодом и автонумерацию навигации */
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
+ const w=document.createElement('div');w.className='win-c';
+ w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
+
+w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
+s.replaceWith(w)});
+document.querySelectorAll('.wp').forEach((s,i)=>{s.id='t'+(i+1);const n=document.createElement('span');n.className='num';n.textContent=i+1;s.prepend(n)});
+</script>
+</body>
+</html>
