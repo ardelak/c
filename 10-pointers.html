@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Указатели и адресная арифметика</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+/* Базовые стили шаблона */
+:root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:4rem}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Karla', 'Helvetica Neue', Arial, sans-serif}
+h1,h2,h3{font-family:'Newsreader', Georgia, serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem 'Newsreader', Georgia, serif}
+.top a{color:inherit;text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
+.hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.8rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
+.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem 'JetBrains Mono', monospace}
+.obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
+.grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem 'JetBrains Mono', monospace}
+.trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem 'JetBrains Mono', monospace}
+.wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem 'JetBrains Mono', monospace;margin-bottom:.2rem}
+.tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
+.win-c{overflow:hidden;margin:1rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem 'JetBrains Mono', monospace}
+.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem 'JetBrains Mono', monospace;cursor:pointer}
+.out{background:#111417}.out pre{color:#9fe0b4}
+pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 'JetBrains Mono', monospace;tab-size:4}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem 'JetBrains Mono', monospace}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em 'JetBrains Mono', monospace}
+pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+.task{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:6px;padding:.8rem 1.1rem;margin:1rem 0}
+details summary{cursor:pointer;font-weight:700;outline:none}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2.1rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
+</style>
+</head>
+<body>
+<div class="top"><a href="01-structure.html">Язык C: Учебник</a></div>
+<main class="wrap">
+
+<header class="hero">
+  <div class="stamp">C · GCC</div>
+  <h1>Язык C</h1>
+  <p>Указатели, адресная арифметика и указатели на функции</p>
+</header>
+
+<!-- НАВИГАЦИЯ -->
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+
+<section class="obj">
+  <h2>Цель урока</h2>
+  <p>Указатели — это фундаментальная тема языка C и один из главных предметов проверки на зачете. Без глубокого понимания указателей невозможно передавать изменяемые аргументы в функции, работать с массивами, строками и динамической памятью. В этом уроке мы разберем устройство адресации памяти, две разные роли символа <code>*</code>, оператор <code>&amp;</code>, правила безопасной работы с указателями, адресную арифметику и указатели на функции (callbacks).</p>
+</section>
+
+<div class="trail">
+
+<!-- ТЕМА 1 -->
+<section class="wp" data-t="Адреса и две роли *">
+  <h2>Концепция адреса и указателя: операторы &amp; и *</h2>
+  <p class="sub">Как устроена память и почему символ * имеет два совершенно разных смысла.</p>
+
+  <p>Оперативную память компьютера (RAM) можно представить как длинную ленту пронумерованных однобайтовых ячеек. У каждого байта есть свой уникальный номер — <b>адрес памяти</b> (обычно записывается в шестнадцатеричном виде, например <code>0x7ffd9b8a3abc</code>).</p>
+
+  <p>Когда вы объявляете переменную <code>int x = 42;</code>, компилятор выделяет в памяти 4 последовательных байта и записывает туда число <code>42</code>. Адресом переменной <code>x</code> считается адрес её <i>первого (младшего)</i> байта.</p>
+
+  <h3>Основные определения</h3>
+  <ul>
+    <li><b>Указатель (Pointer)</b> — это переменная, значением которой является <b>адрес</b> другой переменной (или функции) в оперативной памяти.</li>
+    <li><b>Оператор взятия адреса (<code>&amp;</code>)</b> — унарный оператор, который возвращает адрес переменной в памяти. Выражение <code>&amp;x</code> читается как «адрес переменной <code>x</code>».</li>
+    <li><b>Оператор разыменования (<code>*</code>, dereference operator)</b> — унарный оператор, применяемый к уже существующему указателю. Он позволяет перейти по хранящемуся в указателе адресу и прочитать или изменить лежащее там значение.</li>
+  </ul>
+
+  <div class="note watch"><b>НЕ ПУТАЙТЕ ДВЕ РОЛИ ЗВЁЗДОЧКИ (*)</b>
+    <p>В языке C символ <code>*</code> действительно имеет два разных смысла в зависимости от контекста:</p>
+    <ol>
+      <li><b>В объявлении переменной:</b> <code>int *p = &amp;x;</code> — здесь звёздочка является частью типа (<code>int *</code> — «указатель на int»). Она говорит компилятору, что <code>p</code> хранит адрес, а не само целое число.</li>
+      <li><b>В выражениях (инструкциях кода):</b> <code>*p = 99;</code> — здесь звёздочка работает как <b>команда разыменования</b> («пройди по адресу, записанному в <code>p</code>, и положи в ту ячейку число 99»).</li>
+    </ol>
+  </div>
+
+  <h3>Роль 1: звёздочка в объявлении</h3>
+  <p>Рассмотрим объявление указателя:</p>
+<script type="text/x-c" data-f="decl_role.c">int x = 42;
+int *p = &x;</script>
+  <p>Здесь:</p>
+  <ul>
+    <li><code>x</code> — обычная переменная типа <code>int</code>, в ней лежит число <code>42</code>;</li>
+    <li><code>&amp;x</code> — адрес переменной <code>x</code> в памяти;</li>
+    <li><code>p</code> — переменная типа <code>int *</code>, то есть «указатель на <code>int</code>»;</li>
+    <li><code>p</code> хранит не число <code>42</code>, а <b>адрес</b>, где лежит <code>42</code>.</li>
+  </ul>
+
+  <p>При объявлении звёздочку можно писать как слитно с типом, так и слитно с именем переменной — обе записи означают одно и то же (<code>p</code> имеет тип <code>int *</code>):</p>
+<script type="text/x-c" data-f="style_decl.c">int* p;
+int *p;</script>
+
+  <div class="note tip"><b>ВАЖНЫЙ НЮАНС ОБЪЯВЛЕНИЯ НЕСКОЛЬКИХ ПЕРЕМЕННЫХ</b>
+    <p>В строке <code>int *a, b;</code> указателем будет <b>только <code>a</code></b>, а <code>b</code> окажется обычной переменной типа <code>int</code>! Звёздочка относится к конкретному имени переменной, а не ко всей строке. Поэтому гораздо понятнее и безопаснее объявлять указатели на отдельных строках:</p>
+    <pre><code>int *a;
+int b;</code></pre>
+  </div>
+
+  <h3>Роль 2: звёздочка как разыменование</h3>
+  <p>Когда <code>*</code> стоит не в объявлении, а перед именем уже существующего указателя в выражении, она означает операцию <b>разыменования (dereference)</b>: «возьми адрес из <code>p</code> и обратись к значению по этому адресу».</p>
+<script type="text/x-c" data-f="deref_role.c">int x = 42;
+int *p = &x;
+
+printf("%d\n", *p);  /* напечатает 42: читаем значение по адресу p */
+
+/* Можно не только читать, но и изменять значение через указатель: */
+*p = 99;             /* пройди по адресу из p и запиши туда 99 */
+printf("%d\n", x);   /* напечатает 99: изменилась сама переменная x! */</script>
+  <p>Здесь <code>*p</code> — это не сам указатель, а значение, на которое он указывает, то есть сама переменная <code>x</code>.</p>
+
+  <h3>Полный пример и схема памяти</h3>
+<script type="text/x-c" data-f="pointers_full.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 42;
+    int *p = &x;                   /* * здесь — часть типа: p — указатель на int */
+
+    printf("x  = %d\n", x);        /* 42 */
+    printf("p  = %p\n", (void*)p); /* адрес переменной x (например, 0x7ffc8e4b2a1c) */
+    printf("*p = %d\n", *p);       /* 42: разыменование (чтение значения по адресу) */
+
+    *p = 99;                       /* * здесь — оператор разыменования (запись по адресу) */
+
+    printf("x  = %d\n", x);        /* 99 */
+    printf("*p = %d\n", *p);       /* 99 */
+
+    return 0;
+}</script>
+
+  <div class="win-c"><div class="hd"><span>Схема в памяти после выполнения *p = 99</span></div><pre><code>x  ┌──────────┐
+   │    99    │  ← значение (тип int)
+   └──────────┘
+      ▲
+      │ указывает по адресу
+p  ┌──────────┐
+   │   &amp;x     │  ← указатель хранит адрес переменной x (тип int *)
+   └──────────┘</code></pre></div>
+
+  <h3>Как быстро различать смысл звёздочки</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Код</th>
+        <th>Контекст</th>
+        <th>Что означает <code>*</code></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>int *p;</code></td>
+        <td>Объявление</td>
+        <td><code>p</code> — переменная-указатель на тип <code>int</code>.</td>
+      </tr>
+      <tr>
+        <td><code>int *p = &amp;x;</code></td>
+        <td>Объявление с инициализацией</td>
+        <td>Указатель <code>p</code> создаётся и сразу сохраняет адрес переменной <code>x</code>.</td>
+      </tr>
+      <tr>
+        <td><code>y = *p;</code></td>
+        <td>Выражение (справа от <code>=</code>)</td>
+        <td>Прочитать значение, лежащее в памяти по адресу из <code>p</code>.</td>
+      </tr>
+      <tr>
+        <td><code>*p = 99;</code></td>
+        <td>Выражение (слева от <code>=</code>)</td>
+        <td>Записать число <code>99</code> в ячейку памяти по адресу из <code>p</code>.</td>
+      </tr>
+      <tr>
+        <td><code>printf("%d", *p);</code></td>
+        <td>Выражение (аргумент функции)</td>
+        <td>Передать в <code>printf</code> целое значение, на которое указывает <code>p</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note win"><b>ПОЛЕЗНОЕ ПРАВИЛО ЧТЕНИЯ</b>
+    <p>В объявлении <code>int *p;</code> можно читать как: <i>«если разыменовать <code>p</code> (написать <code>*p</code>), получится тип <code>int</code>»</i>. А после объявления во всех выражениях <code>*p</code> — это уже сама переменная <code>x</code>, доступ к которой идёт через её адрес.</p>
+  </div>
+
+  <h3>Две частые ошибки новичков на зачете</h3>
+<script type="text/x-c" data-f="common_mistakes.c">/* ОШИБКА 1: Разыменование неинициализированного указателя */
+int *p;
+*p = 10;   /* ОПАСНО! p объявлен, но ему не присвоен никакой корректный адрес.
+              Запись по случайному адресу — неопределённое поведение (UB) и Segmentation Fault!
+              Сначала обязательно нужно привязать указатель: p = &x; */
+
+/* ОШИБКА 2: Путаница между изменением указателя и изменением значения */
+int x = 42;
+int *p = &x;
+
+p = 99;    /* НЕВЕРНО: меняет сам указатель! Теперь p пытается хранить число 99 как адрес памяти. */
+*p = 99;   /* ВЕРНО: меняет значение по адресу, который лежит в p (переменная x станет равна 99). */</script>
+
+  <div class="note watch"><b>ИТОГОВОЕ ПРАВИЛО</b>
+    <p>Запомните короткую формулу: <b><code>p</code> — это «адрес», а <code>*p</code> — «то, что лежит по этому адресу»</b>.</p>
+  </div>
+</section>
+
+<!-- ТЕМА 2 -->
+<section class="wp" data-t="Передача по адресу">
+  <h2>Передача параметров в функции по адресу</h2>
+  <p class="sub">Как изменить переменные вызывающей функции и вернуть сразу несколько значений.</p>
+
+  <p>Как мы изучили в уроке 08, в языке C все аргументы передаются в функции <b>строго по значению (pass by value)</b> — функция получает локальную копию аргумента. Однако, если передать в функцию <b>адрес переменной (указатель)</b>, функция получит копию адреса, сможет разыменовать его через <code>*</code> и напрямую изменить оригинальную переменную в вызывающем коде (например, в <code>main</code>).</p>
+
+  <h3>Разбор классической функции swap и возврата результата через указатель</h3>
+  <p>Именно по этой причине функция <code>scanf("%d", &amp;val)</code> требует знак амперсанда <code>&amp;</code>: чтобы записать прочитанное с клавиатуры число в вашу переменную <code>val</code>, функция <code>scanf</code> должна знать её адрес в памяти!</p>
+
+<script type="text/x-c" data-f="swap_and_out_params.c">#include <stdio.h>
+
+/* 
+ * Функция обмена значений двух переменных.
+ * Принимает два указателя: адреса переменных из вызывающего кода.
+ */
+void swap(int *a, int *b)
+{
+    int temp = *a; /* 1. Читаем число по адресу 'a' и сохраняем во временную переменную */
+    *a = *b;       /* 2. По адресу 'a' записываем число, прочитанное по адресу 'b' */
+    *b = temp;     /* 3. По адресу 'b' записываем старое значение из temp */
+}
+
+/*
+ * Функция безопасного деления.
+ * Возвращает статус выполнения через return (0 — успех, -1 — ошибка деления на 0),
+ * а сам результат вычисления записывает по адресу result.
+ */
+int safe_divide(double num, double den, double *result)
+{
+    if (den == 0.0) {
+        return -1; /* Ошибка: деление на ноль! */
+    }
+    
+    /* Записываем ответ в ячейку памяти, на которую указывает result */
+    *result = num / den;
+    return 0; /* Успех */
+}
+
+int main(void)
+{
+    int x = 10, y = 20;
+    printf("До swap:    x = %d, y = %d\n", x, y);
+    
+    /* Передаем АДРЕСА переменных x и y с помощью оператора & */
+    swap(&x, &y);
+    printf("После swap: x = %d, y = %d\n\n", x, y);
+
+    double res = 0.0;
+    /* Передаем &res, чтобы функция safe_divide записала туда ответ */
+    if (safe_divide(15.0, 4.0, &res) == 0) {
+        printf("Результат деления: %.2f\n", res);
+    }
+
+    if (safe_divide(15.0, 0.0, &res) != 0) {
+        printf("Деление на 0 перехвачено! Старое значение res не испорчено: %.2f\n", res);
+    }
+
+    return 0;
+}</script>
+
+  <div class="note win"><b>ЗАПОМНИТЕ ПРАВИЛО ВЫЗОВА И ВНУТРЕННЕЙ РАБОТЫ</b>
+    <p>Когда вы пишете <b>вызов функции</b> в <code>main</code>, вы передаете адрес переменной через <code>&amp;</code>: <code>safe_divide(15.0, 4.0, &amp;res);</code>.<br>
+    Когда вы пишете <b>тело самой функции</b>, параметр <code>double *result</code> уже является указателем. Чтобы записать в него число, вы используете разыменование <code>*</code>: <code>*result = num / den;</code>.</p>
+  </div>
+</section>
+
+<!-- ТЕМА 3 -->
+<section class="wp" data-t="Безопасность и const">
+  <h2>Безопасность указателей: NULL, висячие указатели и const</h2>
+  <p class="sub">Как избежать неопределенного поведения (UB) и падения программы с Segmentation Fault.</p>
+
+  <p>Неправильная работа с указателями — главная причина аварийного завершения программ на C. На зачете преподаватели особенно внимательно проверяют три типа опасных указателей:</p>
+
+  <ul>
+    <li><b>Дикий (неинициализированный) указатель (Wild Pointer):</b> Указатель, объявленный без начального значения (<code>int *p;</code>). Он содержит случайный «мусорный» адрес со стека. Попытка чтения или записи <code>*p = 5;</code> приводит к <b>Undefined Behavior (UB)</b> и крушению программы.</li>
+    <li><b>Нулевой указатель (<code>NULL</code>):</b> Специальная константа (из <code>&lt;stddef.h&gt;</code> или <code>&lt;stdio.h&gt;</code>), гарантирующая, что указатель «никуда не указывает». Если у вас пока нет адреса для указателя, <b>всегда инициализируйте его значением <code>NULL</code></b>. Разыменовывать <code>NULL</code> нельзя — поэтому перед использованием указателя его проверяют условием <code>if (p != NULL)</code>.</li>
+    <li><b>Висячий указатель (Dangling Pointer):</b> Указатель, который продолжает хранить адрес уже уничтоженной переменной (например, адрес локальной переменной функции, которая уже завершила работу, или памяти после <code>free()</code>).</li>
+  </ul>
+
+  <h3>Квалификатор const и указатели</h3>
+  <p>Чтение объявлений с <code>const</code> и <code>*</code> легко освоить, если смотреть, по какую сторону от звёздочки <code>*</code> стоит слово <code>const</code>:</p>
+  <ul>
+    <li><code>const int *p</code> (или <code>int const *p</code>) — <b>указатель на константные данные</b>. Через <code>p</code> нельзя менять число (<code>*p = 10</code> запрещено), но сам указатель можно перенаправить на другую переменную (<code>p = &amp;other</code> разрешено). Используется для входных массивов в функциях!</li>
+    <li><code>int * const p = &amp;x</code> — <b>константный указатель</b>. Он навсегда привязан к адресу <code>&amp;x</code> (<code>p = &amp;other</code> запрещено), но само число менять можно (<code>*p = 10</code> разрешено).</li>
+    <li><code>const int * const p = &amp;x</code> — <b>константный указатель на константные данные</b>. Нельзя менять ни адрес, ни значение по адресу.</li>
+  </ul>
+
+<script type="text/x-c" data-f="safe_pointers.c">#include <stdio.h>
+
+/* 
+ * Параметр объявлен как const int *p:
+ * функция обещает ТОЛЬКО ЧИТАТЬ данные по указателю, не изменяя их.
+ */
+void print_deref(const int *p)
+{
+    /* Защита от разыменования нулевого указателя */
+    if (p == NULL) {
+        printf("Предупреждение: передан NULL-указатель!\n");
+        return;
+    }
+    printf("Безопасное чтение: *p = %d\n", *p);
+}
+
+int main(void)
+{
+    int a = 42, b = 100;
+    int *ptr = NULL;      /* Безопасная инициализация */
+
+    print_deref(ptr);     /* Выведет предупреждение, но НЕ упадет с Segfault */
+
+    ptr = &a;             /* Привязываем указатель к переменной a */
+    print_deref(ptr);     /* Безопасно выведет 42 */
+
+    const int *read_only = &a;
+    /* *read_only = 50; */ /* ОШИБКА КОМПИЛЯЦИИ: нельзя менять данные через const int * */
+    read_only = &b;        /* РАЗРЕШЕНО: сам указатель перенаправить можно */
+    print_deref(read_only);
+
+    int * const fixed_ptr = &a;
+    *fixed_ptr = 77;       /* РАЗРЕШЕНО: меняем значение переменной a */
+    /* fixed_ptr = &b; */  /* ОШИБКА КОМПИЛЯЦИИ: нельзя менять адрес в int * const */
+    print_deref(fixed_ptr);
+
+    return 0;
+}</script>
+</section>
+
+<!-- ТЕМА 4 -->
+<section class="wp" data-t="Массивы и арифметика">
+  <h2>Массивы и адресная арифметика</h2>
+  <p class="sub">Почему имя массива — это адрес первого элемента, и как работает сложение указателя с числом.</p>
+
+  <p>В языке C массивы и указатели тесно связаны. Элементы массива располагаются в памяти <b>строго подряд (непрерывно)</b>. В большинстве выражений имя массива автоматически преобразуется (decay) в указатель на его первый (нулевой) элемент: <code>arr == &amp;arr[0]</code>.</p>
+
+  <h3>Правила адресной арифметики</h3>
+  <ol>
+    <li><b>Сложение и вычитание с целым числом (<code>p + i</code>, <code>p - i</code>, <code>p++</code>, <code>p--</code>):</b> Прибавление единицы к указателю <code>p + 1</code> увеличивает хранящийся в нём байтовый адрес не на 1 байт, а ровно на <b><code>sizeof(*p)</code> байт</b>! То есть для <code>int *p</code> (где <code>sizeof(int) == 4</code>) выражение <code>p + 1</code> сдвигает указатель ровно на 4 байта вперёд — сразу на следующий элемент массива.</li>
+    <li><b>Фундаментальное тождество индексации:</b> Запись <code>arr[i]</code> для компилятора C — это просто сокращённый синтаксический сахар для выражения <code>*(arr + i)</code> («сдвинься от начала массива на <code>i</code> элементов и разыменуй адрес»).</li>
+    <li><b>Разность двух указателей (<code>p2 - p1</code>):</b> Если два указателя указывают на элементы одного и того же массива, их можно вычесть друг из друга. Результатом (тип <code>ptrdiff_t</code>) будет <b>количество элементов</b> между ними, а не количество байт!</li>
+    <li><b>Сравнение указателей (<code>&lt;</code>, <code>&gt;</code>, <code>==</code>, <code>!=</code>):</b> Позволяет проверять, какой элемент массива расположен раньше или дошел ли бегущий указатель до конца массива.</li>
+  </ol>
+
+<script type="text/x-c" data-f="pointer_arith.c">#include <stdio.h>
+#include <stddef.h> /* для типа ptrdiff_t */
+
+/* 
+ * При передаче массива в функцию передается указатель на его 0-й элемент.
+ * Записи (const int arr[]) и (const int *arr) в параметрах функции ЭКВИВАЛЕНТНЫ!
+ * Размер массива n всегда нужно передавать отдельным параметром.
+ */
+int sum_array(const int *arr, int n)
+{
+    int sum = 0;
+    /* Проходим по массиву с помощью указателя p от arr до arr + n */
+    for (const int *p = arr; p < arr + n; p++) {
+        sum += *p; /* Читаем текущий элемент и сдвигаем p на следующий */
+    }
+    return sum;
+}
+
+int main(void)
+{
+    int arr[4] = {10, 20, 30, 40};
+    int *q = arr; /* То же самое, что int *q = &arr[0]; */
+
+    printf("Через индекс и через адресную арифметику:\n");
+    printf("arr[0] = %d, *q       = %d\n", arr[0], *q);
+    printf("arr[2] = %d, *(q + 2) = %d\n", arr[2], *(q + 2));
+
+    /* Сдвигаем указатель q на один элемент вперед (на 4 байта) */
+    q++;
+    printf("После q++ указатель смотрит на: %d\n", *q); /* 20 */
+
+    /* Вычитание указателей дает расстояние в ЭЛЕМЕНТАХ */
+    int *start = &arr[0];
+    int *end   = &arr[3];
+    ptrdiff_t dist = end - start;
+    printf("Между arr[3] и arr[0] ровно %td элемента(ов)\n", dist); /* 3 */
+
+    printf("Сумма элементов массива: %d\n", sum_array(arr, 4));
+    return 0;
+}</script>
+
+  <div class="note watch"><b>ЛОВУШКА: sizeof МАССИВА ВНУТРИ ФУНКЦИИ</b>
+    <p>Внутри функции <code>main</code>, где объявлен массив <code>int arr[10];</code>, оператор <code>sizeof(arr)</code> вернет размер всего массива в байтах (<code>40</code>). Но если вы передадите <code>arr</code> в функцию <code>void foo(int arr[])</code>, то внутри <code>foo</code> параметр <code>arr</code> является обычным указателем <code>int *</code>, и <code>sizeof(arr)</code> вернет размер указателя (<code>8</code> байт)! Поэтому размер массива всегда передается в функцию отдельным параметром <code>int n</code>.</p>
+  </div>
+</section>
+
+<!-- ТЕМА 5 -->
+<section class="wp" data-t="Указатели на функции">
+  <h2>Указатели на функции и Callbacks</h2>
+  <p class="sub">Как передать одну функцию внутрь другой или создать массив функций.</p>
+
+  <p>Машинный код любой функции также размещается в оперативной памяти (в сегменте кода), а значит, у каждой функции есть свой адрес. В C можно создать <b>указатель на функцию</b>, сохранить в него адрес функции, передавать его как аргумент в другие функции (механизм <i>callback</i> — функции обратного вызова) или хранить в массиве.</p>
+
+  <h3>Синтаксис объявления</h3>
+  <p>Объявление указателя на функцию повторяет её прототип, где вместо имени функции в круглых скобках пишется <code>(*имя_указателя)</code>:</p>
+  <p><code>возвращаемый_тип (*имя_указателя)(типы_параметров);</code></p>
+  <p>Круглые скобки вокруг <code>(*fp)</code> обязательны! Без них запись <code>int *fp(int, int);</code> будет означать прототип функции <code>fp</code>, возвращающей указатель <code>int *</code>.</p>
+
+<script type="text/x-c" data-f="function_pointers.c">#include <stdio.h>
+#include <stdlib.h> /* для стандартной быстрой сортировки qsort */
+
+/* Две простые математические функции с одинаковой сигнатурой: (int, int) -> int */
+int add(int a, int b) { return a + b; }
+int mul(int a, int b) { return a * b; }
+
+/* 
+ * Функция высшего порядка apply:
+ * принимает указатель на функцию 'op' (callback) и два числа x, y.
+ */
+int apply(int (*op)(int, int), int x, int y)
+{
+    return op(x, y); /* Вызываем переданную функцию */
+}
+
+/* 
+ * Функция-компаратор для стандартной сортировки qsort из <stdlib.h>.
+ * Принимает два обобщенных константных указателя const void *.
+ */
+int compare_ints_asc(const void *a, const void *b)
+{
+    int val1 = *(const int *)a; /* Приводим void* к const int* и разыменовываем */
+    int val2 = *(const int *)b;
+    return (val1 > val2) - (val1 < val2); /* Безопасное сравнение без переполнения */
+}
+
+int main(void)
+{
+    /* 1. Одиночный указатель на функцию */
+    int (*fp)(int, int) = add; /* Имя функции без скобок — это её адрес */
+    printf("Вызов через fp (add): %d\n", fp(3, 4)); /* 7 */
+
+    fp = mul; /* Перенаправляем указатель на функцию умножения */
+    printf("Вызов через fp (mul): %d\n", fp(3, 4)); /* 12 */
+
+    /* 2. Таблица (массив) указателей на функции */
+    int (*ops[2])(int, int) = { add, mul };
+    for (int i = 0; i < 2; i++) {
+        printf("ops[%d](5, 6) = %d\n", i, apply(ops[i], 5, 6));
+    }
+
+    /* 3. Применение callback в библиотечной функции qsort */
+    int data[5] = { 42, -5, 19, 0, 8 };
+    qsort(data, 5, sizeof(int), compare_ints_asc);
+
+    printf("Отсортированный через qsort массив: ");
+    for (int i = 0; i < 5; i++) {
+        printf("%d ", data[i]);
+    }
+    printf("\n");
+
+    return 0;
+}</script>
+
+  <div class="note tip"><b>СОВЕТ ДЛЯ ЗАЧЕТА</b>
+    <p>При передаче функции в качестве аргумента (например, <code>apply(add, 5, 6)</code> или <code>qsort(..., compare_ints_asc)</code>) <b>никогда не ставьте круглые скобки</b> после её имени! Имя функции без скобок — это её адрес. Если поставить скобки, компилятор попытается вызвать функцию прямо на месте.</p>
+  </div>
+</section>
+
+<!-- ТЕМА 6: ПРАКТИКУМ -->
+<section class="wp" data-t="Практикум (5 задач)">
+  <h2>Практические задания для подготовки к зачету</h2>
+  <p class="sub">Решите 5 типовых зачетных задач и сверьтесь с разбором под спойлерами.</p>
+
+  <!-- ЗАДАЧА 1 -->
+  <div class="task">
+    <b>Задача 1: Упорядочивание трех переменных по адресу (swap и sort3).</b><br>
+    Напишите функцию <code>void swap(int *a, int *b)</code>, которая меняет местами значения двух целых переменных по указателям. Используя её, реализуйте функцию <code>void sort3(int *a, int *b, int *c)</code>, которая переупорядочивает значения трёх переменных так, чтобы выполнялось условие <code>*a &lt;= *b &lt;= *c</code>. Продемонстрируйте работу в <code>main</code>.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 1</b></summary>
+<script type="text/x-c" data-f="task1_sort3.c">#include <stdio.h>
+
+/* Функция обмена значений двух переменных по их адресам */
+void swap(int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+/* 
+ * Функция упорядочивания трех чисел по возрастанию.
+ * Обратите внимание: внутри sort3 параметры a, b, c УЖЕ являются указателями (int *),
+ * поэтому в swap(a, b) мы передаем их напрямую (без &)!
+ */
+void sort3(int *a, int *b, int *c)
+{
+    if (*a > *b) {
+        swap(a, b);
+    }
+    if (*b > *c) {
+        swap(b, c);
+    }
+    if (*a > *b) {
+        swap(a, b);
+    }
+}
+
+int main(void)
+{
+    int x = 35, y = -10, z = 12;
+    printf("До сортировки:    x = %d, y = %d, z = %d\n", x, y, z);
+
+    /* Передаем адреса переменных из main с помощью оператора & */
+    sort3(&x, &y, &z);
+
+    printf("После сортировки: x = %d, y = %d, z = %d\n", x, y, z);
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 2 -->
+  <div class="task">
+    <b>Задача 2: Однопроходный анализ массива с возвратом нескольких значений.</b><br>
+    Напишите функцию <code>int analyze_array(const int *arr, int n, int *min_val, int *max_val, long long *sum)</code>, которая за <b>один проход</b> по массиву <code>arr</code> находит минимальный элемент, максимальный элемент и сумму всех элементов, записывая их по переданным указателям.<br>
+    <i>Требования безопасности:</i> Если любой из указателей равен <code>NULL</code> или <code>n &lt;= 0</code>, функция должна немедленно вернуть код ошибки <code>-1</code>. При успешном выполнении функция возвращает <code>0</code>.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 2</b></summary>
+<script type="text/x-c" data-f="task2_analyze_array.c">#include <stdio.h>
+
+int analyze_array(const int *arr, int n, int *min_val, int *max_val, long long *sum)
+{
+    /* 1. Защитная проверка всех указателей на NULL и корректности размера n */
+    if (arr == NULL || min_val == NULL || max_val == NULL || sum == NULL || n <= 0) {
+        return -1; /* Код ошибки */
+    }
+
+    /* 2. Инициализируем результаты первым элементом массива */
+    *min_val = arr[0];
+    *max_val = arr[0];
+    *sum = arr[0];
+
+    /* 3. За один проход обновляем минимум, максимум и сумму */
+    for (int i = 1; i < n; i++) {
+        if (arr[i] < *min_val) {
+            *min_val = arr[i];
+        }
+        if (arr[i] > *max_val) {
+            *max_val = arr[i];
+        }
+        *sum += arr[i];
+    }
+
+    return 0; /* Успешное завершение */
+}
+
+int main(void)
+{
+    int data[6] = { 14, -8, 42, 7, 0, 25 };
+    int mn = 0, mx = 0;
+    long long total = 0;
+
+    if (analyze_array(data, 6, &mn, &mx, &total) == 0) {
+        printf("Минимум: %d, Максимум: %d, Сумма: %lld\n", mn, mx, total);
+    } else {
+        printf("Ошибка анализа массива!\n");
+    }
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 3 -->
+  <div class="task">
+    <b>Задача 3: In-place разворот массива чистой адресной арифметикой.</b><br>
+    Напишите функцию <code>void reverse_inplace(int *arr, int n)</code>, которая переворачивает массив задом наперед на месте (без создания второго массива).<br>
+    <i>Условие:</i> Внутри функции <b>запрещено использовать квадратные скобки индексации <code>[]</code></b> и целочисленные счетчики цикла. Используйте два указателя: <code>int *left = arr;</code> и <code>int *right = arr + n - 1;</code>, сдвигая их навстречу друг другу в цикле <code>while (left &lt; right)</code>.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 3</b></summary>
+<script type="text/x-c" data-f="task3_reverse_pointers.c">#include <stdio.h>
+
+void reverse_inplace(int *arr, int n)
+{
+    if (arr == NULL || n <= 1) {
+        return;
+    }
+
+    /* Указатель на первый элемент массива */
+    int *left = arr;
+    /* Указатель на последний элемент массива (адресная арифметика) */
+    int *right = arr + n - 1;
+
+    /* Пока левый указатель находится левее правого в памяти */
+    while (left < right) {
+        /* Меняем местами значения по адресам left и right */
+        int temp = *left;
+        *left = *right;
+        *right = temp;
+
+        /* Сдвигаем указатели навстречу друг другу на 1 элемент */
+        left++;
+        right--;
+    }
+}
+
+int main(void)
+{
+    int a[5] = { 10, 20, 30, 40, 50 };
+
+    reverse_inplace(a, 5);
+
+    printf("Развернутый массив: ");
+    for (const int *p = a; p < a + 5; p++) {
+        printf("%d ", *p);
+    }
+    printf("\n");
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 4 -->
+  <div class="task">
+    <b>Задача 4: Обобщенная обработка массива через указатель на функцию (apply_all).</b><br>
+    Реализуйте функцию <code>void apply_all(int *arr, int n, int (*f)(int))</code>, которая принимает массив <code>arr</code>, его длину <code>n</code> и указатель на функцию <code>f</code>, после чего заменяет каждый элемент массива результатом вызова <code>arr[i] = f(arr[i])</code>. Напишите две функции-колбэка: возведение числа в квадрат <code>square(int x)</code> и замену отрицательного числа его модулем <code>abs_val(int x)</code>, и последовательно примените их к массиву.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 4</b></summary>
+<script type="text/x-c" data-f="task4_apply_all.c">#include <stdio.h>
+
+/* Колбэк 1: модуль числа */
+int abs_val(int x)
+{
+    return (x < 0) ? -x : x;
+}
+
+/* Колбэк 2: квадрат числа */
+int square(int x)
+{
+    return x * x;
+}
+
+/* 
+ * Функция высшего порядка: применяет функцию f к каждому элементу массива.
+ * Защищена проверками указателей на NULL.
+ */
+void apply_all(int *arr, int n, int (*f)(int))
+{
+    if (arr == NULL || f == NULL || n <= 0) {
+        return;
+    }
+
+    for (int i = 0; i < n; i++) {
+        arr[i] = f(arr[i]); /* Вызываем переданную функцию по указателю */
+    }
+}
+
+int main(void)
+{
+    int arr[5] = { -3, 4, -1, 0, -5 };
+
+    /* Передаем имя функции без скобок как указатель */
+    apply_all(arr, 5, abs_val);
+    apply_all(arr, 5, square);
+
+    printf("Массив после abs_val и square: ");
+    for (int i = 0; i < 5; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 5 -->
+  <div class="task">
+    <b>Задача 5: Численный поиск корня уравнения методом бисекции.</b><br>
+    Напишите обобщенную функцию поиска корня нелинейного уравнения $f(x) = 0$ на отрезке $[a, b]$ методом деления отрезка пополам (бисекции) с точностью $\varepsilon$:<br>
+    <code>int find_root_bisection(double (*f)(double), double a, double b, double eps, double *root);</code><br>
+    <i>Условия:</i><br>
+    1. Если указатели <code>f</code> или <code>root</code> равны <code>NULL</code>, либо <code>eps &lt;= 0</code>, либо функция на концах отрезка имеет одинаковый знак ($f(a) \cdot f(b) &gt; 0$), вернуть код ошибки <code>-1</code>.<br>
+    2. Делить отрезок пополам точкой $m = (a + b) / 2$, пока длина половины отрезка $(b - a) / 2$ больше <code>eps</code>.<br>
+    3. Записать найденное приближение корня по адресу <code>*root</code> и вернуть <code>0</code>. Проверить в <code>main</code> для уравнения $x^2 - 2 = 0$ на отрезке $[0, 2]$ (корень $\sqrt{2} \approx 1.414214$).
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 5</b></summary>
+<script type="text/x-c" data-f="task5_bisection_root.c">#include <stdio.h>
+#include <math.h>
+
+/* Тестовая математическая функция: f(x) = x^2 - 2 */
+double poly(double x)
+{
+    return x * x - 2.0;
+}
+
+/* 
+ * Метод бисекции (деления отрезка пополам).
+ * Принимает указатель на математическую функцию f и указатель root для записи ответа.
+ */
+int find_root_bisection(double (*f)(double), double a, double b, double eps, double *root)
+{
+    /* 1. Проверка входных параметров и указателей */
+    if (f == NULL || root == NULL || eps <= 0.0 || a > b) {
+        return -1;
+    }
+
+    double fa = f(a);
+    double fb = f(b);
+
+    /* Если корень случайно оказался ровно на границе отрезка */
+    if (fabs(fa) < eps) { *root = a; return 0; }
+    if (fabs(fb) < eps) { *root = b; return 0; }
+
+    /* По теореме Больцано-Коши на концах отрезка должны быть разные знаки */
+    if (fa * fb > 0.0) {
+        return -1; /* Одинаковые знаки — метод бисекции неприменим */
+    }
+
+    /* 2. Итеративное сужение отрезка вдвое на каждом шаге */
+    while ((b - a) / 2.0 > eps) {
+        double mid = a + (b - a) / 2.0; /* Середина отрезка */
+        double fmid = f(mid);
+
+        if (fabs(fmid) < eps) {
+            *root = mid;
+            return 0;
+        }
+
+        /* Выбираем ту половину отрезка, на концах которой функция меняет знак */
+        if (fa * fmid < 0.0) {
+            b = mid;
+            fb = fmid;
+        } else {
+            a = mid;
+            fa = fmid;
+        }
+    }
+
+    /* 3. Записываем середину финального отрезка по адресу root */
+    *root = a + (b - a) / 2.0;
+    return 0;
+}
+
+int main(void)
+{
+    double root = 0.0;
+    double eps = 1e-6;
+
+    /* Передаем функцию poly по имени и адрес переменной &root */
+    int status = find_root_bisection(poly, 0.0, 2.0, eps, &root);
+
+    if (status == 0) {
+        printf("Найденный корень уравнения x^2 - 2 = 0: %.6f\n", root);
+        printf("Проверка невязки f(root):               %.8f\n", poly(root));
+    } else {
+        printf("Ошибка: не удалось локализовать корень на заданном отрезке.\n");
+    }
+
+    return 0;
+}</script>
+  </details>
+
+</section>
+
+</div>
+</main>
+
+<script>
+/* Скрипт шаблона: создает кликабельные окна с кодом и автонумерацию секций урока */
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
+ const w=document.createElement('div');w.className='win-c';
+ w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
+ w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
+ s.replaceWith(w)});
+const g=document.getElementById('grid');
+document.querySelectorAll('.wp').forEach((s,i)=>{s.id='t'+(i+1);const n=document.createElement('span');n.className='num';n.textContent=i+1;s.prepend(n);
+ if(g){const a=document.createElement('a');a.href='#t'+(i+1);a.innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b>'+s.dataset.t;g.appendChild(a)}});
+</script>
+</body>
+</html>
