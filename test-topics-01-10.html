@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Итоговый тест по темам 01–10 (Мехмат МГУ)</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+:root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:5rem}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Karla','Helvetica Neue',Arial,sans-serif}
+h1,h2,h3{font-family:'Newsreader',Georgia,serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:10;background:rgba(243,241,231,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule);padding:.6rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.top-title{font:italic 600 1rem 'Newsreader',Georgia,serif}
+.top-title a{color:inherit;text-decoration:none}
+.top-stats{display:flex;align-items:center;gap:.8rem;font:600 .78rem 'JetBrains Mono',monospace}
+.badge{padding:.25rem .6rem;border-radius:999px;border:1px solid var(--rule);background:var(--card)}
+.badge.ok{background:var(--gw);border-color:#b9d8c5;color:var(--green)}
+.btn-reset{padding:.25rem .65rem;border-radius:5px;border:1px solid var(--amber);background:var(--wash);color:var(--deep);font:600 .74rem 'JetBrains Mono',monospace;cursor:pointer}
+.btn-reset:hover{background:var(--amber);color:#fff}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
+.hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.6rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
+.stamp{width:104px;height:104px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .72rem 'JetBrains Mono',monospace;text-align:center;line-height:1.25}
+.obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
+.grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem 'JetBrains Mono',monospace}
+.trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem 'JetBrains Mono',monospace}
+.wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem 'JetBrains Mono',monospace;margin-bottom:.2rem}
+.tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
+.win-c{overflow:hidden;margin:.75rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;padding:.4rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem 'JetBrains Mono',monospace}
+pre{margin:0;padding:.85rem 1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.55 'JetBrains Mono',monospace;tab-size:4}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em 'JetBrains Mono',monospace}
+pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+
+/* СТИЛИ КАРТОЧЕК ВОПРОСОВ */
+.q-card{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:8px;padding:1.1rem 1.25rem;margin:1.25rem 0;box-shadow:var(--sh);transition:border-color .2s}
+.q-card.state-correct{border-left-color:var(--green)}
+.q-card.state-wrong{border-left-color:var(--red)}
+.q-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.55rem}
+.q-num{font:600 .75rem 'JetBrains Mono',monospace;color:var(--deep);background:var(--wash);padding:.15rem .5rem;border-radius:4px}
+.q-type{font:600 .68rem 'JetBrains Mono',monospace;color:var(--soft);text-transform:uppercase}
+.q-title{font-weight:700;margin-bottom:.6rem;font-size:1.02rem}
+
+/* Кнопки множественного выбора */
+.q-opts{display:flex;flex-direction:column;gap:.4rem;margin:.6rem 0}
+.q-opts button{display:block;width:100%;text-align:left;padding:.65rem .9rem;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);font:15.5px/1.45 'Karla','Helvetica Neue',Arial,sans-serif;cursor:pointer;transition:all .15s}
+.q-opts button:hover{border-color:var(--amber);background:var(--wash)}
+.q-opts button.correct{background:var(--gw);border-color:var(--green);color:var(--green);font-weight:700}
+.q-opts button.wrong{background:var(--rw);border-color:var(--red);color:var(--red);text-decoration:line-through}
+.q-opts.locked button{pointer-events:none}
+
+/* Поле и кнопки для свободного ответа */
+.free-wrap{margin:.6rem 0}
+.free-input{width:100%;min-height:68px;padding:.6rem .75rem;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);font:.88rem/1.5 'JetBrains Mono',monospace;resize:vertical}
+.free-input:focus{outline:none;border-color:var(--amber);background:#fff}
+.self-btns{display:flex;gap:.6rem;margin-top:.55rem;flex-wrap:wrap;align-items:center}
+.self-btns span{font-size:.85rem;color:var(--soft);margin-right:.25rem}
+.btn-self{padding:.45rem .85rem;border-radius:6px;border:1px solid var(--rule);background:var(--card);font:700 .82rem 'Karla',sans-serif;cursor:pointer;transition:all .15s}
+.btn-self.ok:hover,.btn-self.ok.active{background:var(--gw);border-color:var(--green);color:var(--green)}
+.btn-self.bad:hover,.btn-self.bad.active{background:var(--rw);border-color:var(--red);color:var(--red)}
+.self-btns.locked .btn-self{pointer-events:none;opacity:.75}
+.self-btns.locked .btn-self.active{opacity:1}
+
+/* Спойлер с ответом */
+details.spoiler{margin-top:.75rem;border:1px solid #b9d8c5;background:var(--gw);border-radius:6px;padding:.6rem .9rem;font-size:.93rem}
+details.spoiler summary{cursor:pointer;font:600 .78rem 'JetBrains Mono',monospace;color:var(--green);outline:none}
+details.spoiler .ans-body{margin-top:.5rem;color:var(--ink)}
+
+/* Итоговое табло */
+.summary-box{background:var(--card);border:2px dashed var(--amber);border-radius:10px;padding:1.5rem;margin-top:2rem;text-align:center;box-shadow:var(--sh)}
+.summary-score{font:600 2rem 'Newsreader',Georgia,serif;color:var(--ink);margin:.4rem 0}
+.progress-bar{width:100%;height:12px;background:var(--paper);border:1px solid var(--rule);border-radius:999px;overflow:hidden;margin:.8rem 0}
+.progress-fill{height:100%;width:0%;background:var(--green);transition:width .3s}
+
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-title"><a href="01-structure.html">Язык C · Формирующий тест (Темы 01–10)</a></div>
+  <div class="top-stats">
+    <span class="badge" id="stat-answered">Отвечено: 0 / 30</span>
+    <span class="badge ok" id="stat-correct">Верно: 0 / 30 (0%)</span>
+    <button class="btn-reset" onclick="resetQuiz()">Сбросить</button>
+  </div>
+</div>
+
+<main class="wrap">
+  <header class="hero">
+    <div class="stamp">30 ВОПРОСОВ</div>
+    <h1>Теоретический практикум (Темы 01–10)</h1>
+    <p>Формирующее оценивание перед зачетом: от препроцессора и битовых масок до адресной арифметики и callbacks</p>
+  </header>
+
+  <section class="obj">
+    <h2>Как работать с тестом</h2>
+    <p>Тест состоит из <b>30 нетривиальных вопросов</b> (по 3 вопроса на каждую из пройденных тем 01–10), моделирующих каверзные теоретические вопросы и задачи на чтение кода:</p>
+    <ul>
+      <li><b>Вопросы с выбором ответа (20 шт.):</b> нажмите на один из 4 вариантов. Ответ сразу подсветится зелёным или красным, балл начислится автоматически, и откроется спойлер с разбором.</li>
+      <li><b>Вопросы со свободным ответом (10 шт.):</b> впишите свой ответ (или устно сформулируйте мысль), откройте спойлер <i>«Показать эталонный ответ и разбор»</i>, сверьтесь и честно нажмите кнопку <b>«✓ Верно (+1 балл)»</b> или <b>«✗ Неверно (0 баллов)»</b>.</li>
+    </ul>
+  </section>
+
+  <!-- Сетка навигации по урокам курса -->
+  <nav class="grid" aria-label="Темы курса">
+    <a href="#t1"><b>01</b>Структура программы</a>
+    <a href="#t2"><b>02</b>Базовые типы</a>
+    <a href="#t3"><b>03</b>Константы</a>
+    <a href="#t4"><b>04</b>Арифметика</a>
+    <a href="#t5"><b>05</b>Логика</a>
+    <a href="#t6"><b>06</b>Условия и goto</a>
+    <a href="#t7"><b>07</b>Циклы</a>
+    <a href="#t8"><b>08</b>Функции</a>
+    <a href="#t9"><b>09</b>Область видимости</a>
+    <a href="#t10"><b>10</b>Указатели</a>
+  </nav>
+
+  <div class="trail" id="quiz-trail"></div>
+
+  <section class="summary-box" id="final-summary">
+    <h2>Итоговый результат тестирования</h2>
+    <div class="summary-score"><span id="sum-correct">0</span> из 30 (<span id="sum-pct">0</span>%)</div>
+    <div class="progress-bar"><div class="progress-fill" id="sum-bar"></div></div>
+    <p id="sum-verdict" style="color:var(--soft);margin-bottom:1rem;">Ответьте на вопросы выше, чтобы увидеть диагностику готовности к зачету.</p>
+    <button class="btn-reset" onclick="resetQuiz()">Пройти тест заново</button>
+  </section>
+</main>
+
+<script>
+const topicsData = [
+  {
+    navTitle: "Структура программы",
+    fullTitle: "Тема 01. Структура программы и стадии сборки",
+    sub: "Препроцессор, компиляция, линковка и прототипы функций.",
+    questions: [
+      {
+        id: 1,
+        type: "mcq",
+        q: "В файле main.c есть корректный прототип double calc(int x); и вызов calc(5), но само тело (определение) функции calc нигде не написано. На какой стадии сборки возникнет ошибка и как она будет выглядеть?",
+        opts: [
+          "На стадии препроцессора: fatal error: calc.h: No such file or directory",
+          "На стадии компиляции в объектный код: implicit declaration of function 'calc'",
+          "На стадии линковки (компоновки): undefined reference to `calc`",
+          "Программа успешно соберется, но упадёт с Segmentation Fault при запуске"
+        ],
+        ans: 2,
+        exp: "Прототип <code>double calc(int x);</code> полностью удовлетворяет <b>компилятор</b>: он знает сигнатуру и проверяет типы при вызове <code>calc(5)</code>, создавая <code>main.o</code>. Ошибка возникнет на финальной стадии <b>линковки</b> (<code>undefined reference to 'calc'</code>), когда компоновщик попытается подставить реальный адрес машинного кода функции, а определения ни в одном объектном файле нет."
+      },
+      {
+        id: 2,
+        type: "mcq",
+        q: "Какой ключ компилятора GCC останавливает процесс сборки сразу после работы препроцессора и выводит «раскрытый» исходный код (без #include и #define)?",
+        opts: [
+          "gcc -c prog.c",
+          "gcc -E prog.c",
+          "gcc -Wall prog.c",
+          "gcc -S prog.c"
+        ],
+        ans: 1,
+        exp: "Ключ <code>-E</code> запускает только препроцессор (раскрытие <code>#include</code>, подстановка <code>#define</code>, удаление комментариев). Ключ <code>-c</code> компилирует в объектный файл <code>.o</code> без линковки, а <code>-S</code> генерирует ассемблерный код."
+      },
+      {
+        id: 3,
+        type: "free",
+        q: "Что выведет вызов printf(\"%d\\n\", printf(\"MSU\")); и почему? Объясните, что возвращает функция printf.",
+        placeholder: "Напишите точный вывод на экран и объяснение...",
+        exp: "<b>Вывод:</b> <code>MSU3</code> (с переводом строки).<br><b>Разбор:</b> Сначала вычисляется аргумент внешнего вызова — внутренний <code>printf(\"MSU\")</code>. Он печатает на экран три символа <code>MSU</code> и <b>возвращает количество успешно выведенных символов</b> (целое число <code>3</code>). Затем внешний <code>printf(\"%d\\n\", 3)</code> печатает число <code>3</code> сразу после <code>MSU</code>."
+      }
+    ]
+  },
+  {
+    navTitle: "Базовые типы",
+    fullTitle: "Тема 02. Базовые типы данных и представление в памяти",
+    sub: "Размеры типов, знаковость, переполнение и оператор sizeof.",
+    questions: [
+      {
+        id: 4,
+        type: "mcq",
+        q: "Что произойдет при выполнении следующего фрагмента кода, где сравниваются знаковое и беззнаковое числа?",
+        code: "int a = -1;\nunsigned int b = 1u;\nif (a > b)\n    puts(\"GREATER\");\nelse\n    puts(\"SMALLER\");",
+        opts: [
+          "Выведется SMALLER, так как -1 меньше 1",
+          "Выведется GREATER, так как при сравнении int неявно приводится к unsigned int и -1 превращается в огромное число UINT_MAX",
+          "Произойдет ошибка компиляции из-за несовпадения типов",
+          "Возникнет неопределенное поведение (Undefined Behavior)"
+        ],
+        ans: 1,
+        exp: "По правилам арифметических преобразований C (usual arithmetic conversions), если один операнд имеет тип <code>unsigned int</code>, а другой — <code>int</code>, знаковый <code>int</code> приводится к <code>unsigned int</code> по модулю $2^N$. Число <code>-1</code> в дополнительном коде состоит из всех единиц и превращается в <code>UINT_MAX</code> (4294967295), что больше <code>1u</code>. Именно поэтому флаг <code>-Wextra</code> предупреждает о <code>sign-compare</code>!"
+      },
+      {
+        id: 5,
+        type: "mcq",
+        q: "Чему равно значение переменной x после выполнения строки: int x = 5; size_t s = sizeof(++x);?",
+        opts: [
+          "x равен 6, так как префиксный инкремент выполняется до вычисления sizeof",
+          "x остаётся равен 5, так как выражение внутри sizeof (кроме массивов переменной длины VLA) вычисляется на этапе компиляции и НЕ выполняется во время работы программы",
+          "Код не скомпилируется: внутри sizeof запрещены побочные эффекты",
+          "Зависит от уровня оптимизации компилятора (-O0 или -O2)"
+        ],
+        ans: 1,
+        exp: "Оператор <code>sizeof</code> определяет размер типа выражения на этапе <b>компиляции</b>. Само выражение <code>++x</code> во время выполнения программы вообще не вычисляется (его побочный эффект не происходит), поэтому <code>x</code> остаётся равным <code>5</code>, а <code>s</code> получает значение <code>sizeof(int)</code> (обычно 4)."
+      },
+      {
+        id: 6,
+        type: "free",
+        q: "В чем фундаментальная разница с точки зрения стандарта C между переполнением беззнакового типа (unsigned int) и переполнением знакового типа (signed int)?",
+        placeholder: "Опишите поведение для unsigned int и для signed int...",
+        exp: "<b>Беззнаковое переполнение (unsigned):</b> строго определено стандартом C — вычисления происходят по модулю $2^N$ (прибавление 1 к <code>UINT_MAX</code> гарантированно даёт <code>0</code>).<br><b>Знаковое переполнение (signed):</b> является <b>неопределенным поведением (Undefined Behavior, UB)</b>! Компилятор имеет право считать, что знакового переполнения никогда не случается, и может выбросить проверки вида <code>if (x + 1 &lt; x)</code> при оптимизации."
+      }
+    ]
+  },
+  {
+    navTitle: "Константы",
+    fullTitle: "Тема 03. Константы, литералы и макросы",
+    sub: "Системы счисления, директива #define, const и строковые литералы.",
+    questions: [
+      {
+        id: 7,
+        type: "mcq",
+        q: "Чему будет равна переменная res в следующем коде с макросом?",
+        code: "#define SQR(x) x * x\nint res = SQR(3 + 2);",
+        opts: [
+          "25",
+          "11",
+          "13",
+          "Ошибка компиляции"
+        ],
+        ans: 1,
+        exp: "Препроцессор делает чисто текстовую подстановку до компиляции. Выражение <code>SQR(3 + 2)</code> превращается в текст <code>3 + 2 * 2 + 3</code> → <code>3 + 6 + 2 = 11</code> из-за приоритета умножения над сложением. Правильное определение макроса требует скобок вокруг каждого аргумента и всего выражения: <code>#define SQR(x) ((x) * (x))</code>."
+      },
+      {
+        id: 8,
+        type: "mcq",
+        q: "Какое десятичное число выведет фрагмент кода: int a = 012 + 0x10; printf(\"%d\", a);?",
+        opts: [
+          "22",
+          "26",
+          "28",
+          "18"
+        ],
+        ans: 1,
+        exp: "Ведущий ноль <code>012</code> означает <b>восьмеричную</b> систему счисления: $1 \\cdot 8 + 2 = 10$. Префикс <code>0x10</code> означает <b>шестнадцатеричную</b> систему: $1 \\cdot 16 + 0 = 16$. Сумма: $10 + 16 = 26$."
+      },
+      {
+        id: 9,
+        type: "free",
+        q: "Каков тип символьного литерала 'A' в языке C (в отличие от C++) и чему равен sizeof('A') на стандартной 64-битной платформе?",
+        placeholder: "Укажите тип и значение sizeof('A')...",
+        exp: "В языке C символьный литерал в одинарных кавычках (например, <code>'A'</code>) имеет тип <b><code>int</code></b>, а не <code>char</code>! Поэтому <code>sizeof('A')</code> равен <code>sizeof(int)</code>, то есть <b>4 байта</b> (в то время как для переменной <code>char c = 'A';</code> выражение <code>sizeof(c)</code> равно <code>1</code>)."
+      }
+    ]
+  },
+  {
+    navTitle: "Арифметика",
+    fullTitle: "Тема 04. Арифметические операции и приведение типов",
+    sub: "Целочисленное деление, остаток, инкремент/декремент и явное приведение.",
+    questions: [
+      {
+        id: 10,
+        type: "mcq",
+        q: "Какое значение получит переменная d после выполнения строки: double d = 1 / 2 * 4.0 + (double)(7 / 2);?",
+        opts: [
+          "5.5",
+          "5.0",
+          "3.0",
+          "3.5"
+        ],
+        ans: 2,
+        exp: "Операции <code>/</code> и <code>*</code> имеют одинаковый приоритет и выполняются слева направо:<br>1) <code>1 / 2</code> — оба операнда <code>int</code>, целочисленное деление даёт <code>0</code>.<br>2) <code>0 * 4.0</code> даёт <code>0.0</code>.<br>3) В <code>(double)(7 / 2)</code> сначала внутри скобок вычисляется целочисленное деление <code>7 / 2 = 3</code>, а затем <code>3</code> приводится к <code>3.0</code>.<br>Итог: <code>0.0 + 3.0 = 3.0</code>."
+      },
+      {
+        id: 11,
+        type: "mcq",
+        q: "Чему равен результат операции взятия остатка со знаком минус в стандарте C99/C11: printf(\"%d %d\", -17 % 5, 17 % -5);?",
+        opts: [
+          "-2 и -2",
+          "3 и -3",
+          "-2 и 2",
+          "Неопределенное поведение (UB)"
+        ],
+        ans: 2,
+        exp: "В стандарте C целочисленное деление усекает дробную часть к нулю (<code>-17 / 5 == -3</code>), а для остатка всегда выполняется тождество <code>(a / b) * b + a % b == a</code>. Следовательно, <b>знак результата <code>a % b</code> всегда совпадает со знаком делимого <code>a</code></b>: <code>-17 % 5 == -2</code>, а <code>17 % -5 == 2</code>."
+      },
+      {
+        id: 12,
+        type: "free",
+        q: "Почему выражение int i = 1; int x = i++ + ++i; является грубой ошибкой на зачете? Как называется эта ситуация в стандарте C?",
+        placeholder: "Назовите термин из стандарта C и объясните причину...",
+        exp: "Это <b>Undefined Behavior (неопределённое поведение, UB)</b> из-за нарушения правил упорядочивания побочных эффектов (unsequenced side effects). Переменная <code>i</code> модифицируется дважды в одном полном выражении без точки следования (sequence point) между модификациями. Стандарт не фиксирует порядок вычисления подвыражений вокруг <code>+</code>."
+      }
+    ]
+  },
+  {
+    navTitle: "Логика",
+    fullTitle: "Тема 05. Логические и побитовые операторы",
+    sub: "Короткое замыкание (short-circuit), битовые маски и сдвиги.",
+    questions: [
+      {
+        id: 13,
+        type: "mcq",
+        q: "Что выведет на экран следующий фрагмент кода?",
+        code: "int a = 0, b = 5, c = 10;\nint r = (a && ++b) || ++c;\nprintf(\"a=%d b=%d c=%d r=%d\", a, b, c, r);",
+        opts: [
+          "a=0 b=6 c=11 r=1",
+          "a=0 b=5 c=11 r=1",
+          "a=0 b=5 c=10 r=1",
+          "a=0 b=6 c=10 r=1"
+        ],
+        ans: 1,
+        exp: "1) В подвыражении <code>(a && ++b)</code> левый операнд <code>a</code> равен <code>0</code> (ложь). По правилу короткого замыкания для <code>&&</code> правый операнд <code>++b</code> <b>не вычисляется</b>, поэтому <code>b</code> остаётся равным <code>5</code>, а результат скобки равен <code>0</code>.<br>2) Далее вычисляется <code>0 || ++c</code>. Так как слева от <code>||</code> стоит <code>0</code>, правый операнд <code>++c</code> <b>вычисляется</b>: <code>c</code> становится <code>11</code> (не ноль → истина), а результат всего выражения <code>r</code> равен <code>1</code>."
+      },
+      {
+        id: 14,
+        type: "mcq",
+        q: "Какая классическая ошибка допущена в проверке битовой маски: if (flags & MASK == 0) и как она вычисляется на самом деле?",
+        opts: [
+          "Оператор & нельзя использовать внутри if",
+          "У оператора == приоритет ВЫШЕ, чем у побитового &, поэтому выражение читается компилятором как if (flags & (MASK == 0))",
+          "Нужно использовать логическое && вместо &",
+          "Никакой ошибки нет, код работает корректно"
+        ],
+        ans: 1,
+        exp: "Это одна из самых известных ловушек приоритетов в C: операторы сравнения (<code>==</code>, <code>!=</code>) имеют <b>более высокий приоритет</b>, чем побитовые операторы <code>&amp;</code>, <code>^</code>, <code>|</code>! Поэтому без скобок сначала вычисляется <code>MASK == 0</code>, и только потом результат накладывается на <code>flags</code>. Правильная запись: <code>if ((flags &amp; MASK) == 0)</code>."
+      },
+      {
+        id: 15,
+        type: "free",
+        q: "Что делает выражение n & (n - 1) для положительного целого числа n и как с его помощью за O(1) проверить, является ли n точной степенью двойки?",
+        placeholder: "Опишите побитовый эффект n & (n - 1)...",
+        exp: "Выражение <code>n &amp; (n - 1)</code> <b>обнуляет самый младший единичный бит</b> числа <code>n</code>.<br>Так как степень двойки в двоичной записи содержит ровно одну единицу (например, $8 = 1000_2$, а $7 = 0111_2$), то для положительного <code>n &gt; 0</code> условие <b><code>(n &amp; (n - 1)) == 0</code></b> истинно тогда и только тогда, когда <code>n</code> является степенью двойки!"
+      }
+    ]
+  },
+  {
+    navTitle: "Условия и goto",
+    fullTitle: "Тема 06. Условные операторы, switch и goto",
+    sub: "Ветвления, ловушка присваивания в if, проваливание в switch и тернарный оператор.",
+    questions: [
+      {
+        id: 16,
+        type: "mcq",
+        q: "Что выведет следующий код с оператором switch?",
+        code: "int x = 2, res = 0;\nswitch (x) {\n    case 1: res += 10; break;\n    case 2: res += 20;\n    case 3: res += 30;\n    default: res += 5;\n}\nprintf(\"%d\", res);",
+        opts: [
+          "20",
+          "50",
+          "55",
+          "25"
+        ],
+        ans: 2,
+        exp: "Управление прыгает на метку <code>case 2:</code>, где <code>res</code> становится <code>20</code>. Поскольку после <code>case 2</code> и <code>case 3</code> <b>отсутствует оператор <code>break;</code></b>, происходит сквозное «проваливание» (fall-through) во все последующие ветки подряд: <code>20 + 30 + 5 = 55</code>."
+      },
+      {
+        id: 17,
+        type: "mcq",
+        q: "Что напечатает программа при выполнении следующего фрагмента кода?",
+        code: "int x = 0;\nif (x = 0)\n    printf(\"A:%d\", x);\nelse if (x = 5)\n    printf(\"B:%d\", x);\nelse\n    printf(\"C:%d\", x);",
+        opts: [
+          "A:0",
+          "B:5",
+          "C:0",
+          "Ошибка компиляции: в условии if нельзя использовать присваивание ="
+        ],
+        ans: 1,
+        exp: "В C присваивание <code>=</code> является выражением, которое возвращает присвоенное значение. В первом условии <code>(x = 0)</code> переменной <code>x</code> присваивается <code>0</code>, и само выражение возвращает <code>0</code> (ложь). Во втором условии <code>(x = 5)</code> переменной <code>x</code> присваивается <code>5</code>, выражение возвращает <code>5</code> (не ноль — истина!), поэтому срабатывает вторая ветка и печатает <code>B:5</code>."
+      },
+      {
+        id: 18,
+        type: "free",
+        q: "К какой именно ветке if относится else в коде: if (a > 0) if (b > 0) x = 1; else x = 2; (проблема «висячего else» / dangling else) и в каких двух сценариях в языке C использование оператора goto считается хорошей инженерной практикой?",
+        placeholder: "1) К какому if привязан else? 2) Два оправданных случая для goto...",
+        exp: "1) По стандарту C <code>else</code> всегда связывается с <b>ближайшим предыдущим незакрытым <code>if</code></b> в том же блоке (то есть с внутренним <code>if (b &gt; 0)</code>), независимо от отступов.<br>2) Два оправданных случая использования <code>goto</code> в C: <b>быстрый выход из глубоко вложенных циклов</b> (так как <code>break</code> выходит только из одного цикла) и <b>единая точка очистки ресурсов (<code>cleanup:</code>)</b> в конце функции (закрытие файлов, освобождение памяти при ошибках)."
+      }
+    ]
+  },
+  {
+    navTitle: "Циклы",
+    fullTitle: "Тема 07. Операторы цикла: for, while, do...while",
+    sub: "Условия завершения, операторы break/continue и граничные случаи.",
+    questions: [
+      {
+        id: 19,
+        type: "mcq",
+        q: "Сколько раз выполнится printf и что именно будет выведено на экран?",
+        code: "int i;\nfor (i = 0; i < 5; i++);\n    printf(\"%d \", i);",
+        opts: [
+          "5 раз: 0 1 2 3 4",
+          "6 раз: 0 1 2 3 4 5",
+          "1 раз: 5",
+          "Ни разу (пустой вывод)"
+        ],
+        ans: 2,
+        exp: "Обратите внимание на <b>точку с запятой <code>;</code> сразу после круглой скобки <code>for (...);</code></b>! Она означает пустое тело цикла. Цикл вхолостую увеличивает <code>i</code> от 0 до 5 и завершается, когда <code>i</code> становится равным <code>5</code>. После этого один раз выполняется обычный <code>printf</code> и выводит <code>5</code>."
+      },
+      {
+        id: 20,
+        type: "mcq",
+        q: "В чем ключевое отличие поведения оператора continue внутри цикла for от его поведения внутри цикла while?",
+        opts: [
+          "Никакого отличия нет: оба сразу переходят к проверке условия цикла",
+          "В цикле for оператор continue переходит к выражению ШАГА (третья секция заголовка for), а в цикле while — сразу к ПРОВЕРКЕ УСЛОВИЯ (из-за чего в while легко получить бесконечный цикл, если шаг написан после continue)",
+          "Оператор continue работает только в циклах for",
+          "В цикле while оператор continue завершает цикл, как break"
+        ],
+        ans: 1,
+        exp: "В цикле <code>for (init; cond; step)</code> вызов <code>continue</code> передаёт управление на секцию <code>step</code> (например, <code>i++</code>), и лишь затем проверяет <code>cond</code>. А в цикле <code>while (cond)</code> <code>continue</code> прыгает сразу на проверку <code>cond</code>: если инкремент счётчика стоял ниже <code>continue</code>, счётчик не увеличится и цикл зависнет навсегда!"
+      },
+      {
+        id: 21,
+        type: "free",
+        q: "Почему цикл обратного отсчета с беззнаковым счетчиком: for (unsigned int i = 5; i >= 0; i--) никогда не завершится?",
+        placeholder: "Объясните, что происходит при i == 0...",
+        exp: "Поскольку переменная <code>i</code> имеет беззнаковый тип <code>unsigned int</code>, её значение по определению <b>всегда больше либо равно 0</b> (условие <code>i &gt;= 0</code> истинно вечно!). Когда <code>i</code> доходит до <code>0</code> и выполняется декремент <code>i--</code>, происходит беззнаковое переполнение по модулю $2^{32}$, и <code>i</code> становится равным <code>UINT_MAX</code> (4294967295), продолжая цикл бесконечно."
+      }
+    ]
+  },
+  {
+    navTitle: "Функции",
+    fullTitle: "Тема 08. Функции, стек вызовов и рекурсия",
+    sub: "Прототипы, передача по значению и глубина рекурсии.",
+    questions: [
+      {
+        id: 22,
+        type: "mcq",
+        q: "В чем разница между двумя объявлениями прототипов функций в стандарте C (до C23): int func(void); и int func();?",
+        opts: [
+          "Они абсолютно идентичны",
+          "int func(void); строго запрещает передачу любых аргументов, а пустые скобки int func(); в старых стандартах C (C89/C99/C11) означают функцию с НЕУКАЗАННЫМ числом параметров (отключают проверку аргументов компилятором)",
+          "int func(); возвращает void, а int func(void); возвращает int",
+          "Запись int func(void); запрещена стандартом C11"
+        ],
+        ans: 1,
+        exp: "В стандартах C89/C99/C11 запись <code>int func(void);</code> означает «функция гарантированно не принимает параметров», тогда как <code>int func();</code> означает «параметры не специфицированы» (можно ошибочно вызвать <code>func(1, 2, 3)</code> без ошибки компиляции). На зачете всегда нужно писать <code>(void)</code>!"
+      },
+      {
+        id: 23,
+        type: "mcq",
+        q: "Что выведет на экран рекурсивная функция f(3)?",
+        code: "void f(int n) {\n    if (n <= 0) return;\n    printf(\"%d \", n);\n    f(n - 1);\n    printf(\"%d \", n);\n}",
+        opts: [
+          "3 2 1 1 2 3",
+          "3 2 1 3 2 1",
+          "1 2 3 3 2 1",
+          "3 2 1 0 1 2 3"
+        ],
+        ans: 0,
+        exp: "Первый <code>printf</code> выполняется на <b>прямом ходе рекурсии</b> (при погружении в стек): печатается <code>3</code>, затем <code>2</code>, затем <code>1</code>. Вызов <code>f(0)</code> сразу делает <code>return</code>. Затем на <b>обратном ходе рекурсии</b> (при раскрутке стека вызовов) выполняется второй <code>printf</code> в обратном порядке: для <code>n=1</code>, <code>n=2</code> и <code>n=3</code>. Итог: <code>3 2 1 1 2 3</code>."
+      },
+      {
+        id: 24,
+        type: "free",
+        q: "Что происходит в оперативной памяти при каждом рекурсивном вызове функции, и почему отсутствие базового случая приводит к аварийному завершению программы (Stack Overflow)?",
+        placeholder: "Опишите, что выделяется на стеке при каждом вызове...",
+        exp: "При каждом вызове функции в <b>стеке вызовов (Call Stack)</b> создаётся новый <b>стековый кадр (stack frame)</b>, в котором сохраняются адрес возврата, параметры и все локальные <code>auto</code>-переменные этого вызова. Размер стека ограничен (обычно 1–8 МБ). Если нет базового случая (условия выхода), новые кадры создаются бесконечно, пока память стека не исчерпается (<b>Stack Overflow</b>), вызывая <code>Segmentation Fault</code>."
+      }
+    ]
+  },
+  {
+    navTitle: "Область видимости",
+    fullTitle: "Тема 09. Область видимости и время жизни переменных",
+    sub: "Локальные и глобальные переменные, static, extern и затенение (shadowing).",
+    questions: [
+      {
+        id: 25,
+        type: "mcq",
+        q: "Что выведет программа после трёх вызовов функции step()?",
+        code: "int step(void) {\n    static int s = 10;\n    int a = 10;\n    s += 5;\n    a += 5;\n    return s + a;\n}\nint main(void) {\n    printf(\"%d \", step());\n    printf(\"%d \", step());\n    printf(\"%d\", step());\n}",
+        opts: [
+          "30 30 30",
+          "30 35 40",
+          "30 40 50",
+          "20 25 30"
+        ],
+        ans: 1,
+        exp: "Переменная <code>static int s = 10;</code> инициализируется только один раз и сохраняет значение между вызовами (15 → 20 → 25). Обычная локальная переменная <code>int a = 10;</code> создается заново при каждом вызове и всегда становится равной 15. Поэтому суммы равны: <code>15+15=30</code>, <code>20+15=35</code>, <code>25+15=40</code>."
+      },
+      {
+        id: 26,
+        type: "mcq",
+        q: "Зачем перед глобальной переменной или функцией на уровне файла (.c) ставят ключевое слово static (например, static int helper_count = 0;)?",
+        opts: [
+          "Чтобы переменная быстрее читалась процессором из кэша",
+          "Чтобы сделать переменную константной (неизменяемой)",
+          "Чтобы задать внутреннее связывание (internal linkage): имя будет видно только внутри текущего .c-файла и скрыто от других файлов при линковке",
+          "Чтобы переменная размещалась на стеке, а не в сегменте данных"
+        ],
+        ans: 2,
+        exp: "На уровне файла ключевое слово <code>static</code> ограничивает видимость идентификатора текущим модулем (единицей трансляции <code>.c</code>). Другие файлы проекта не смогут обратиться к такой переменной или функции даже через <code>extern</code>, что обеспечивает инкапсуляцию и защищает от конфликтов имён при сборке многофайловых программ."
+      },
+      {
+        id: 27,
+        type: "free",
+        q: "Почему функция int* bad_func(void) { int x = 42; return &x; } является критической ошибкой, даже если в простом тесте она случайно напечатала 42?",
+        placeholder: "Объясните с точки зрения времени жизни (lifetime) локальной переменной...",
+        exp: "Переменная <code>x</code> имеет автоматическое время жизни (хранится на стеке). В момент выполнения <code>return</code> стековый кадр функции уничтожается, и память <code>x</code> считается свободной. Возвращенный указатель становится <b>висячим (dangling pointer)</b>: любое обращение по нему — <b>Undefined Behavior</b>, так как любой следующий вызов функции (например, <code>printf</code>) перезапишет эту область стека."
+      }
+    ]
+  },
+  {
+    navTitle: "Указатели",
+    fullTitle: "Тема 10. Указатели, адресная арифметика и указатели на функции",
+    sub: "Разыменование, const с указателями, распад массива (array decay) и callbacks.",
+    questions: [
+      {
+        id: 28,
+        type: "mcq",
+        q: "Пусть на 64-битной платформе sizeof(int) == 4, а sizeof(int*) == 8. Что выведет следующий код?",
+        code: "void test(int arr[10]) {\n    printf(\"%zu \", sizeof(arr));\n}\nint main(void) {\n    int a[10] = {10, 20, 30, 40, 50};\n    int *p = &a[1];\n    int *q = &a[4];\n    printf(\"%zu %td \", sizeof(a), q - p);\n    test(a);\n}",
+        opts: [
+          "40 3 8",
+          "40 12 40",
+          "8 3 8",
+          "40 3 40"
+        ],
+        ans: 0,
+        exp: "1) В <code>main</code> идентификатор <code>a</code> — это сам массив из 10 элементов типа <code>int</code>, поэтому <code>sizeof(a) = 10 * 4 = 40</code> байт.<br>2) Разность двух указателей <code>q - p</code> возвращает количество <b>элементов</b> между ними (а не байт!): <code>4 - 1 = 3</code>.<br>3) В параметрах функции <code>void test(int arr[10])</code> запись <code>int arr[10]</code> автоматически преобразуется компилятором в обычный указатель <code>int *arr</code> (array decay), поэтому <code>sizeof(arr)</code> внутри функции равен размеру указателя — <code>8</code> байт!"
+      },
+      {
+        id: 29,
+        type: "mcq",
+        q: "Какое из следующих объявлений задаёт КОНСТАНТНЫЙ УКАЗАТЕЛЬ на изменяемое целое число (адрес менять нельзя, а значение по адресу менять можно)?",
+        opts: [
+          "const int *p = &x;",
+          "int const *p = &x;",
+          "int * const p = &x;",
+          "const int * const p = &x;"
+        ],
+        ans: 2,
+        exp: "Читаем справа налево от имени переменной: в <code>int * const p = &amp;x;</code> слово <code>const</code> стоит <b>справа от звёздочки</b>, защищая сам указатель <code>p</code> (<code>p = &amp;y</code> запрещено, <code>*p = 10</code> разрешено). А варианты <code>const int *p</code> и <code>int const *p</code> идентичны и означают указатель на константный <code>int</code>."
+      },
+      {
+        id: 30,
+        type: "free",
+        q: "Расшифруйте разницу между двумя объявлениями: 1) int *f(int, int); и 2) int (*f)(int, int);. Почему круглые скобки вокруг (*f) меняют смысл конструкции?",
+        placeholder: "Объясните, чем является f в первом и во втором случае...",
+        exp: "Постфиксные круглые скобки вызова функции <code>()</code> имеют <b>более высокий приоритет</b>, чем префиксная звёздочка <code>*</code>:<br>1) <code>int *f(int, int);</code> — это <b>прототип функции</b> <code>f</code>, которая принимает два <code>int</code> и возвращает указатель <code>int *</code>.<br>2) <code>int (*f)(int, int);</code> — скобки принудительно связывают звёздочку с именем <code>f</code>, поэтому <code>f</code> — это <b>переменная-указатель на функцию</b>, принимающую два <code>int</code> и возвращающую <code>int</code>."
+      }
+    ]
+  }
+];
+
+let totalAnswered = 0;
+let totalCorrect = 0;
+const totalQuestions = 30;
+
+function renderQuiz() {
+  const trail = document.getElementById('quiz-trail');
+  trail.innerHTML = '';
+  totalAnswered = 0;
+  totalCorrect = 0;
+  updateStats();
+
+  topicsData.forEach((topic, tIdx) => {
+    const sec = document.createElement('section');
+    sec.className = 'wp';
+    sec.id = 't' + (tIdx + 1);
+    sec.dataset.t = topic.navTitle;
+
+    const numSpan = document.createElement('span');
+    numSpan.className = 'num';
+    numSpan.textContent = tIdx + 1;
+    sec.appendChild(numSpan);
+
+    const h2 = document.createElement('h2');
+    h2.textContent = topic.fullTitle;
+    sec.appendChild(h2);
+
+    const sub = document.createElement('p');
+    sub.className = 'sub';
+    sub.textContent = topic.sub;
+    sec.appendChild(sub);
+
+    topic.questions.forEach((qObj) => {
+      const card = document.createElement('div');
+      card.className = 'q-card';
+      card.id = 'qcard-' + qObj.id;
+
+      const isMcq = qObj.type === 'mcq';
+      const typeLabel = isMcq ? 'Множественный выбор' : 'Свободный ответ (Самопроверка)';
+
+      let html = `
+        <div class="q-head">
+          <span class="q-num">Вопрос #${String(qObj.id).padStart(2, '0')}</span>
+          <span class="q-type">${typeLabel}</span>
+        </div>
+        <div class="q-title">${qObj.q}</div>
+      `;
+
+      if (qObj.code) {
+        const escCode = qObj.code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        html += `<div class="win-c"><div class="hd"><span>fragment_${qObj.id}.c</span></div><pre><code>${escCode}</code></pre></div>`;
+      }
+
+      if (isMcq) {
+        html += `<div class="q-opts" id="opts-${qObj.id}"></div>`;
+      } else {
+        html += `
+          <div class="free-wrap">
+            <textarea class="free-input" placeholder="${qObj.placeholder || 'Введите ваш ответ перед открытием спойлера...'}"></textarea>
+            <div class="self-btns" id="self-${qObj.id}">
+              <span>Оцените свой ответ после сверки со спойлером:</span>
+              <button class="btn-self ok" onclick="handleSelfCheck(${qObj.id}, true, this)">✓ Ответил верно (+1 балл)</button>
+              <button class="btn-self bad" onclick="handleSelfCheck(${qObj.id}, false, this)">✗ Ошибся (0 баллов)</button>
+            </div>
+          </div>
+        `;
+      }
+
+      html += `
+        <details class="spoiler" id="spoiler-${qObj.id}">
+          <summary>Показать правильный ответ и разбор</summary>
+          <div class="ans-body">${qObj.exp}</div>
+        </details>
+      `;
+
+      card.innerHTML = html;
+      sec.appendChild(card);
+
+      if (isMcq) {
+        const optsContainer = card.querySelector('#opts-' + qObj.id);
+        qObj.opts.forEach((optText, optIdx) => {
+          const btn = document.createElement('button');
+          btn.textContent = optText;
+          btn.onclick = () => handleMcqAnswer(qObj.id, optIdx, qObj.ans, optsContainer, btn);
+          optsContainer.appendChild(btn);
+        });
+      }
+    });
+
+    trail.appendChild(sec);
+  });
+}
+
+function handleMcqAnswer(qId, selectedIdx, correctIdx, container, clickedBtn) {
+  if (container.classList.contains('locked')) return;
+  container.classList.add('locked');
+
+  const card = document.getElementById('qcard-' + qId);
+  const buttons = container.querySelectorAll('button');
+  buttons[correctIdx].classList.add('correct');
+
+  if (selectedIdx === correctIdx) {
+    totalCorrect++;
+    card.classList.add('state-correct');
+  } else {
+    clickedBtn.classList.add('wrong');
+    card.classList.add('state-wrong');
+  }
+
+  totalAnswered++;
+  const spoiler = document.getElementById('spoiler-' + qId);
+  if (spoiler) spoiler.open = true;
+  updateStats();
+}
+
+function handleSelfCheck(qId, isCorrect, clickedBtn) {
+  const wrap = document.getElementById('self-' + qId);
+  if (wrap.classList.contains('locked')) return;
+  wrap.classList.add('locked');
+  clickedBtn.classList.add('active');
+
+  const card = document.getElementById('qcard-' + qId);
+  if (isCorrect) {
+    totalCorrect++;
+    card.classList.add('state-correct');
+  } else {
+    card.classList.add('state-wrong');
+  }
+
+  totalAnswered++;
+  const spoiler = document.getElementById('spoiler-' + qId);
+  if (spoiler) spoiler.open = true;
+  updateStats();
+}
+
+function updateStats() {
+  const pct = totalAnswered > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+  document.getElementById('stat-answered').textContent = `Отвечено: ${totalAnswered} / ${totalQuestions}`;
+  document.getElementById('stat-correct').textContent = `Верно: ${totalCorrect} / ${totalQuestions} (${pct}%)`;
+
+  document.getElementById('sum-correct').textContent = totalCorrect;
+  document.getElementById('sum-pct').textContent = pct;
+  document.getElementById('sum-bar').style.width = `${(totalCorrect / totalQuestions) * 100}%`;
+
+  const verdict = document.getElementById('sum-verdict');
+  if (totalAnswered === 0) {
+    verdict.textContent = 'Ответьте на вопросы выше, чтобы увидеть диагностику готовности к зачету.';
+  } else if (totalAnswered < totalQuestions) {
+    verdict.textContent = `В процессе: пройдено ${totalAnswered} из ${totalQuestions} вопросов. Текущий результат: ${totalCorrect} верных.`;
+  } else {
+    if (totalCorrect >= 26) {
+      verdict.textContent = 'Отличный уровень! Вы уверенно владеете теоретической базой C.';
+    } else if (totalCorrect >= 20) {
+      verdict.textContent = 'Хороший результат! База усвоена, но стоит повторить темы, где были допущены ошибки (особенно UB, приоритеты и указатели).';
+    } else {
+      verdict.textContent = 'Рекомендуется внимательно перечитать конспекты уроков 01–10 и разобрать пояснения под спойлерами перед зачетом.';
+    }
+  }
+}
+
+function resetQuiz() {
+  renderQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuiz();
+</script>
+</body>
+</html>

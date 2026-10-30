@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Строки и обработка текста</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+/* Базовые стили шаблона */
+:root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:4rem}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Karla', 'Helvetica Neue', Arial, sans-serif}
+h1,h2,h3{font-family:'Newsreader', Georgia, serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem 'Newsreader', Georgia, serif}
+.top a{color:inherit;text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
+.hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.8rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
+.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem 'JetBrains Mono', monospace}
+.obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
+.grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem 'JetBrains Mono', monospace}
+.trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem 'JetBrains Mono', monospace}
+.wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem 'JetBrains Mono', monospace;margin-bottom:.2rem}
+.tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
+.win-c{overflow:hidden;margin:1rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem 'JetBrains Mono', monospace}
+.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem 'JetBrains Mono', monospace;cursor:pointer}
+.out{background:#111417}.out pre{color:#9fe0b4}
+pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 'JetBrains Mono', monospace;tab-size:4}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem 'JetBrains Mono', monospace}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em 'JetBrains Mono', monospace}
+pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+.task{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:6px;padding:.8rem 1.1rem;margin:1rem 0}
+details summary{cursor:pointer;font-weight:700;outline:none}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2.1rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
+</style>
+</head>
+<body>
+<div class="top"><a href="01-structure.html">Язык C: Учебник</a></div>
+<main class="wrap">
+
+<header class="hero">
+  <div class="stamp">C · GCC</div>
+  <h1>Язык C</h1>
+  <p>Строки и функции работы со строками</p>
+</header>
+
+<!-- НАВИГАЦИЯ -->
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+
+<section class="obj">
+  <h2>Цель урока</h2>
+  <p>В языке C нет встроенного примитивного типа <code>string</code>, как в Python или C++. Строка в C — это обычный массив символов <code>char</code>, который обязательно заканчивается специальным нулевым байтом <code>'\0'</code>. Задачи на строки  проверяют умение работать с массивами, указателями, циклами и памятью. В этом уроке мы разберем внутреннее устройство строк, стандартную библиотеку <code>&lt;string.h&gt;</code>, обработку символов <code>&lt;ctype.h&gt;</code> и напишем собственные строковые алгоритмы.</p>
+</section>
+
+<div class="trail">
+
+<!-- ТЕМА 1 -->
+<section class="wp" data-t="Устройство строки и '\0'">
+  <h2>Как устроена строка в памяти: нуль-терминатор '\0'</h2>
+  <p class="sub">Массив символов, разница между sizeof и strlen, массив против указателя на литерал.</p>
+
+  <p><b>Си-строка (C-string / null-terminated string)</b> — это последовательность символов типа <code>char</code>, расположенная в непрерывной области памяти и завершающаяся <b>нуль-терминатором</b> (символом <code>'\0'</code> с целочисленным кодом <code>0</code>).</p>
+
+  <h3>Зачем нужен символ '\0'?</h3>
+  <p>Когда вы передаете строку в функцию (например, в <code>printf("%s", s)</code> или <code>strlen(s)</code>), функция получает лишь указатель <code>char *</code> на первый символ. Она не знает размер массива! Единственный способ понять, где строка заканчивается — идти по байтам вперед, пока не встретится байт со значением <code>'\0'</code>.</p>
+
+  <div class="win-c"><div class="hd"><span>Представление строки "Hello" в памяти (6 байт!)</span></div><pre><code>Индекс:     [0]    [1]    [2]    [3]    [4]    [5]
+           ┌──────┬──────┬──────┬──────┬──────┬──────┐
+Символ:    │ 'H'  │ 'e'  │ 'l'  │ 'l'  │ 'o'  │ '\0' │
+           ├──────┼──────┼──────┼──────┼──────┼──────┤
+Код ASCII: │  72  │ 101  │ 108  │ 108  │ 111  │   0  │
+           └──────┴──────┴──────┴──────┴──────┴──────┘</code></pre></div>
+
+  <p>Из этой схемы вытекает важнейшее правило: чтобы сохранить строку из <code>N</code> видимых символов, массив должен иметь размер <b>минимум <code>N + 1</code> байт</b> (один дополнительный байт под <code>'\0'</code>).</p>
+
+  <h3>Два способа создать строку: изменяемый массив vs строковый литерал</h3>
+  <p>На этом различии строится один из самых частых вопросов на зачете:</p>
+  <ol>
+    <li><b>Массив на стеке:</b> <code>char arr[] = "Hello";</code> — компилятор выделяет на стеке массив из 6 байт и <i>копирует</i> туда символы <code>'H','e','l','l','o','\0'</code>. Эти символы принадлежат вам, их <b>можно изменять</b> (например, <code>arr[0] = 'M';</code>).</li>
+    <li><b>Указатель на строковый литерал:</b> <code>const char *ptr = "Hello";</code> — сама строка <code>"Hello\0"</code> размещается в специальной секции памяти программы <b>только для чтения (read-only data / .rodata)</b>, а указатель <code>ptr</code> просто хранит её адрес. Попытка изменить символ <code>ptr[0] = 'M';</code> приведет к <b>Undefined Behavior</b> и падению программы с <code>Segmentation Fault</code>! Поэтому указатели на литералы всегда следует объявлять с квалификатором <code>const</code>.</li>
+  </ol>
+
+<script type="text/x-c" data-f="string_memory.c">#include <stdio.h>
+#include <string.h> /* для функции strlen() */
+
+int main(void)
+{
+    /* 1. Изменяемый массив символов на стеке (размер вычисляется автоматически: 6 байт) */
+    char mutable_str[] = "Hello";
+    
+    /* 2. Массив фиксированного размера с запасом (32 байта) */
+    char buffer[32] = "Hello";
+    
+    /* 3. Указатель на неизменяемый строковый литерал в памяти только для чтения */
+    const char *literal_ptr = "Hello";
+
+    /* Изменяем первый символ в массиве — это абсолютно легально */
+    mutable_str[0] = 'M';
+    printf("Измененный массив: %s\n", mutable_str); /* Mello */
+
+    /* literal_ptr[0] = 'M'; — ОШИБКА! Попытка записи в read-only память (Segfault) */
+
+    /* 
+     * РАЗНИЦА МЕЖДУ strlen() И sizeof():
+     * strlen(s) — считает количество символов ДО '\0' (не включая сам '\0') за время O(n).
+     * sizeof(s) — возвращает полный размер переменной в байтах на этапе компиляции.
+     */
+    printf("mutable_str: strlen = %zu, sizeof = %zu (5 букв + 1 байт под '\\0')\n",
+           strlen(mutable_str), sizeof(mutable_str));
+
+    printf("buffer[32]:  strlen = %zu, sizeof = %zu (длина текста 5, но буфер на 32 байта)\n",
+           strlen(buffer), sizeof(buffer));
+
+    printf("literal_ptr: strlen = %zu, sizeof = %zu (sizeof вернул размер указателя!)\n",
+           strlen(literal_ptr), sizeof(literal_ptr));
+
+    return 0;
+}</script>
+
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>Измененный массив: Mello
+mutable_str: strlen = 5, sizeof = 6 (5 букв + 1 байт под '\0')
+buffer[32]:  strlen = 5, sizeof = 32 (длина текста 5, но буфер на 32 байта)
+literal_ptr: strlen = 5, sizeof = 8 (sizeof вернул размер указателя!)</code></pre></div>
+
+  <div class="note watch"><b>ЛОВУШКА: ОДИНАРНЫЕ И ДВОЙНЫЕ КАВЫЧКИ</b>
+    <p>В языке C <code>'A'</code> и <code>"A"</code> — это совершенно разные типы данных!<br>
+    • <code>'A'</code> — это <b>символьная константа</b> (целое число — ASCII-код 65, тип <code>int</code>).<br>
+    • <code>"A"</code> — это <b>строковый литерал</b> (массив из двух байт: <code>{'A', '\0'}</code>, который в выражениях превращается в указатель <code>char *</code>).</p>
+  </div>
+</section>
+
+<!-- ТЕМА 2 -->
+<section class="wp" data-t="Копирование и склейка">
+  <h2>Копирование, конкатенация и форматирование строк</h2>
+  <p class="sub">Почему строки нельзя присваивать через = и как избежать переполнения буфера.</p>
+
+  <p>Поскольку строка в C — это массив, к ней нельзя применить оператор присваивания <code>=</code> после объявления (запись <code>char a[10], b[10] = "Hi"; a = b;</code> не скомпилируется, так как нельзя присвоить один массив другому). Для копирования и склеивания строк используются функции из заголовочного файла <code>&lt;string.h&gt;</code>.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Функция</th>
+        <th>Назначение и особенности безопасности</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>strcpy(dst, src)</code></td>
+        <td>Копирует строку <code>src</code> (включая <code>'\0'</code>) в буфер <code>dst</code>. <b>Опасно:</b> не проверяет размер буфера <code>dst</code>! Если <code>src</code> длиннее, произойдет переполнение буфера (Buffer Overflow).</td>
+      </tr>
+      <tr>
+        <td><code>strncpy(dst, src, n)</code></td>
+        <td>Копирует не более <code>n</code> байт из <code>src</code> в <code>dst</code>. <b>Нюанс:</b> если в первых <code>n</code> байтах не встретился <code>'\0'</code>, функция <b>не поставит</b> <code>'\0'</code> в конец <code>dst</code>! Поэтому после неё всегда вручную ставят терминатор: <code>dst[sizeof(dst) - 1] = '\0';</code>.</td>
+      </tr>
+      <tr>
+        <td><code>strcat(dst, src)</code></td>
+        <td>Дописывает (конкатенирует) строку <code>src</code> в конец строки <code>dst</code>, перезаписывая старый <code>'\0'</code> строки <code>dst</code> и ставя новый в конце. Требует, чтобы в <code>dst</code> хватило свободного места!</td>
+      </tr>
+      <tr>
+        <td><code>strncat(dst, src, n)</code></td>
+        <td>Безопасная версия: дописывает в конец <code>dst</code> не более <code>n</code> символов из <code>src</code> и <b>всегда</b> добавляет завершающий <code>'\0'</code>. Обычно вызывается как <code>strncat(dst, src, sizeof(dst) - strlen(dst) - 1)</code>.</td>
+      </tr>
+      <tr>
+        <td><code>snprintf(buf, size, fmt, ...)</code></td>
+        <td><b>Золотой стандарт безопасности в современном C (из <code>&lt;stdio.h&gt;</code>):</b> работает как <code>printf</code>, но записывает результат в строковый буфер <code>buf</code> размера <code>size</code>. Никогда не выходит за границы буфера и всегда гарантирует наличие <code>'\0'</code> в конце!</td>
+      </tr>
+    </tbody>
+  </table>
+
+<script type="text/x-c" data-f="copy_concat.c">#include <stdio.h>
+#include <string.h>
+
+int main(void)
+{
+    char src[] = "Hello";
+    char dst[16]; /* Буфер на 16 байт (вмещает максимум 15 символов + '\0') */
+
+    /* 1. Безопасное копирование через strncpy */
+    strncpy(dst, src, sizeof(dst) - 1);
+    dst[sizeof(dst) - 1] = '\0'; /* Гарантируем наличие нуль-терминатора */
+    printf("После копирования: '%s'\n", dst);
+
+    /* 2. Безопасная конкатенация (дописывание в конец) через strncat */
+    /* Вычисляем, сколько свободных байт осталось в буфере dst (с учетом 1 байта под '\0') */
+    size_t free_space = sizeof(dst) - strlen(dst) - 1;
+    strncat(dst, ", World!", free_space);
+    printf("После склейки:     '%s'\n", dst);
+
+    /* 3. Универсальное и безопасное формирование строки через snprintf */
+    char report[64];
+    int user_id = 42;
+    double score = 98.5;
+    
+    /* snprintf сам контролирует размер sizeof(report) и всегда ставит '\0' */
+    snprintf(report, sizeof(report), "User #%d: %.1f points", user_id, score);
+    printf("Через snprintf:    '%s'\n", report);
+
+    return 0;
+}</script>
+</section>
+
+<!-- ТЕМА 3 -->
+<section class="wp" data-t="Сравнение и поиск">
+  <h2>Сравнение строк, поиск и разбиение на токены</h2>
+  <p class="sub">Функции strcmp, strchr, strstr и strtok из &lt;string.h&gt;.</p>
+
+  <div class="note watch"><b>ГЛАВНАЯ ЛОВУШКА НА ЗАЧЕТЕ: ОПЕРАТОР == ДЛЯ СТРОК</b>
+    <p>Никогда не сравнивайте строки через <code>if (str1 == str2)</code>! В языке C имена массивов в выражении преобразуются в указатели (адреса их первых элементов). Поэтому выражение <code>str1 == str2</code> сравнивает <b>адреса в памяти</b> (лежат ли две строки в одной и той же ячейке), а не их текст! Два разных массива с одинаковым текстом <code>"abc"</code> имеют разные адреса, и <code>str1 == str2</code> вернет <code>0</code> (ложь).</p>
+  </div>
+
+  <h3>Лексикографическое сравнение: функция strcmp</h3>
+  <p>Функция <code>int strcmp(const char *s1, const char *s2)</code> посимвольно сравнивает коды символов двух строк до первого различия или до <code>'\0'</code>:</p>
+  <ul>
+    <li>Возвращает <b><code>0</code></b>, если строки <b>абсолютно одинаковы</b> (주의: <code>0</code> в C — это «ложь», поэтому для проверки равенства пишут <code>if (strcmp(s1, s2) == 0)</code>!).</li>
+    <li>Возвращает число <b><code>&lt; 0</code></b>, если строка <code>s1</code> по алфавиту (по кодам ASCII) идет <i>раньше</i> <code>s2</code> (например, <code>"abc"</code> и <code>"abd"</code>).</li>
+    <li>Возвращает число <b><code>&gt; 0</code></b>, если строка <code>s1</code> идет <i>позже</i> <code>s2</code>.</li>
+  </ul>
+
+  <h3>Поиск символа, подстроки и разбиение на слова</h3>
+  <ul>
+    <li><code>char *strchr(const char *s, int c)</code> — ищет <b>первое</b> вхождение символа <code>c</code> в строке <code>s</code>. Возвращает указатель на найденный символ внутри строки (или <code>NULL</code>, если символа нет). Чтобы узнать индекс найденного символа, вычтите из найденного указателя начало строки: <code>p - s</code>!</li>
+    <li><code>char *strstr(const char *haystack, const char *needle)</code> — ищет первое вхождение <b>подстроки</b> <code>needle</code> в строке <code>haystack</code>. Возвращает указатель на начало найденной подстроки или <code>NULL</code>.</li>
+    <li><code>char *strtok(char *str, const char *delim)</code> — разбивает строку на части (токены), разделенные любым из символов-разделителей из <code>delim</code>. <b>Важно:</b> <code>strtok</code> изменяет исходную строку (ставит <code>'\0'</code> на место разделителей), поэтому ей нельзя передавать строковый литерал! При первом вызове ей передают саму строку, а при всех последующих в цикле — <code>NULL</code>.</li>
+  </ul>
+
+<script type="text/x-c" data-f="compare_search.c">#include <stdio.h>
+#include <string.h>
+
+int main(void)
+{
+    char s1[] = "apple";
+    char s2[] = "apple";
+    char s3[] = "apricot";
+
+    /* 1. Правильное сравнение строк через strcmp */
+    if (strcmp(s1, s2) == 0) {
+        printf("Строки s1 и s2 полностью совпадают!\n");
+    }
+    if (strcmp(s1, s3) < 0) {
+        printf("'%s' идет в словаре раньше, чем '%s' ('l' < 'r')\n", s1, s3);
+    }
+
+    /* 2. Поиск символа через strchr и вычисление его индекса адресной арифметикой */
+    const char *text = "Programming in C is powerful";
+    char *pos = strchr(text, 'C');
+    if (pos != NULL) {
+        /* Разность указателей (pos - text) дает индекс символа в массиве! */
+        printf("Символ 'C' найден на позиции (индексе): %td\n", pos - text);
+    }
+
+    /* 3. Поиск подстроки через strstr */
+    char *sub = strstr(text, "powerful");
+    if (sub != NULL) {
+        printf("Найдена подстрока: '%s' (начиная с индекса %td)\n", sub, sub - text);
+    }
+
+    /* 4. Разбиение строки на токены через strtok */
+    /* Обязательно используем изменяемый массив char[], так как strtok портит строку! */
+    char csv[] = "red,green,blue;yellow";
+    printf("Токены строки:\n");
+    
+    /* Первый вызов — передаем массив csv и список всех символов-разделителей ",;" */
+    for (char *token = strtok(csv, ",;"); token != NULL; token = strtok(NULL, ",;")) {
+        printf("  -> %s\n", token);
+    }
+
+    return 0;
+}</script>
+</section>
+
+<!-- ТЕМА 4 -->
+<section class="wp" data-t="Ввод строк и <ctype.h>">
+  <h2>Безопасный ввод строк и посимвольная обработка (&lt;ctype.h&gt;)</h2>
+  <p class="sub">Чтение строк с пробелами через fgets и функции классификации символов.</p>
+
+  <h3>Почему scanf("%s") опасен и неудобен для строк?</h3>
+  <p>Функция <code>scanf("%s", buf)</code> имеет два серьезных недостатка: во-первых, она читает текст только <b>до первого пробела</b> (не может прочитать предложение из нескольких слов); во-вторых, без указания ширины она легко переполняет буфер. Поэтому на практике и на зачетах для чтения строки целиком используют функцию <code>fgets</code>:</p>
+  <p><code>fgets(buf, sizeof(buf), stdin);</code></p>
+  <p>Она читает не более <code>sizeof(buf) - 1</code> символов до нажатия Enter. Единственная особенность: если места хватило, <code>fgets</code> сохраняет в конец строки сам символ перевода строки <code>'\n'</code>. Его легко удалить в одну строчку с помощью функции <code>strcspn</code> (которая возвращает индекс первого вхождения любого символа из второго аргумента):</p>
+  <p><code>buf[strcspn(buf, "\n")] = '\0';</code></p>
+
+  <h3>Библиотека &lt;ctype.h&gt; для работы с отдельными символами</h3>
+  <p>Вместо того чтобы вручную проверять коды ASCII (вроде <code>c &gt;= '0' &amp;&amp; c &lt;= '9'</code>), в стандартной библиотеке <code>&lt;ctype.h&gt;</code> есть готовые быстрые функции:</p>
+  <ul>
+    <li><code>isalpha(c)</code> — буква (<code>a-z</code>, <code>A-Z</code>);</li>
+    <li><code>isdigit(c)</code> — цифра (<code>0-9</code>);</li>
+    <li><code>isalnum(c)</code> — буква или цифра;</li>
+    <li><code>isspace(c)</code> — любой пробельный символ (пробел <code>' '</code>, табуляция <code>'\t'</code>, перевод строки <code>'\n'</code>, возврат каретки <code>'\r'</code>);</li>
+    <li><code>isupper(c)</code> / <code>islower(c)</code> — заглавная / строчная буква;</li>
+    <li><code>toupper(c)</code> / <code>tolower(c)</code> — переводит букву в верхний / нижний регистр (остальные символы возвращает без изменений).</li>
+  </ul>
+
+  <div class="note tip"><b>ВАЖНОЕ ПРАВИЛО СТАНДАРТА C: ПРИВЕДЕНИЕ К (unsigned char)</b>
+    <p>На большинстве платформ базовый тип <code>char</code> является <i>знаковым</i> (от -128 до 127). Если в строке встретится символ с кодом больше 127, значение <code>char</code> будет отрицательным, а передача отрицательного числа (кроме <code>EOF</code>) в функции <code>&lt;ctype.h&gt;</code> вызывает неопределенное поведение (UB). Поэтому по стандарту C аргумент всегда приводят к <code>(unsigned char)</code>: например, <code>toupper((unsigned char)s[i])</code>.</p>
+  </div>
+
+<script type="text/x-c" data-f="input_and_ctype.c">#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int main(void)
+{
+    /* Предположим, мы прочитали строку через fgets(line, sizeof(line), stdin); */
+    char line[128] = "Hello, MSU 2026!\n";
+
+    /* Безопасно убираем завершающий символ '\n', который оставляет fgets */
+    line[strcspn(line, "\n")] = '\0';
+
+    int letters = 0, digits = 0, spaces = 0;
+
+    /* Проходим по строке указателем до нуль-терминатора '\0' (*p != '\0') */
+    for (char *p = line; *p != '\0'; p++) {
+        unsigned char ch = (unsigned char)*p;
+
+        if (isalpha(ch)) {
+            letters++;
+        } else if (isdigit(ch)) {
+            digits++;
+        } else if (isspace(ch)) {
+            spaces++;
+        }
+
+        /* Переводим все буквы строки в верхний регистр на месте */
+        *p = (char)toupper(ch);
+    }
+
+    printf("Преобразованная строка: '%s'\n", line);
+    printf("Статистика: букв = %d, цифр = %d, пробелов = %d\n",
+           letters, digits, spaces);
+
+    return 0;
+}</script>
+</section>
+
+<!-- ТЕМА 5: ПРАКТИКУМ -->
+<section class="wp" data-t="Практикум (5 задач)">
+  <h2>Практические задания для подготовки к зачету</h2>
+  <p class="sub">На зачете может быть запрещено использовать готовые функции из &lt;string.h&gt; и требуют реализовать обработку строк вручную через указатели.</p>
+
+  <!-- ЗАДАЧА 1 -->
+  <div class="task">
+    <b>Задача 1: Собственные реализации my_strlen и my_strcmp через указатели.</b><br>
+    Не используя библиотеку <code>&lt;string.h&gt;</code> и квадратные скобки индексации <code>[]</code>, напишите две функции:<br>
+    1. <code>size_t my_strlen(const char *s)</code> — возвращает длину строки (вычисляя разность между конечным и начальным указателем).<br>
+    2. <code>int my_strcmp(const char *s1, const char *s2)</code> — лексикографически сравнивает две строки (возвращает 0 при равенстве, отрицательное число если <code>s1 &lt; s2</code>, и положительное если <code>s1 &gt; s2</code>).
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 1</b></summary>
+<script type="text/x-c" data-f="task1_my_string_funcs.c">#include <stdio.h>
+
+/* 
+ * Вычисление длины строки через разность указателей.
+ * Сдвигаем указатель p до тех пор, пока он не укажет на '\0'.
+ */
+size_t my_strlen(const char *s)
+{
+    if (s == NULL) return 0;
+
+    const char *p = s;
+    while (*p != '\0') {
+        p++; /* Сдвигаем указатель на следующий символ */
+    }
+    /* Разность двух указателей дает количество символов между ними */
+    return (size_t)(p - s);
+}
+
+/* 
+ * Классическая реализация strcmp в 5 строк кода.
+ * Двигаемся по обеим строкам, пока символы равны и не достигнут конец строки s1.
+ */
+int my_strcmp(const char *s1, const char *s2)
+{
+    while (*s1 != '\0' && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    /* Вычитаем коды первых несовпавших символов как беззнаковые байты (по стандарту C) */
+    return (int)*(const unsigned char *)s1 - (int)*(const unsigned char *)s2;
+}
+
+int main(void)
+{
+    const char *w1 = "algorithm";
+    const char *w2 = "algebra";
+
+    printf("Длина '%s' = %zu\n", w1, my_strlen(w1));
+    printf("Сравнение '%s' и '%s': %d\n", w1, w2, my_strcmp(w1, w2));
+    printf("Сравнение '%s' и '%s': %d\n", w1, w1, my_strcmp(w1, w1));
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 2 -->
+  <div class="task">
+    <b>Задача 2: Разворот строки на месте (my_strrev) через два указателя.</b><br>
+    Напишите функцию <code>void my_strrev(char *s)</code>, которая переворачивает строку задом наперед прямо в том же массиве (in-place), не выделяя дополнительный буфер.<br>
+    <i>Важно:</i> Нуль-терминатор <code>'\0'</code> должен остаться в самом конце строки! Если его случайно поменять местами с первым символом, строка при выводе в <code>printf("%s", s)</code> окажется пустой.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 2</b></summary>
+<script type="text/x-c" data-f="task2_my_strrev.c">#include <stdio.h>
+
+void my_strrev(char *s)
+{
+    if (s == NULL || *s == '\0') {
+        return; /* Защита от NULL и пустой строки "" */
+    }
+
+    char *left = s;
+    char *right = s;
+
+    /* 1. Доводим указатель right до конца строки (до '\0') */
+    while (*right != '\0') {
+        right++;
+    }
+    /* Шагаем на один байт назад, чтобы right указывал на ПОСЛЕДНИЙ символ перед '\0'! */
+    right--;
+
+    /* 2. Меняем символы местами, сдвигая указатели навстречу друг другу */
+    while (left < right) {
+        char temp = *left;
+        *left = *right;
+        *right = temp;
+
+        left++;
+        right--;
+    }
+}
+
+int main(void)
+{
+    char text[] = "MechMath MSU";
+    printf("Исходная строка:    '%s'\n", text);
+
+    my_strrev(text);
+    printf("Развернутая строка: '%s'\n", text);
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 3 -->
+  <div class="task">
+    <b>Задача 3: Проверка строки на палиндром без учета регистра и знаков препинания.</b><br>
+    Палиндром — это фраза, которая читается одинаково слева направо и справа налево, если игнорировать пробелы, знаки препинания и регистр букв (например, <code>"Madam, I'm Adam"</code> или <code>"A man, a plan, a canal: Panama"</code>).<br>
+    Напишите функцию <code>int is_palindrome(const char *s)</code>, которая возвращает <code>1</code> (палиндром) или <code>0</code> (не палиндром), используя два встречных указателя и функции <code>isalnum()</code> и <code>tolower()</code> из <code>&lt;ctype.h&gt;</code>.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 3</b></summary>
+<script type="text/x-c" data-f="task3_palindrome.c">#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int is_palindrome(const char *s)
+{
+    if (s == NULL) return 0;
+
+    size_t len = strlen(s);
+    if (len <= 1) return 1; /* Пустая строка и строка из 1 символа — палиндромы */
+
+    const char *left = s;
+    const char *right = s + len - 1;
+
+    while (left < right) {
+        /* Пропускаем все пробелы и знаки препинания слева */
+        while (left < right && !isalnum((unsigned char)*left)) {
+            left++;
+        }
+        /* Пропускаем все пробелы и знаки препинания справа */
+        while (left < right && !isalnum((unsigned char)*right)) {
+            right--;
+        }
+
+        /* Сравниваем символы в нижнем регистре */
+        if (tolower((unsigned char)*left) != tolower((unsigned char)*right)) {
+            return 0; /* Нашли несовпадение — не палиндром */
+        }
+
+        left++;
+        right--;
+    }
+
+    return 1; /* Все буквы совпали */
+}
+
+int main(void)
+{
+    const char *phrase1 = "A man, a plan, a canal: Panama";
+    const char *phrase2 = "Hello, World!";
+
+    printf("'%s' -> %s\n", phrase1, is_palindrome(phrase1) ? "ПАЛИНДРОМ" : "НЕТ");
+    printf("'%s' -> %s\n", phrase2, is_palindrome(phrase2) ? "ПАЛИНДРОМ" : "НЕТ");
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 4 -->
+  <div class="task">
+    <b>Задача 4: Подсчет количества слов и поиск длины самого длинного слова.</b><br>
+    Словом считается любая непрерывная последовательность непробельных символов (<code>!isspace</code>). Между словами может быть произвольное количество пробелов и табуляций.<br>
+    Напишите функцию <code>int count_words_and_max_len(const char *s, int *max_len)</code>, которая не изменяет исходную строку (не использует <code>strtok</code>!), возвращает общее количество слов в строке, а по указателю <code>max_len</code> записывает длину самого длинного слова.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 4</b></summary>
+<script type="text/x-c" data-f="task4_word_stats.c">#include <stdio.h>
+#include <ctype.h>
+
+int count_words_and_max_len(const char *s, int *max_len)
+{
+    if (s == NULL || max_len == NULL) {
+        return 0;
+    }
+
+    int words = 0;
+    int current_len = 0;
+    *max_len = 0;
+
+    for (const char *p = s; *p != '\0'; p++) {
+        if (!isspace((unsigned char)*p)) {
+            /* Мы находимся внутри слова */
+            if (current_len == 0) {
+                words++; /* Только что началось новое слово! */
+            }
+            current_len++;
+            if (current_len > *max_len) {
+                *max_len = current_len;
+            }
+        } else {
+            /* Встретили пробел — текущее слово закончилось */
+            current_len = 0;
+        }
+    }
+
+    return words;
+}
+
+int main(void)
+{
+    const char *sentence = "   C   programming   at   MechMath   is   awesome!  ";
+    int max_word_len = 0;
+
+    int total_words = count_words_and_max_len(sentence, &max_word_len);
+
+    printf("Строка: \"%s\"\n", sentence);
+    printf("Всего слов: %d, длина самого длинного слова: %d\n",
+           total_words, max_word_len);
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 5 -->
+  <div class="task">
+    <b>Задача 5: Сжатие пробелов в строке на месте.</b><br>
+    Напишите функцию <code>void normalize_spaces(char *s)</code>, которая модифицирует строку на месте (за время <code>O(n)</code> и без выделения дополнительной памяти) по следующим правилам:<br>
+    1. Полностью удаляет все ведущие пробелы в начале строки.<br>
+    2. Полностью удаляет все хвостовые пробелы в конце строки.<br>
+    3. Любую группу из нескольких подряд идущих пробелов между словами заменяет ровно на один пробел <code>' '</code>.<br>
+    <i>Пример:</i> строка <code>"   Hello    world   from   C   "</code> должна превратиться в <code>"Hello world from C"</code>.<br>
+    <i>Подсказка:</i> Используйте два указателя в одном массиве: читающий <code>const char *read_p = s;</code> и пишущий <code>char *write_p = s;</code>.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 5</b></summary>
+<script type="text/x-c" data-f="task5_normalize_spaces.c">#include <stdio.h>
+#include <ctype.h>
+
+/* 
+ * Классический зачетный алгоритм с двумя указателями (read_p и write_p).
+ * Поскольку мы только удаляем лишние символы, write_p никогда не обгонит read_p,
+ * поэтому перезапись происходит абсолютно безопасно в том же самом массиве.
+ */
+void normalize_spaces(char *s)
+{
+    if (s == NULL) return;
+
+    const char *read_p = s;
+    char *write_p = s;
+    int in_word = 0; /* Флаг: находимся ли мы сейчас внутри слова */
+
+    while (*read_p != '\0') {
+        if (!isspace((unsigned char)*read_p)) {
+            /* Если мы встретили начало нового слова И в буфер уже было записано хотя бы одно слово,
+               ставим ровно один разделительный пробел перед новым словом */
+            if (!in_word && write_p != s) {
+                *write_p++ = ' ';
+            }
+            /* Копируем непробельный символ */
+            *write_p++ = *read_p;
+            in_word = 1;
+        } else {
+            /* Пробельный символ просто пропускаем, сбрасывая флаг слова */
+            in_word = 0;
+        }
+        read_p++;
+    }
+
+    /* Обязательно ставим терминальный ноль в конец сжатой строки! */
+    *write_p = '\0';
+}
+
+int main(void)
+{
+    char text[] = "   Hello    world   from   MechMath   C!    ";
+    printf("До сжатия:    \"%s\"\n", text);
+
+    normalize_spaces(text);
+    printf("После сжатия: \"%s\"\n", text);
+
+    return 0;
+}</script>
+  </details>
+
+</section>
+
+</div>
+</main>
+
+<script>
+/* Скрипт шаблона: создает кликабельные окна с кодом и автонумерацию секций урока */
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
+ const w=document.createElement('div');w.className='win-c';
+ w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
+ w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
+ s.replaceWith(w)});
+const g=document.getElementById('grid');
+document.querySelectorAll('.wp').forEach((s,i)=>{s.id='t'+(i+1);const n=document.createElement('span');n.className='num';n.textContent=i+1;s.prepend(n);
+ if(g){const a=document.createElement('a');a.href='#t'+(i+1);a.innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b>'+s.dataset.t;g.appendChild(a)}});
+</script>
+</body>
+</html>
