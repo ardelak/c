@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Структуры и объединения</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+:root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:4rem}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Karla','Helvetica Neue',Arial,sans-serif}
+h1,h2,h3{font-family:'Newsreader',Georgia,serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem 'Newsreader',Georgia,serif}
+.top a{color:inherit;text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
+.hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.8rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
+.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem 'JetBrains Mono',monospace;text-align:center;line-height:1.25}
+.obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
+.grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem 'JetBrains Mono',monospace}
+.trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem 'JetBrains Mono',monospace}
+.wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem 'JetBrains Mono',monospace;margin-bottom:.2rem}
+.tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
+.win-c{overflow:hidden;margin:1rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem 'JetBrains Mono',monospace}
+.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem 'JetBrains Mono',monospace;cursor:pointer}
+.out{background:#111417}.out pre{color:#9fe0b4}
+pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 'JetBrains Mono',monospace;tab-size:4}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem 'JetBrains Mono',monospace}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em 'JetBrains Mono',monospace}
+pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+.task{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:6px;padding:.8rem 1.1rem;margin:1rem 0}
+details summary{cursor:pointer;font-weight:700;outline:none}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2.1rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
+</style>
+</head>
+<body>
+
+<div class="top"><a href="01-structure.html">Язык C: Учебник · Урок 12</a></div>
+<main class="wrap">
+
+<header class="hero">
+  <div class="stamp">УРОК 12<br>C · GCC</div>
+  <h1>Структуры и объединения</h1>
+  <p>Пользовательские типы данных (struct, union, typedef), операторы . и -&gt;, выравнивание в памяти и массивы записей</p>
+</header>
+
+<!-- СЕТКА НАВИГАЦИИ ПО КУРСУ -->
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+
+<section class="obj">
+  <h2>Как пользоваться уроком</h2>
+  <p>Массивы позволяют объединить множество элементов <i>одного и того же</i> типа. Но в реальных задачах (и на зачете мехмата МГУ) объект почти всегда описывается разнородными характеристиками: например, студент имеет имя (<code>char[32]</code>), возраст (<code>int</code>) и средний балл (<code>double</code>), а вектор или комплексное число состоит из нескольких координат. В этом уроке мы разберем пользовательские составные типы — <b>структуры (<code>struct</code>)</b> и <b>объединения (<code>union</code>)</b>, научимся передавать их в функции по указателю, рассчитывать их размер с учетом выравнивания памяти (padding) и сортировать массивы структур.</p>
+  <p>Сборка примеров: <code>gcc -Wall -Wextra -std=c11 prog.c -o prog</code>.</p>
+</section>
+
+<!-- ВНУТРЕННЯЯ НАВИГАЦИЯ ПО РАЗДЕЛАМ УРОКА (заполняется скриптом) -->
+<div class="grid" id="grid"></div>
+
+<div class="trail">
+
+<!-- ═══════ ТЕМА 1 ═══════ -->
+<section class="wp" data-t="Объявление struct и typedef">
+  <h2>Структуры (struct): описание, typedef и инициализация</h2>
+  <p class="sub">Как объединить разнородные переменные под одним именем и создать собственный тип данных.</p>
+
+  <p><b>Структура (<code>struct</code>)</b> — это составной пользовательский тип данных, который объединяет фиксированный набор переменных (называемых <b>полями</b> или <b>членами структуры</b>) различных типов в единый блок памяти. В структуре все поля существуют одновременно, и каждое поле занимает собственное место в памяти.</p>
+
+  <h3>Два способа объявить структуру: с тегом и через typedef</h3>
+  <ul>
+    <li><b>Через тег структуры:</b> <code>struct Point { int x; int y; };</code> — создаёт тип с именем <code>struct Point</code>. При объявлении переменных в C придётся каждый раз писать ключевое слово <code>struct</code>: <code>struct Point p1;</code>.</li>
+    <li><b>Через псевдоним типа <code>typedef</code>:</b> ключевое слово <code>typedef</code> позволяет дать структуре короткое имя (например, <code>Point</code> или <code>Student</code>), чтобы не писать слово <code>struct</code> при каждом использовании.</li>
+  </ul>
+
+<script type="text/x-c" data-f="struct_decl.c">#include <stdio.h>
+#include <string.h>
+
+/* 1. Описание типа через тег структуры */
+struct Point {
+    int x;
+    int y;
+};
+
+/* 2. Описание типа с помощью typedef (короткое имя Student) */
+typedef struct {
+    char name[32];      /* статический массив под строку имени */
+    int age;            /* возраст */
+    double gpa;         /* средний балл */
+    struct Point home;  /* вложенная структура! */
+} Student;
+
+int main(void)
+{
+    /* Способ А: Позиционная инициализация (по порядку объявления полей) */
+    Student s1 = { "Анна", 19, 4.75, { 3, 4 } };
+
+    /* Способ Б: Именованная инициализация (Designated Initializers, стандарт C99/C11)
+       Поля можно указывать в любом порядке через точку; не указанные поля обнуляются! */
+    Student s2 = {
+        .name = "Борис",
+        .gpa  = 4.50,
+        .age  = 20,
+        .home = { .x = 10, .y = -5 }
+    };
+
+    /* Способ В: Полное обнуление всех полей структуры */
+    Student empty = { 0 };
+
+    /* Структуры одного типа МОЖНО присваивать друг другу оператором =
+       (компилятор побайтово скопирует все поля, включая внутренний массив name[32]!) */
+    Student copy = s1;
+    strcpy(copy.name, "Анна (копия)");
+
+    printf("s1:   %s, возраст %d, балл %.2f, дом (%d, %d)\n",
+           s1.name, s1.age, s1.gpa, s1.home.x, s1.home.y);
+    printf("s2:   %s, возраст %d, балл %.2f, дом (%d, %d)\n",
+           s2.name, s2.age, s2.gpa, s2.home.x, s2.home.y);
+    printf("copy: %s, балл %.2f, empty.age = %d\n",
+           copy.name, copy.gpa, empty.age);
+
+    return 0;
+}</script>
+
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>s1:   Анна, возраст 19, балл 4.75, дом (3, 4)
+s2:   Борис, возраст 20, балл 4.50, дом (10, -5)
+copy: Анна (копия), балл 4.75, empty.age = 0</code></pre></div>
+
+  <div class="note win"><b>ЗАПОМНИТЕ: КОПИРОВАНИЕ РАБОТАЕТ, А СРАВНЕНИЕ ЧЕРЕЗ == НЕТ!</b>
+    <p>В отличие от обычных массивов, структуры одного типа <b>можно</b> копировать простым присваиванием <code>s2 = s1;</code> и возвращать из функций по значению.<br>
+    Однако структуры <b>нельзя сравнивать оператором <code>==</code> или <code>!=</code></b>! Запись <code>if (p1 == p2)</code> вызовет ошибку компиляции (из-за возможных «мусорных» байтов выравнивания между полями). Чтобы проверить равенство двух структур, нужно написать функцию, сравнивающую их поле за полем.</p>
+  </div>
+
+  <div class="note watch"><b>ЛОВУШКА: ТОЧКА С ЗАПЯТОЙ ПОСЛЕ ОПИСАНИЯ СТРУКТУРЫ</b>
+    <p>Определение структуры обязательно заканчивается точкой с запятой после закрывающей фигурной скобки: <code>struct Point { int x, y; };</code>. Если забыть эту <code>;</code>, компилятор решит, что следующая за структурой строка (например, прототип функции или <code>int main</code>) является переменной этого структурного типа, и выдаст непонятную ошибку компиляции!</p>
+  </div>
+</section>
+
+<!-- ═══════ ТЕМА 2 ═══════ -->
+<section class="wp" data-t="Операторы . и -> и функции">
+  <h2>Доступ к полям ( . и -&gt; ) и передача структур в функции</h2>
+  <p class="sub">Почему структуры почти всегда передают в функции по указателю, а не по значению.</p>
+
+  <p>В языке C существуют два оператора для обращения к полям структуры в зависимости от того, работаете ли вы с самой структурной переменной или с указателем на неё:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Оператор</th>
+        <th>Синтаксис</th>
+        <th>Когда используется и что означает</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Точка (<code>.</code>)</b></td>
+        <td><code>s.age</code></td>
+        <td>Используется, когда слева стоит <b>сама переменная-структура</b> (типа <code>Student</code>). Обращается напрямую к полю <code>age</code>.</td>
+      </tr>
+      <tr>
+        <td><b>Стрелка (<code>-&gt;</code>)</b></td>
+        <td><code>p-&gt;age</code></td>
+        <td>Используется, когда слева стоит <b>указатель на структуру</b> (типа <code>Student *</code>). Это синтаксический сахар для выражения <code>(*p).age</code> («сначала разыменуй указатель <code>p</code>, затем возьми поле <code>age</code>»).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Почему скобки в (*p).age обязательны?</h3>
+  <p>Оператор точка <code>.</code> имеет <b>более высокий приоритет</b>, чем унарная звёздочка разыменования <code>*</code>! Поэтому запись <code>*p.age</code> компилятор прочитает как <code>*(p.age)</code> — попытается взять поле <code>age</code> у указателя <code>p</code> и выдаст ошибку компиляции. Чтобы не писать громоздкие скобки <code>(*p).age</code>, в C ввели элегантный оператор стрелка: <code>p-&gt;age</code>.</p>
+
+  <h3>Передача структуры в функцию: по значению vs по указателю</h3>
+  <ul>
+    <li><b>По значению (<code>void print_student(Student s)</code>):</b> при вызове функции компилятор копирует в стек <b>все байты структуры</b> (например, 56 или 1024 байта). Любые изменения полей внутри функции меняют только локальную копию и не затрагивают оригинал в <code>main</code>.</li>
+    <li><b>По указателю для изменения (<code>void birthday(Student *p)</code>):</b> в функцию передается только 8-байтный адрес структуры. Через <code>p-&gt;age++</code> функция напрямую изменяет оригинальную структуру.</li>
+    <li><b>По константному указателю для чтения (<code>void print_student(const Student *p)</code>):</b> профессиональный стандарт в C! Передается всего 8 байт адреса (мгновенно, без копирования всей структуры), а квалификатор <code>const</code> гарантирует, что функция случайно не испортит поля структуры.</li>
+  </ul>
+
+<script type="text/x-c" data-f="struct_pointers_funcs.c">#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    char name[32];
+    int age;
+    double gpa;
+} Student;
+
+/* 
+ * 1. Передача по константному указателю (только чтение, без дорогого копирования).
+ * Обращаемся к полям через оператор стрелка (->).
+ */
+void print_student(const Student *p)
+{
+    if (p == NULL) return;
+    printf("Студент: %-10s | Возраст: %d | GPA: %.2f\n",
+           p->name, p->age, p->gpa);
+}
+
+/* 
+ * 2. Передача по указателю для модификации оригинала.
+ */
+void update_gpa(Student *p, double new_gpa)
+{
+    if (p == NULL) return;
+    /* p->gpa — это то же самое, что (*p).gpa */
+    p->gpa = new_gpa;
+}
+
+int main(void)
+{
+    Student st = { "Александр", 18, 4.30 };
+    Student *ptr = &st; /* Указатель на структуру st */
+
+    /* Доступ через переменную (.) и через указатель (->) */
+    st.age = 19;
+    strcpy(ptr->name, "Alex");
+
+    print_student(&st);       /* Передаем адрес структуры */
+    update_gpa(&st, 4.85);    /* Изменяем поле gpa по адресу */
+    print_student(ptr);       /* Увидим обновленный GPA: 4.85 */
+
+    return 0;
+}</script>
+
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>Студент: Alex       | Возраст: 19 | GPA: 4.30
+Студент: Alex       | Возраст: 19 | GPA: 4.85</code></pre></div>
+</section>
+
+<!-- ═══════ ТЕМА 3 ═══════ -->
+<section class="wp" data-t="Выравнивание и sizeof">
+  <h2>Выравнивание данных в памяти (Padding &amp; Alignment)</h2>
+  <p class="sub">Почему sizeof(struct) больше суммы размеров её полей и как порядок полей экономит память.</p>
+
+  <p>На зачете мехмата МГУ очень часто дают структуру и спрашивают: <i>«Чему равен её <code>sizeof</code>?»</i>. Студенты, которые просто складывают размеры полей, получают неверный ответ.</p>
+
+  <h3>Правило аппаратного выравнивания (Natural Alignment)</h3>
+  <p>Современный процессор читает память не по одному байту, а машинными словами (по 4 или 8 байт). Чтобы процессор мог прочитать переменную за <b>один такт обращения к шине памяти</b>, адрес любой переменной примитивного типа размером <code>K</code> байт должен быть <b>кратен числу <code>K</code></b>:</p>
+  <ul>
+    <li><code>char</code> (1 байт) — может лежать по любому адресу (кратному 1).</li>
+    <li><code>short</code> (2 байта) — адрес должен быть четным (кратным 2).</li>
+    <li><code>int</code>, <code>float</code> (4 байта) — адрес должен делиться на 4 (смещения 0, 4, 8, 12...).</li>
+    <li><code>double</code>, <code>long long</code>, указатели <code>void *</code> (8 байт на 64-битной системе) — адрес должен делиться на 8 (смещения 0, 8, 16, 24...).</li>
+  </ul>
+
+  <p>Из-за этого компилятор автоматически вставляет между полями структуры пустые неиспользуемые байты — <b>байты выравнивания (padding)</b>, а общий размер всей структуры (<code>sizeof</code>) всегда дополняет в конце (tail padding) так, чтобы он был <b>кратен размеру самого строгого (крупного) поля</b> в этой структуре (чтобы в массиве таких структур второй элемент тоже лежал по выровненному адресу).</p>
+
+  <div class="win-c"><div class="hd"><span>Сравнение двух структур с одинаковыми полями (char a, double d, int b)</span></div><pre><code>1) struct BadOrder { char a; double d; int b; };  --> sizeof = 24 байта!
+Смещение: 0      1..7 (7 байт)   8..15 (8 байт)   16..19 (4б)  20..23 (4 байта)
+         ┌──────┬───────────────┬────────────────┬────────────┬───────────────┐
+Память:  │  a   │   PADDING     │    double d    │   int b    │ TAIL PADDING  │
+         └──────┴───────────────┴────────────────┴────────────┴───────────────┘
+
+2) struct GoodOrder { double d; int b; char a; }; --> sizeof = 16 байт!
+Смещение: 0..7 (8 байт)          8..11 (4 байта)  12 (1б)      13..15 (3 байта)
+         ┌──────────────────────┬────────────────┬────────────┬───────────────┐
+Память:  │       double d       │     int b      │     a      │ TAIL PADDING  │
+         └──────────────────────┴────────────────┴────────────┴───────────────┘</code></pre></div>
+
+<script type="text/x-c" data-f="struct_padding.c">#include <stdio.h>
+#include <stddef.h> /* для макроса offsetof(type, member) */
+
+/* Неоптимальный порядок полей: мелкие и крупные поля чередуются */
+struct BadOrder {
+    char a;     /* 1 байт  (смещение 0) + 7 байт padding */
+    double d;   /* 8 байт  (смещение 8) */
+    int b;      /* 4 байта (смещение 16) + 4 байта tail padding до кратности 8 */
+};
+
+/* Оптимальный порядок: поля отсортированы по убыванию размера! */
+struct GoodOrder {
+    double d;   /* 8 байт  (смещение 0) */
+    int b;      /* 4 байта (смещение 8) */
+    char a;     /* 1 байт  (смещение 12) + 3 байта tail padding до 16 */
+};
+
+int main(void)
+{
+    printf("Сумма чистых размеров полей: %zu байт\n\n",
+           sizeof(char) + sizeof(double) + sizeof(int)); /* 1 + 8 + 4 = 13 */
+
+    printf("sizeof(struct BadOrder)  = %zu байт\n", sizeof(struct BadOrder));
+    printf("  смещения: a=%zu, d=%zu, b=%zu\n\n",
+           offsetof(struct BadOrder, a),
+           offsetof(struct BadOrder, d),
+           offsetof(struct BadOrder, b));
+
+    printf("sizeof(struct GoodOrder) = %zu байт\n", sizeof(struct GoodOrder));
+    printf("  смещения: d=%zu, b=%zu, a=%zu\n",
+           offsetof(struct GoodOrder, d),
+           offsetof(struct GoodOrder, b),
+           offsetof(struct GoodOrder, a));
+
+    return 0;
+}</script>
+
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>Сумма чистых размеров полей: 13 байт
+
+sizeof(struct BadOrder)  = 24 байт
+  смещения: a=0, d=8, b=16
+
+sizeof(struct GoodOrder) = 16 байт
+  смещения: d=0, b=8, a=12</code></pre></div>
+
+  <div class="note tip"><b>ЗОЛОТОЕ ПРАВИЛО ПРОЕКТИРОВАНИЯ СТРУКТУР</b>
+    <p>Чтобы минимизировать потери памяти на «пустые» байты выравнивания (padding), располагайте поля структуры <b>по убыванию размера их базового типа</b>: сначала 8-байтные (<code>double</code>, <code>long long</code>, указатели), затем 4-байтные (<code>int</code>, <code>float</code>), затем 2-байтные (<code>short</code>) и в самом конце — 1-байтные (<code>char</code>).</p>
+  </div>
+</section>
+
+<!-- ═══════ ТЕМА 4 ═══════ -->
+<section class="wp" data-t="Объединения (union)">
+  <h2>Объединения (union) и размеченные объединения (Tagged Unions)</h2>
+  <p class="sub">Как хранить разные типы в одной и той же области памяти и исследовать внутренние байты числа.</p>
+
+  <p><b>Объединение (<code>union</code>)</b> синтаксически выглядит точно так же, как <code>struct</code>, но работает принципиально иначе: <b>все поля объединения начинаются с одного и того же адреса (смещение 0) и разделяют одну общую область памяти</b>.</p>
+
+  <ul>
+    <li>В <code>struct</code> хранятся <b>все поля одновременно</b>; размер структуры больше или равен сумме размеров всех её полей.</li>
+    <li>В <code>union</code> в каждый момент времени может осмысленно храниться <b>только одно активное поле</b>; запись нового значения в одно поле перезаписывает память всех остальных полей!</li>
+    <li>Размер <code>sizeof(union)</code> равен <b>размеру его самого крупного поля</b> (с учетом выравнивания).</li>
+  </ul>
+
+  <div class="win-c"><div class="hd"><span>Сравнение памяти struct и union для полей (int i; float f; unsigned char bytes[4])</span></div><pre><code>struct (12 байт — у каждого поля своя память):
+┌───────────────────┬───────────────────┬───────────────────┐
+│   int i (4 байта) │  float f (4 байта)│  bytes[4] (4 б)   │
+└───────────────────┴───────────────────┴───────────────────┘
+
+union (всего 4 байта — общая память для всех трех полей!):
+┌───────────────────────────────────────────────────────────┐
+│                      int i (4 байта)                      │
+├───────────────────────────────────────────────────────────┤
+│                     float f (4 байта)                     │
+├──────────────┬──────────────┬──────────────┬──────────────┤
+│   bytes[0]   │   bytes[1]   │   bytes[2]   │   bytes[3]   │
+└──────────────┴──────────────┴──────────────┴──────────────┘</code></pre></div>
+
+  <h3>Где применяются union?</h3>
+  <ol>
+    <li><b>Экономия памяти (Размеченное объединение / Tagged Union):</b> когда элемент данных может быть <i>либо</i> целым числом, <i>либо</i> вещественным, <i>либо</i> строкой (но никогда всеми сразу). Объединение заворачивают в структуру вместе с полем-тегом <code>enum</code>, которое помнит, какое именно поле сейчас активно.</li>
+    <li><b>Низкоуровневый доступ к байтам и битам:</b> просмотр побайтового представления числа в памяти (например, стандарта IEEE 754 для <code>float</code> или порядка байт Little-Endian).</li>
+  </ol>
+
+<script type="text/x-c" data-f="union_demo.c">#include <stdio.h>
+
+/* 1. Объединение для исследования внутреннего представления 4-байтного числа */
+union Value {
+    int i;
+    float f;
+    unsigned char bytes[4];
+};
+
+/* 2. Размеченное объединение (Tagged Union) — безопасный полиморфный тип в C */
+typedef enum {
+    VAL_INT,
+    VAL_DOUBLE,
+    VAL_STR
+} ValueType;
+
+typedef struct {
+    ValueType type;      /* Тег: какое именно поле в union сейчас активно */
+    union {
+        int i_val;
+        double d_val;
+        const char *s_val;
+    } data;              /* Общая память размером 8 байт */
+} Variant;
+
+void print_variant(const Variant *v)
+{
+    if (v == NULL) return;
+    switch (v->type) {
+        case VAL_INT:    printf("Целое:        %d\n", v->data.i_val); break;
+        case VAL_DOUBLE: printf("Вещественное: %.4f\n", v->data.d_val); break;
+        case VAL_STR:    printf("Строка:       %s\n", v->data.s_val); break;
+    }
+}
+
+int main(void)
+{
+    union Value v;
+    v.f = 1.0f; /* Записали число 1.0f (по стандарту IEEE 754 это 0x3F800000) */
+
+    printf("sizeof(union Value) = %zu байт\n", sizeof(union Value));
+    printf("float = %.1f, в 16-ричном виде = 0x%08X\n", v.f, (unsigned)v.i);
+    printf("Побайтово в памяти (Little-Endian): %02X %02X %02X %02X\n\n",
+           v.bytes[0], v.bytes[1], v.bytes[2], v.bytes[3]);
+
+    /* Перезаписываем ту же самую память целым числом */
+    v.i = 65;
+    printf("После v.i = 65 младший байт v.bytes[0] равен: %u ('%c')\n\n",
+           v.bytes[0], v.bytes[0]);
+
+    /* Использование безопасного размеченного объединения Variant */
+    Variant item = { .type = VAL_INT, .data.i_val = 42 };
+    print_variant(&item);
+
+    /* Меняем тип хранимого значения в той же переменной item */
+    item.type = VAL_DOUBLE;
+    item.data.d_val = 3.1415;
+    print_variant(&item);
+
+    return 0;
+}</script>
+
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>sizeof(union Value) = 4 байт
+float = 1.0, в 16-ричном виде = 0x3F800000
+Побайтово в памяти (Little-Endian): 00 00 80 3F
+
+После v.i = 65 младший байт v.bytes[0] равен: 65 ('A')
+
+Целое:        42
+Вещественное: 3.1415</code></pre></div>
+
+  <div class="note watch"><b>ЛОВУШКА: ЧТЕНИЕ НЕАКТИВНОГО ПОЛЯ UNION</b>
+    <p>В обычной логике программы вы всегда должны читать <b>то же самое поле <code>union</code>, в которое последним записывали данные</b>. Если вы записали <code>item.data.d_val = 3.1415;</code>, а затем по ошибке прочитаете <code>item.data.i_val</code>, вы получите бессмысленный набор битов мантиссы вещественного числа!</p>
+  </div>
+</section>
+
+<!-- ═══════ ТЕМА 5 ═══════ -->
+<section class="wp" data-t="Массивы структур и qsort">
+  <h2>Массивы структур и сортировка через qsort</h2>
+  <p class="sub">Хранение таблиц записей, поиск экстремумов и компараторы для стандартной быстрой сортировки.</p>
+
+  <p>Объединив структуры и массивы, мы получаем главный инструмент для работы с табличными данными в C — <b>массив структур</b> (например, <code>Student group[100];</code>). Каждая ячейка такого массива <code>group[i]</code> является полноценной структурой, а обращение к её полям выглядит как <code>group[i].gpa</code>.</p>
+
+  <h3>Сортировка массива структур функцией qsort</h3>
+  <p>На зачете мехмата часто требуется отсортировать массив записей (студентов, товаров, отрезков) по какому-либо полю. В стандартной библиотеке <code>&lt;stdlib.h&gt;</code> есть готовая функция быстрой сортировки <code>qsort</code>:</p>
+  <p><code>void qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));</code></p>
+  <p>Чтобы <code>qsort</code> знала, как сравнивать две ваши структуры, вы передаете ей функцию-компаратор, которая приводит обобщенные указатели <code>const void *</code> к типу <code>const Student *</code> и сравнивает нужные поля.</p>
+
+<script type="text/x-c" data-f="struct_array_qsort.c">#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char name[32];
+    int age;
+    double gpa;
+} Student;
+
+/* 
+ * Компаратор для сортировки студентов по УБЫВАНИЮ среднего балла (gpa).
+ * При равенстве баллов сортируем по имени в алфавитном порядке (возрастание).
+ */
+int cmp_students(const void *a, const void *b)
+{
+    /* 1. Явно приводим const void * к указателю на нашу структуру const Student * */
+    const Student *s1 = (const Student *)a;
+    const Student *s2 = (const Student *)b;
+
+    /* 2. Сравниваем вещественные поля gpa (по убыванию: сначала s2, потом s1).
+       ВАЖНО: нельзя просто вернуть (int)(s2->gpa - s1->gpa), так как дробная разница
+       0.2 усечется до 0! Используем точные сравнения < и >: */
+    if (s1->gpa < s2->gpa) return 1;   /* s1 должен идти после s2 */
+    if (s1->gpa > s2->gpa) return -1;  /* s1 должен идти перед s2 */
+
+    /* 3. Если баллы равны, сравниваем имена через strcmp */
+    return strcmp(s1->name, s2->name);
+}
+
+int main(void)
+{
+    Student list[4] = {
+        { "Борис",   20, 4.10 },
+        { "Вера",    19, 4.90 },
+        { "Анна",    19, 4.70 },
+        { "Алексей", 20, 4.90 }
+    };
+    size_t n = sizeof(list) / sizeof(list[0]);
+
+    /* Вызываем стандартную быструю сортировку qsort */
+    qsort(list, n, sizeof(Student), cmp_students);
+
+    printf("Рейтинг студентов после сортировки:\n");
+    for (size_t i = 0; i < n; i++) {
+        printf("%zu. %-10s (возраст: %d) — GPA: %.2f\n",
+               i + 1, list[i].name, list[i].age, list[i].gpa);
+    }
+
+    return 0;
+}</script>
+
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>Рейтинг студентов после сортировки:
+1. Алексей    (возраст: 20) — GPA: 4.90
+2. Вера       (возраст: 19) — GPA: 4.90
+3. Анна       (возраст: 19) — GPA: 4.70
+4. Борис      (возраст: 20) — GPA: 4.10</code></pre></div>
+
+  <div class="note watch"><b>ЛОВУШКА В КОМПАРАТОРЕ ДЛЯ DOUBLE</b>
+    <p>Функция-компаратор для <code>qsort</code> обязана возвращать <code>int</code> (отрицательное число, 0 или положительное число). Никогда не пишите <code>return s1-&gt;gpa - s2-&gt;gpa;</code> для вещественных чисел! Если разница равна <code>0.3</code>, при приведении к <code>int</code> дробная часть отбросится, и функция вернет <code>0</code> (будто числа равны!). Всегда используйте сравнения или идиому <code>(a &gt; b) - (a &lt; b)</code>.</p>
+  </div>
+</section>
+
+<!-- ═══════ ТЕМА 6: ПРАКТИКУМ ═══════ -->
+<section class="wp" data-t="Практикум (5 задач)">
+  <h2>Практические задания для подготовки к зачету</h2>
+  <p class="sub">Решите 5 задач зачетного уровня мехмата МГУ и проверьте себя по разборам под спойлерами.</p>
+
+  <!-- ЗАДАЧА 1 -->
+  <div class="task">
+    <b>Задача 1: Геометрия на вложенных структурах (Точка и Прямоугольник).</b><br>
+    Объявите структуру <code>Point</code> с вещественными координатами <code>double x, y;</code> и структуру <code>Rect</code> (прямоугольник со сторонами, параллельными осям координат), содержащую две вложенные точки: левый нижний угол <code>Point bottom_left;</code> и правый верхний угол <code>Point top_right;</code>.<br>
+    Реализуйте две функции, принимающие прямоугольник по константному указателю <code>const Rect *r</code>:<br>
+    1. <code>double rect_area(const Rect *r)</code> — возвращает площадь прямоугольника.<br>
+    2. <code>int rect_contains(const Rect *r, Point p)</code> — возвращает <code>1</code>, если точка <code>p</code> лежит внутри или на границе прямоугольника <code>r</code>, и <code>0</code> в противном случае.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 1</b></summary>
+<script type="text/x-c" data-f="task1_geometry.c">#include <stdio.h>
+
+typedef struct {
+    double x;
+    double y;
+} Point;
+
+typedef struct {
+    Point bottom_left; /* Левый нижний угол (x_min, y_min) */
+    Point top_right;   /* Правый верхний угол (x_max, y_max) */
+} Rect;
+
+/* Вычисление площади прямоугольника */
+double rect_area(const Rect *r)
+{
+    if (r == NULL) return 0.0;
+
+    /* r — указатель, поэтому к его полю обращаемся через ->,
+       а bottom_left — уже вложенная структура, поэтому к её полю x — через точку . */
+    double width  = r->top_right.x - r->bottom_left.x;
+    double height = r->top_right.y - r->bottom_left.y;
+
+    if (width < 0.0 || height < 0.0) return 0.0;
+    return width * height;
+}
+
+/* Проверка принадлежности точки прямоугольнику (включая границу) */
+int rect_contains(const Rect *r, Point p)
+{
+    if (r == NULL) return 0;
+
+    return (p.x >= r->bottom_left.x && p.x <= r->top_right.x &&
+            p.y >= r->bottom_left.y && p.y <= r->top_right.y);
+}
+
+int main(void)
+{
+    Rect box = {
+        .bottom_left = { 1.0, 2.0 },
+        .top_right   = { 6.0, 5.0 }
+    };
+    Point p1 = { 3.5, 4.0 };
+    Point p2 = { 7.0, 3.0 };
+
+    printf("Площадь прямоугольника: %.2f\n", rect_area(&box));
+    printf("Точка (%.1f, %.1f) внутри: %s\n", p1.x, p1.y, rect_contains(&box, p1) ? "ДА" : "НЕТ");
+    printf("Точка (%.1f, %.1f) внутри: %s\n", p2.x, p2.y, rect_contains(&box, p2) ? "ДА" : "НЕТ");
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 2 -->
+  <div class="task">
+    <b>Задача 2: Оптимизация выравнивания памяти структуры (Вопрос с зачета на sizeof и padding).</b><br>
+    Дана структура пакета телеметрии на 64-битной платформе (где <code>sizeof(double) == 8</code>, <code>sizeof(int) == 4</code>, <code>sizeof(short) == 2</code>, <code>sizeof(char) == 1</code>):
+    <pre><code>struct TelemetryRaw {
+    char sensor_id;
+    double reading;
+    char flags;
+    int timestamp;
+    short error_code;
+};</code></pre>
+    1. Рассчитайте вручную смещение (offset) каждого поля и итоговый <code>sizeof(struct TelemetryRaw)</code>.<br>
+    2. Создайте структуру <code>struct TelemetryCompact</code> с теми же самыми полями, переставленными так, чтобы её размер в памяти стал минимально возможным. Напишите программу, проверяющую оба размера через <code>sizeof</code>.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 2</b></summary>
+    <p><b>Ручной расчет для <code>TelemetryRaw</code>:</b></p>
+    <ul>
+      <li><code>sensor_id</code> (1 байт): смещение 0. Следующее поле <code>double reading</code> требует адреса, кратного 8, поэтому байты 1..7 (7 байт) уходят под padding.</li>
+      <li><code>reading</code> (8 байт): смещение 8..15.</li>
+      <li><code>flags</code> (1 байт): смещение 16. Следующее поле <code>int timestamp</code> требует адреса, кратного 4, поэтому байты 17..19 (3 байта) — padding.</li>
+      <li><code>timestamp</code> (4 байта): смещение 20..23.</li>
+      <li><code>error_code</code> (2 байта): смещение 24..25. Чтобы общий размер структуры делился на 8 (размер <code>double</code>), в конец добавляется ещё 6 байт tail padding (байты 26..31). Итог: <b>32 байта</b>!</li>
+    </ul>
+<script type="text/x-c" data-f="task2_alignment.c">#include <stdio.h>
+#include <stddef.h>
+
+/* Неоптимальная структура: занимает 32 байта (16 байт тратится впустую на padding!) */
+struct TelemetryRaw {
+    char sensor_id;     /* 1 байт + 7 байт padding */
+    double reading;     /* 8 байт */
+    char flags;         /* 1 байт + 3 байта padding */
+    int timestamp;      /* 4 байта */
+    short error_code;   /* 2 байта + 6 байт tail padding */
+};
+
+/* Оптимизированная структура: поля расположены по убыванию размера типа.
+   Занимает ровно 16 байт (экономия памяти ровно в 2 раза!) */
+struct TelemetryCompact {
+    double reading;     /* 8 байт (смещение 0..7) */
+    int timestamp;      /* 4 байта (смещение 8..11) */
+    short error_code;   /* 2 байта (смещение 12..13) */
+    char sensor_id;     /* 1 байт  (смещение 14) */
+    char flags;         /* 1 байт  (смещение 15) — 0 байт padding! */
+};
+
+int main(void)
+{
+    printf("sizeof(struct TelemetryRaw)     = %zu байт\n", sizeof(struct TelemetryRaw));
+    printf("sizeof(struct TelemetryCompact) = %zu байт\n", sizeof(struct TelemetryCompact));
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 3 -->
+  <div class="task">
+    <b>Задача 3: Поиск лучшего студента в массиве структур.</b><br>
+    Напишите функцию <code>const Student* find_best_student(const Student *arr, int n)</code>, которая принимает массив структур <code>Student</code> и его размер <code>n</code>, и возвращает <b>указатель на элемент массива</b> с наибольшим средним баллом <code>gpa</code>. Если массив пуст (<code>n &lt;= 0</code>) или <code>arr == NULL</code>, функция должна вернуть <code>NULL</code>. В <code>main</code> создайте массив из 4 студентов и выведите имя и балл победителя.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 3</b></summary>
+<script type="text/x-c" data-f="task3_best_student.c">#include <stdio.h>
+
+typedef struct {
+    char name[32];
+    int group;
+    double gpa;
+} Student;
+
+/* 
+ * Функция возвращает указатель на элемент внутри переданного массива arr.
+ * Поскольку массив существует в main, возвращать указатель на его элемент абсолютно безопасно!
+ */
+const Student* find_best_student(const Student *arr, int n)
+{
+    if (arr == NULL || n <= 0) {
+        return NULL;
+    }
+
+    const Student *best = &arr[0]; /* Указатель на текущего лидера */
+
+    for (int i = 1; i < n; i++) {
+        if (arr[i].gpa > best->gpa) {
+            best = &arr[i]; /* Перенаправляем указатель на нового лидера */
+        }
+    }
+
+    return best;
+}
+
+int main(void)
+{
+    Student students[4] = {
+        { "Иван",    101, 4.20 },
+        { "Мария",   102, 4.95 },
+        { "Дмитрий", 101, 4.60 },
+        { "Елена",   103, 4.85 }
+    };
+
+    const Student *top = find_best_student(students, 4);
+    if (top != NULL) {
+        printf("Лучший студент: %s (группа %d) с баллом %.2f\n",
+               top->name, top->group, top->gpa);
+    }
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 4 -->
+  <div class="task">
+    <b>Задача 4: Арифметика комплексных чисел и нормализация массива.</b><br>
+    Определите тип <code>Complex</code> (структура с полями <code>double re, im;</code>). Реализуйте три функции:<br>
+    1. <code>Complex complex_mul(Complex a, Complex b)</code> — возвращает произведение двух комплексных чисел по формуле <code>(a.re*b.re - a.im*b.im) + i*(a.re*b.im + a.im*b.re)</code>.<br>
+    2. <code>double complex_abs(Complex z)</code> — возвращает модуль комплексного числа <code>sqrt(re*re + im*im)</code>.<br>
+    3. <code>void complex_scale(Complex *z, double factor)</code> — умножает обе координаты числа <code>z</code> на коэффициент <code>factor</code> <b>на месте (по указателю)</b>.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 4</b></summary>
+<script type="text/x-c" data-f="task4_complex.c">#include <stdio.h>
+#include <math.h>
+
+typedef struct {
+    double re;
+    double im;
+} Complex;
+
+/* Небольшие структуры из 1-2 чисел (16 байт) удобно принимать и возвращать по значению */
+Complex complex_mul(Complex a, Complex b)
+{
+    Complex res;
+    res.re = a.re * b.re - a.im * b.im;
+    res.im = a.re * b.im + a.im * b.re;
+    return res;
+}
+
+double complex_abs(Complex z)
+{
+    return sqrt(z.re * z.re + z.im * z.im);
+}
+
+/* Для изменения структуры на месте передаем указатель Complex *z */
+void complex_scale(Complex *z, double factor)
+{
+    if (z == NULL) return;
+    z->re *= factor;
+    z->im *= factor;
+}
+
+int main(void)
+{
+    Complex z1 = { 3.0, 4.0 };
+    Complex z2 = { 1.0, -2.0 };
+
+    Complex prod = complex_mul(z1, z2);
+    printf("Произведение: %.2f + %.2fi\n", prod.re, prod.im);
+    printf("Модуль z1:    %.2f\n", complex_abs(z1));
+
+    /* Нормируем вектор z1 на единичную длину (делим на его модуль) */
+    double len = complex_abs(z1);
+    if (len > 0.0) {
+        complex_scale(&z1, 1.0 / len);
+    }
+    printf("После нормировки z1: (%.2f, %.2f), новый модуль = %.2f\n",
+           z1.re, z1.im, complex_abs(z1));
+
+    return 0;
+}</script>
+  </details>
+
+  <!-- ЗАДАЧА 5 -->
+  <div class="task">
+    <b>Задача 5: Разбор IPv4-адреса через объединение (union) и побитовый доступ.</b><br>
+    IPv4-адрес состоит из 4 октетов (байтов), например <code>192.168.1.10</code>, которые в сетевых пакетах хранятся как одно 32-битное беззнаковое целое число (<code>uint32_t</code>).<br>
+    Создайте объединение <code>union IPv4</code>, содержащее поле <code>uint32_t raw;</code> и массив из 4 байт <code>uint8_t octets[4];</code> (подключите <code>&lt;stdint.h&gt;</code>). Запишите в октеты значения <code>192, 168, 1, 10</code>, выведите адрес в точечном формате и его полное 32-битное шестнадцатеричное значение <code>raw</code>.
+  </div>
+
+  <details class="note win">
+    <summary><b>Показать решение Задачи 5</b></summary>
+<script type="text/x-c" data-f="task5_ipv4_union.c">#include <stdio.h>
+#include <stdint.h>
+
+/* 
+ * Оба поля разделяют одни и те же 4 байта памяти.
+ * Это позволяет обращаться к IP-адресу как к 4 отдельным числам 0..255
+ * или как к единому 32-битному числу uint32_t.
+ */
+typedef union {
+    uint32_t raw;
+    uint8_t octets[4];
+} IPv4;
+
+int main(void)
+{
+    IPv4 addr;
+
+    /* Заполняем отдельные байты (октеты) */
+    addr.octets[0] = 192;
+    addr.octets[1] = 168;
+    addr.octets[2] = 1;
+    addr.octets[3] = 10;
+
+    printf("IP-адрес по октетам: %u.%u.%u.%u\n",
+           addr.octets[0], addr.octets[1], addr.octets[2], addr.octets[3]);
+
+    /* Читаем те же 4 байта как одно 32-битное целое число */
+    printf("Как 32-битное число (hex): 0x%08X\n", addr.raw);
+
+    return 0;
+}</script>
+  </details>
+
+</section>
+
+</div>
+
+<section style="text-align:center;color:var(--soft)">
+  <h2 style="font-style:italic">Что дальше?</h2>
+  <p>Мы научились создавать собственные типы данных и работать с ними на стеке. На следующем уроке (<b>13. malloc / realloc / free</b>) мы изучим динамическое выделение памяти в куче, чтобы создавать массивы структур произвольного размера во время работы программы.</p>
+</section>
+
+</main>
+
+<!-- СКРИПТ ШАБЛОНА -->
+<script>
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
+ const w=document.createElement('div');w.className='win-c';
+ w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
+ w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
+ s.replaceWith(w)});
+const g=document.getElementById('grid');
+document.querySelectorAll('.wp').forEach((s,i)=>{s.id='t'+(i+1);const n=document.createElement('span');n.className='num';n.textContent=i+1;s.prepend(n);
+ if(g){const a=document.createElement('a');a.href='#t'+(i+1);a.innerHTML='<b>'+String(i+1).padStart(2,'0')+'</b>'+s.dataset.t;g.appendChild(a)}});
+</script>
+</body>
+</html>
