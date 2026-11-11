@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практикум C: Пошаговый разбор задач 7–10 (Строки и указатели)</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#17223B;--soft:#4B5670;--paper:#F3F1E7;--card:#fff;--amber:#B8791C;--deep:#8F5D12;--wash:#F1E1BE;--rule:#D8D1BC;--green:#3F7A56;--gw:#E1EEE6;--red:#9C3B2E;--rw:#F5E1DC;--sh:0 1px 2px rgba(23,34,59,.06),0 6px 20px rgba(23,34,59,.07)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:4rem}
+body{margin:0;background:var(--paper) radial-gradient(circle at 1px 1px,rgba(23,34,59,.05) 1px,transparent 0) 0 0/22px 22px;color:var(--ink);font:16.5px/1.7 'Karla',sans-serif}
+h1,h2,h3{font-family:'Newsreader',serif;margin:0;line-height:1.2}p{margin:0 0 .9rem}
+.top{position:sticky;top:0;z-index:5;background:rgba(243,241,231,.96);border-bottom:1px solid var(--rule);padding:.6rem 1.1rem;font:italic 600 1rem 'Newsreader',serif}
+.wrap{max-width:900px;margin:0 auto;padding:0 1.5rem 5rem}
+.hero{padding:2.5rem 0 1.5rem;text-align:center}.hero h1{font-size:2.8rem;font-style:italic;font-weight:500}.hero p{color:var(--soft)}
+.stamp{width:96px;height:96px;margin:0 auto 1.2rem;border:2px dashed var(--amber);border-radius:50%;display:grid;place-items:center;transform:rotate(-5deg);color:var(--deep);font:600 .75rem 'JetBrains Mono',monospace}
+.obj{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;margin:1rem 0;box-shadow:var(--sh)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1.5rem 0 2.2rem}
+.grid a{padding:.5rem;text-align:center;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--rule);border-radius:6px;font-size:.78rem;font-weight:700;line-height:1.25}
+.grid a:hover{border-color:var(--amber)}.grid b{display:block;color:var(--deep);font:.68rem 'JetBrains Mono',monospace}
+.trail{position:relative;padding-left:2.6rem}.trail:before{content:"";position:absolute;left:1.05rem;top:.4rem;bottom:.4rem;width:2px;background:repeating-linear-gradient(var(--rule) 0 6px,transparent 6px 11px)}
+.wp{position:relative;margin-bottom:3.2rem}.num{position:absolute;left:-2.6rem;top:0;width:2.2rem;height:2.2rem;border-radius:50%;background:var(--ink);color:var(--paper);display:grid;place-items:center;font:600 .85rem 'JetBrains Mono',monospace}
+.wp h2{font-size:1.65rem;margin-bottom:.3rem}.wp h3,.obj h3{font-size:1.2rem;margin:1.3rem 0 .4rem}.sub{color:var(--soft);font-style:italic}
+.note{border:1px solid var(--rule);border-radius:6px;padding:.8rem 1rem;margin:1rem 0;font-size:.94rem}.note b{display:block;font:600 .68rem 'JetBrains Mono',monospace;margin-bottom:.2rem}
+.tip{background:var(--wash);border-color:#e2c98a}.tip b{color:var(--deep)}.win{background:var(--gw);border-color:#b9d8c5}.win b{color:var(--green)}.watch{background:var(--rw);border-color:#e3b6ac}.watch b{color:var(--red)}
+.win-c{overflow:hidden;margin:1rem 0;border-radius:10px;background:#1e1e1e;box-shadow:var(--sh)}
+.hd{display:flex;align-items:center;padding:.45rem .75rem;background:#252526;border-bottom:1px solid #111}.hd span{color:#ccc;font:.72rem 'JetBrains Mono',monospace}
+.hd button{margin-left:auto;padding:.2rem .55rem;border:1px solid #555;border-radius:4px;background:0;color:#ddd;font:.68rem 'JetBrains Mono',monospace;cursor:pointer}
+.out{background:#111417}.out pre{color:#9fe0b4}
+pre{margin:0;padding:1rem 1.1rem;overflow-x:auto;color:#d4d4d4;font:.78rem/1.6 'JetBrains Mono',monospace;tab-size:4}
+table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}th,td{padding:.5rem .6rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}th{color:var(--soft);font:600 .68rem 'JetBrains Mono',monospace}
+code{background:#e9e5da;padding:.1rem .3rem;border-radius:3px;font:.85em 'JetBrains Mono',monospace}
+pre code{background:none;padding:0;border-radius:0;font:inherit;color:inherit}
+.task{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:6px;padding:.8rem 1.1rem;margin:1rem 0}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.top{position:static}.hero h1{font-size:2.1rem}.trail{padding-left:2.1rem}.num{left:-2.1rem;width:1.8rem;height:1.8rem}}
+</style></head><body>
+
+<div class="top">Курс C </div>
+<main class="wrap">
+
+<header class="hero">
+  <div class="stamp">СТРОКИ<br>4 ЗАДАЧИ</div>
+  <h1>Строки и указатели: Задачи 7–10</h1>
+  <p>Пошаговый алгоритм, полный код на языке C и детальный разбор каждой строчки</p>
+</header>
+
+<section class="obj">
+  <h2>Как работать с этим разбором</h2>
+  <p>В этом материале собраны подробные решения четырёх классических зачётных задач по строкам и адресной арифметике. Каждая задача разбита на три этапа: <b>полное условие</b>, <b>пошаговый план алгоритма</b> (чтобы легко воспроизвести логику на листке бумаги или у доски) и <b>полный разбор кода на C</b>. Любой пример можно скопировать кнопкой «Копировать» и скомпилировать в PowerShell командой <code>gcc -Wall -Wextra task7.c -o task7</code> или запустить в Code::Blocks.</p>
+</section>
+
+<div class="grid" id="grid"></div>
+
+<div class="trail">
+
+<!-- ═══════ ЗАДАЧА 7 ═══════ -->
+<section class="wp" data-t="Задача 7: Палиндром">
+<h2>Задача 7: Проверка фразы на палиндром</h2>
+<p class="sub">Метод двух встречных указателей с фильтрацией символов через &lt;ctype.h&gt;.</p>
+
+<div class="task">
+  <b>Задача 7: Проверка фразы на палиндром с игнорированием пробелов и знаков препинания.</b><br>
+  Напишите функцию <code>int is_palindrome(const char *s)</code>, которая возвращает <code>1</code>, если строка читается одинаково слева направо и справа налево (игнорируя регистр букв, пробелы и любые знаки препинания), и <code>0</code> в противном случае.<br>
+  Пример: <code>"Madam, I'm Adam!"</code> &rarr; <code>1</code> (палиндром). Используйте два встречных указателя, <code>isalnum</code> и <code>tolower</code>.
+</div>
+
+<h3>Краткий разбор: что нужно сделать по шагам</h3>
+<ol>
+  <li><b>Проверить входной указатель:</b> если передан <code>NULL</code>, сразу вернуть <code>0</code>. Если строка пустая (первый же символ равен <code>'\0'</code>), вернуть <code>1</code> (пустая строка считается палиндромом).</li>
+  <li><b>Поставить два указателя на края строки:</b> левый указатель <code>left</code> ставим на начало строки (<code>s</code>), а правый <code>right</code> — на последний значащий символ перед <code>'\0'</code> (сначала находим длину через <code>strlen(s)</code> или двигаем <code>right</code> до <code>'\0'</code> и делаем шаг назад <code>right--</code>).</li>
+  <li><b>Запустить цикл навстречу друг другу (<code>while (left &lt; right)</code>):</b> пока указатели не встретились, мы должны сравнивать только буквы и цифры.</li>
+  <li><b>Пропустить «мусор» слева и справа:</b>
+    <ul>
+      <li>Если <code>*left</code> не буква и не цифра (<code>!isalnum((unsigned char)*left)</code>), сдвигаем <code>left++</code>.</li>
+      <li>Если <code>*right</code> не буква и не цифра (<code>!isalnum((unsigned char)*right)</code>), сдвигаем <code>right--</code>.</li>
+      <li>В обоих внутренних циклах обязательно следим за условием <code>left &lt; right</code>, чтобы указатели не перескочили друг через друга и не вышли за границы строки.</li>
+    </ul>
+  </li>
+  <li><b>Сравнить символы без учёта регистра:</b> переводим оба символа в нижний регистр через <code>tolower((unsigned char)*left)</code> и <code>tolower((unsigned char)*right)</code>. Если они не равны — сразу возвращаем <code>0</code>.</li>
+  <li><b>Сдвинуть оба указателя внутрь:</b> после успешного совпадения пары делаем шаг <code>left++</code> и <code>right--</code>. Если внешний цикл завершился без ошибок — возвращаем <code>1</code>.</li>
+</ol>
+
+<h3>Полный разбор кода на языке C</h3>
+
+<script type="text/x-c" data-f="task7_palindrome.c">#include <stdio.h>
+#include <ctype.h>   /* для функций isalnum() и tolower() */
+
+int is_palindrome(const char *s)
+{
+    /* Шаг 1: Защита от NULL-указателя */
+    if (s == NULL) {
+        return 0;
+    }
+
+    /* Пустая строка "" состоит из 0 символов и читается одинаково */
+    if (*s == '\0') {
+        return 1;
+    }
+
+    /* Шаг 2: Инициализируем два встречных указателя */
+    const char *left = s;
+    const char *right = s;
+
+    /* Доводим правый указатель до конца строки ('\0') */
+    while (*right != '\0') {
+        right++;
+    }
+    /* Отступаем на 1 байт назад, чтобы встать на последний символ перед '\0' */
+    right--;
+
+    /* Шаг 3: Двигаем указатели навстречу друг другу, пока left левее right */
+    while (left < right) {
+        /* Шаг 4а: Пропускаем пробелы и знаки препинания слева */
+        while (left < right && !isalnum((unsigned char)*left)) {
+            left++;
+        }
+
+        /* Шаг 4б: Пропускаем пробелы и знаки препинания справа */
+        while (left < right && !isalnum((unsigned char)*right)) {
+            right--;
+        }
+
+        /* Шаг 5: Сравниваем найденные буквы/цифры в нижнем регистре */
+        if (tolower((unsigned char)*left) != tolower((unsigned char)*right)) {
+            return 0; /* Нашли отличие — строка точно НЕ палиндром */
+        }
+
+        /* Шаг 6: Пара совпала, двигаем оба указателя дальше к центру */
+        left++;
+        right--;
+    }
+
+    /* Если цикл пройден до конца и отличий не нашлось — это палиндром */
+    return 1;
+}
+
+int main(void)
+{
+    const char *test1 = "Madam, I'm Adam!";
+    const char *test2 = "A man, a plan, a canal: Panama";
+    const char *test3 = "Hello, MSU!";
+    const char *test4 = "   !!!   "; /* Только знаки препинания */
+
+    printf("\"%s\" -> %d\n", test1, is_palindrome(test1));
+    printf("\"%s\" -> %d\n", test2, is_palindrome(test2));
+    printf("\"%s\" -> %d\n", test3, is_palindrome(test3));
+    printf("\"%s\" -> %d\n", test4, is_palindrome(test4));
+
+    return 0;
+}</script>
+
+<div class="win-c out"><div class="hd"><span>Вывод программы</span></div><pre><code>"Madam, I'm Adam!" -> 1
+"A man, a plan, a canal: Panama" -> 1
+"Hello, MSU!" -> 0
+"   !!!   " -> 1</code></pre></div>
+
+<table>
+  <thead>
+    <tr><th>Конструкция в коде</th><th>Зачем она нужна и как работает</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>const char *s</code></td>
+      <td>Квалификатор <code>const</code> обещает компилятору, что функция только <i>читает</i> строку, но не изменяет её. Благодаря этому в функцию можно безопасно передавать строковые литералы.</td>
+    </tr>
+    <tr>
+      <td><code>right--</code> после поиска <code>'\0'</code></td>
+      <td>Нуль-терминатор <code>'\0'</code> — это технический маркер конца строки, а не часть текста. Если забыть <code>right--</code>, мы начнем сравнивать первую букву строки с нулевым байтом.</td>
+    </tr>
+    <tr>
+      <td><code>left &lt; right</code> во вложенных <code>while</code></td>
+      <td>Защищает от выхода за границы массива! Если строка состоит только из пробелов и знаков препинания (например, <code>"!!!"</code>), без проверки <code>left &lt; right</code> указатель <code>right</code> ушёл бы левее начала строки <code>s</code> в чужую память.</td>
+    </tr>
+    <tr>
+      <td><code>(unsigned char)*left</code></td>
+      <td>Функции из <code>&lt;ctype.h&gt;</code> требуют положительных кодов символов (или <code>EOF</code>). Приведение к <code>unsigned char</code> предотвращает неопределенное поведение (UB), если символ имеет код больше 127.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note watch"><b>ЛОВУШКА НА ЗАЧЕТЕ</b>Никогда не забывайте сдвигать указатели <code>left++</code> и <code>right--</code> в самом конце итерации после сравнения <code>if (tolower(...) != tolower(...))</code>! Если этого не сделать, указатели останутся стоять на первой же совпавшей паре букв (например, <code>'M'</code> и <code>'m'</code>), и программа зависнет в бесконечном цикле.</div>
+</section>
+
+<!-- ═══════ ЗАДАЧА 8 ═══════ -->
+<section class="wp" data-t="Задача 8: Поиск слов">
+<h2>Задача 8: Подсчёт слов и поиск самого длинного слова</h2>
+<p class="sub">Анализ строки за один проход без модификации текста и вывод среза через %.*s.</p>
+
+<div class="task">
+  <b>Задача 8: Подсчёт слов и поиск самого длинного слова без изменения строки.</b><br>
+  Словом считается непрерывная последовательность непробельных символов (<code>!isspace</code>). Напишите функцию:<br>
+  <code>int analyze_words(const char *s, const char **longest_start, int *longest_len)</code><br>
+  которая не изменяет строку <code>s</code> (не использует <code>strtok</code>!), возвращает общее число слов, по адресу <code>longest_start</code> записывает указатель на первую букву самого длинного слова в <code>s</code>, а по адресу <code>longest_len</code> — его длину. Выведите найденное слово в <code>main</code> с помощью спецификатора точной ширины <code>printf("%.*s", len, ptr)</code>!
+</div>
+
+<h3>Краткий разбор: что нужно сделать по шагам</h3>
+<ol>
+  <li><b>Разобраться с выходными параметрами:</b> функция должна вернуть сразу <b>три</b> результата:
+    <ul>
+      <li>Общее количество слов — через обычный <code>return total_words;</code>.</li>
+      <li>Длину самого длинного слова — через указатель на число <code>int *longest_len</code> (записываем как <code>*longest_len = ...</code>).</li>
+      <li>Адрес первой буквы самого длинного слова — через <b>указатель на указатель</b> <code>const char **longest_start</code> (в <code>main</code> у нас есть переменная-указатель <code>const char *word_ptr</code>, и мы передаём в функцию её адрес <code>&amp;word_ptr</code>, чтобы функция изменила сам указатель через <code>*longest_start = ...</code>).</li>
+    </ul>
+  </li>
+  <li><b>Инициализировать значения по умолчанию:</b> обнулить <code>*longest_start = NULL</code> и <code>*longest_len = 0</code> на случай, если в строке вообще нет слов.</li>
+  <li><b>Пройти по строке указателем <code>p</code> в цикле <code>while (*p != '\0')</code>:</b>
+    <ul>
+      <li>Сначала пропускаем все пробельные символы: пока <code>*p != '\0' &amp;&amp; isspace((unsigned char)*p)</code>, делаем <code>p++</code>.</li>
+      <li>Если после пропуска пробелов мы упёрлись в <code>'\0'</code> — строка закончилась, выходим из цикла (<code>break</code>).</li>
+      <li>Иначе мы стоим ровно на <b>первой букве нового слова</b>! Увеличиваем счётчик слов <code>word_count++</code> и запоминаем адрес начала этого слова: <code>const char *word_begin = p;</code>.</li>
+      <li>Теперь бежим до конца текущего слова: пока <code>*p != '\0' &amp;&amp; !isspace((unsigned char)*p)</code>, двигаем <code>p++</code>.</li>
+      <li>Когда цикл остановился, указатель <code>p</code> стоит сразу за последней буквой слова. Вычисляем длину слова через разность указателей: <code>int current_len = (int)(p - word_begin);</code>.</li>
+      <li>Если <code>current_len &gt; *longest_len</code>, обновляем рекорд: сохраняем <code>*longest_len = current_len</code> и <code>*longest_start = word_begin</code>.</li>
+    </ul>
+  </li>
+  <li><b>Вывести найденное слово в <code>main</code> без изменения строки:</b> поскольку после слова в исходной строке идёт пробел (а не <code>'\0'</code>), обычный <code>printf("%s", ptr)</code> распечатал бы весь остаток строки до конца. Поэтому используем спецификатор <code>"%.*s"</code>, который печатает ровно <code>len</code> символов начиная с адреса <code>ptr</code>.</li>
+</ol>
+
+<h3>Полный разбор кода на языке C</h3>
+
+<script type="text/x-c" data-f="task8_analyze_words.c">#include <stdio.h>
+#include <ctype.h>   /* для функции isspace() */
+
+int analyze_words(const char *s, const char **longest_start, int *longest_len)
+{
+    /* Шаг 1: Защита от некорректных (NULL) указателей */
+    if (s == NULL || longest_start == NULL || longest_len == NULL) {
+        return 0;
+    }
+
+    /* Шаг 2: Инициализируем выходные переменные начальными значениями */
+    *longest_start = NULL;
+    *longest_len = 0;
+
+    int word_count = 0;
+    const char *p = s;
+
+    /* Шаг 3: Главный цикл обхода строки до нуль-терминатора */
+    while (*p != '\0') {
+        /* 3а. Пропускаем все пробелы, табуляции и переводы строк */
+        while (*p != '\0' && isspace((unsigned char)*p)) {
+            p++;
+        }
+
+        /* Если после пробелов строка закончилась — выходим */
+        if (*p == '\0') {
+            break;
+        }
+
+        /* 3б. Мы встали на первый символ нового слова! */
+        word_count++;
+        const char *word_begin = p; /* Запоминаем адрес первой буквы слова */
+
+        /* 3в. Идем по непробельным символам до конца этого слова */
+        while (*p != '\0' && !isspace((unsigned char)*p)) {
+            p++;
+        }
+
+        /* 3г. Вычисляем длину слова как разность адресов конца и начала */
+        int current_len = (int)(p - word_begin);
+
+        /* 3д. Проверяем, не побило ли это слово рекорд длины */
+        if (current_len > *longest_len) {
+            *longest_len = current_len;     /* Записываем новую макс. длину */
+            *longest_start = word_begin;    /* Записываем адрес начала слова */
+        }
+    }
+
+    return word_count;
+}
+
+int main(void)
+{
+    const char *text = "   C   programming at   Lomonosov   MSU is awesome!  ";
+    
+    const char *best_word = NULL; /* Указатель, куда функция запишет адрес слова */
+    int best_len = 0;             /* Переменная, куда функция запишет длину */
+
+    /* Передаем адреса &best_word (тип const char **) и &best_len (тип int *) */
+    int count = analyze_words(text, &best_word, &best_len);
+
+    printf("Исходная строка: \"%s\"\n", text);
+    printf("Всего слов: %d\n", count);
+
+    if (best_word != NULL) {
+        /* 
+         * Спецификатор %.*s принимает ДВА аргумента:
+         * 1) int best_len — сколько именно символов нужно напечатать (вместо звездочки *);
+         * 2) const char *best_word — адрес первого символа.
+         */
+        printf("Самое длинное слово: \"%.*s\" (длина: %d)\n",
+               best_len, best_word, best_len);
+    }
+
+    return 0;
+}</script>
+
+<div class="win-c out"><div class="hd"><span>Вывод программы</span></div><pre><code>Исходная строка: "   C   programming at   Lomonosov   MSU is awesome!  "
+Всего слов: 7
+Самое длинное слово: "programming" (длина: 11)</code></pre></div>
+
+<table>
+  <thead>
+    <tr><th>Конструкция в коде</th><th>Зачем она нужна и как работает</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>const char **longest_start</code></td>
+      <td>Указатель второго уровня (указатель на указатель). Чтобы функция изменила <code>int</code> в <code>main</code>, мы передаем <code>int *</code>. А чтобы функция изменила указатель <code>const char *</code> в <code>main</code> (направила его на нужную букву строки), мы передаем его адрес — то есть <code>const char **</code>.</td>
+    </tr>
+    <tr>
+      <td><code>p - word_begin</code></td>
+      <td>Классическая адресная арифметика: когда указатель <code>word_begin</code> указывает на <code>'p'</code> в слове <code>"programming"</code>, а <code>p</code> остановился на пробеле сразу после <code>'g'</code>, их разность равна ровно количеству символов в слове (11).</td>
+    </tr>
+    <tr>
+      <td><code>printf("%.*s", len, ptr)</code></td>
+      <td>Точка со звёздочкой <code>.*</code> в формате строки задаёт максимальную длину выводимого участка, причём сама длина передаётся отдельным целочисленным аргументом перед указателем на строку.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note win"><b>ЗАПОМНИТЕ</b>Почему в условии запрещена функция <code>strtok()</code>? Потому что <code>strtok()</code> <b>разрушает</b> исходную строку, заменяя пробелы на нулевые байты <code>'\0'</code>, и не может работать с константными строками <code>const char *</code>. Наш алгоритм с указателями оставляет строку в полной неприкосновенности.</div>
+</section>
+
+<!-- ═══════ ЗАДАЧА 9 ═══════ -->
+<section class="wp" data-t="Задача 9: Сжатие пробелов">
+<h2>Задача 9: Нормализация (сжатие) пробелов на месте</h2>
+<p class="sub">Два попутных указателя (read и write) для фильтрации строки за O(n) времени и O(1) памяти.</p>
+
+<div class="task">
+  <b>Задача 9: Нормализация (сжатие) пробелов в строке на месте.</b><br>
+  Напишите функцию <code>void normalize_spaces(char *s)</code>, которая за <code>O(n)</code> времени и <code>O(1)</code> памяти:<br>
+  1. Удаляет все пробелы в начале строки.<br>
+  2. Удаляет все пробелы в конце строки.<br>
+  3. Между соседними словами оставляет ровно по одному пробелу <code>' '</code>.<br>
+  Пример: <code>"   Hello   from    MSU  "</code> &rarr; <code>"Hello from MSU"</code>.
+</div>
+
+<h3>Краткий разбор: что нужно сделать по шагам</h3>
+<p>В Задаче 4 на прошлом занятии ты уже использовал метод двух указателей (читающий <code>read_p</code> и пишущий <code>write_p</code>) для удаления цифр из строки. Здесь идея точно такая же! Так как мы только <i>удаляем</i> лишние пробелы, пишущий указатель <code>write_p</code> никогда не обгонит читающий <code>read_p</code>, и мы ничего случайно не затрём.</p>
+<ol>
+  <li><b>Завести два указателя на начало массива <code>s</code>:</b>
+    <ul>
+      <li><code>const char *read_p = s;</code> — бежит вперёд и просматривает каждый символ исходной строки.</li>
+      <li><code>char *write_p = s;</code> — указывает на позицию, куда нужно записать следующий «чистый» символ.</li>
+    </ul>
+  </li>
+  <li><b>Завести флаг состояния <code>int in_word = 0;</code>:</b> он равен <code>1</code>, когда <code>read_p</code> идёт внутри слова, и сбрасывается в <code>0</code>, как только <code>read_p</code> встречает пробел.</li>
+  <li><b>Пробежать циклом <code>while (*read_p != '\0')</code>:</b>
+    <ul>
+      <li><b>Если символ пробельный (<code>isspace((unsigned char)*read_p)</code>):</b> мы его <b>не копируем</b>! Просто сбрасываем флаг <code>in_word = 0</code> (слово закончилось). За счёт этого все ведущие и хвостовые пробелы игнорируются автоматически!</li>
+      <li><b>Если символ НЕ пробельный (мы встретили букву/цифру/знак):</b>
+        <ul>
+          <li>Проверяем: если это <b>первая буква нового слова</b> (<code>in_word == 0</code>) <b>И</b> мы уже записали в буфер хотя бы одно слово раньше (<code>write_p != s</code>), то перед этим новым словом мы обязаны поставить ровно один пробел: <code>*write_p = ' '; write_p++;</code>.</li>
+          <li>Затем копируем сам символ: <code>*write_p = *read_p; write_p++;</code> и поднимаем флаг <code>in_word = 1;</code>.</li>
+        </ul>
+      </li>
+      <li>На каждом шаге двигаем читающий указатель: <code>read_p++</code>.</li>
+    </ul>
+  </li>
+  <li><b>Поставить нуль-терминатор в конце:</b> когда цикл закончился, записываем <code>*write_p = '\0';</code>, чтобы отрезать «старый хвост» строки.</li>
+</ol>
+
+<h3>Полный разбор кода на языке C</h3>
+
+<script type="text/x-c" data-f="task9_normalize_spaces.c">#include <stdio.h>
+#include <ctype.h>   /* для функции isspace() */
+
+void normalize_spaces(char *s)
+{
+    /* Защита от NULL-указателя */
+    if (s == NULL) {
+        return;
+    }
+
+    const char *read_p = s; /* Указатель чтения (идет по всей строке) */
+    char *write_p = s;      /* Указатель записи (собирает чистую строку) */
+    int in_word = 0;        /* Флаг: 1 — мы внутри слова, 0 — мы на пробелах */
+
+    while (*read_p != '\0') {
+        if (!isspace((unsigned char)*read_p)) {
+            /* 
+             * Мы встретили непробельный символ!
+             * Если до него был пробел (in_word == 0), значит, началось НОВОЕ слово.
+             * Если это НЕ самое первое слово в строке (write_p != s),
+             * то перед ним нужно поставить ровно один разделительный пробел ' '.
+             */
+            if (in_word == 0 && write_p != s) {
+                *write_p = ' ';
+                write_p++;
+            }
+
+            /* Переписываем текущий символ слова на позицию write_p */
+            *write_p = *read_p;
+            write_p++;
+
+            /* Отмечаем, что сейчас мы находимся внутри слова */
+            in_word = 1;
+        } else {
+            /* 
+             * Мы встретили пробел (или '\t', '\n').
+             * Мы НЕ записываем его в write_p, а только сбрасываем флаг in_word.
+             * Если этот пробел был в конце строки, новых слов больше не будет,
+             * и хвостовые пробелы просто исчезнут!
+             */
+            in_word = 0;
+        }
+
+        /* Переходим к следующему символу исходной строки */
+        read_p++;
+    }
+
+    /* ВАЖНО: Завершаем новую сжатую строку нуль-терминатором! */
+    *write_p = '\0';
+}
+
+int main(void)
+{
+    /* Важно: массив char[], а не указатель char*, так как мы меняем строку на месте! */
+    char str1[] = "   Hello   from    MSU  ";
+    char str2[] = "     OnlyOneWord     ";
+    char str3[] = "       "; /* Строка только из пробелов */
+
+    printf("До:    \"%s\"\n", str1);
+    normalize_spaces(str1);
+    printf("После: \"%s\"\n\n", str1);
+
+    printf("До:    \"%s\"\n", str2);
+    normalize_spaces(str2);
+    printf("После: \"%s\"\n\n", str2);
+
+    printf("До:    \"%s\"\n", str3);
+    normalize_spaces(str3);
+    printf("После: \"%s\"\n", str3);
+
+    return 0;
+}</script>
+
+<div class="win-c out"><div class="hd"><span>Вывод программы</span></div><pre><code>До:    "   Hello   from    MSU  "
+После: "Hello from MSU"
+
+До:    "     OnlyOneWord     "
+После: "OnlyOneWord"
+
+До:    "       "
+После: ""</code></pre></div>
+
+<h3>Как этот алгоритм решает сразу все 3 пункта условия?</h3>
+<table>
+  <thead>
+    <tr><th>Требование задачи</th><th>Почему оно выполняется само собой</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>1. Удаление пробелов в начале</b></td>
+      <td>Пока в начале строки идут пробелы, условие <code>!isspace(*read_p)</code> ложно, и <code>write_p</code> стоит на самом первом байте <code>s</code>. Когда встречается первая буква первого слова, условие <code>write_p != s</code> ложно, поэтому перед первым словом пробел не ставится.</td>
+    </tr>
+    <tr>
+      <td><b>2. Удаление пробелов в конце</b></td>
+      <td>Мы никогда не пишем пробел в момент, когда <i>видим</i> пробел! Мы пишем пробел только <i>перед первой буквой следующего слова</i>. Если после последнего слова идут пробелы до самого <code>'\0'</code>, нового слова не наступит, и сразу после последнего слова встанет <code>*write_p = '\0'</code>.</td>
+    </tr>
+    <tr>
+      <td><b>3. Ровно один пробел между словами</b></td>
+      <td>Сколько бы пробелов или табуляций ни шло подряд между словами (хоть 1, хоть 100), все они лишь сбрасывают <code>in_word = 0</code>. А когда начинается следующее слово, блок <code>if (in_word == 0 &amp;&amp; write_p != s)</code> срабатывает ровно один раз и вставляет один символ <code>' '</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note tip"><b>СОВЕТ ДЛЯ ЗАЧЕТА</b>Обрати внимание: если в строке между словами была табуляция <code>'\t'</code>, мы всё равно записываем обычный пробел <code>*write_p = ' '</code> (а не <code>*read_p</code>), потому что условие требует оставить между словами именно символ пробела <code>' '</code>.</div>
+</section>
+
+<!-- ═══════ ЗАДАЧА 10 ═══════ -->
+<section class="wp" data-t="Задача 10: Парсер числа">
+<h2>Задача 10: Собственный парсер целого числа (parse_int)</h2>
+<p class="sub">Посимвольный перевод строки в число с учётом знака и проверкой ошибок.</p>
+
+<div class="task">
+  <b>Задача 10: Собственный парсер целого числа из строки (my_atoi с контролем ошибок).</b><br>
+  Напишите функцию <code>int parse_int(const char *s, int *out_value)</code>, которая переводит строку в целое число без использования библиотечных <code>atoi</code> / <code>sscanf</code>:<br>
+  1. Пропускает ведущие пробелы (<code>isspace</code>).<br>
+  2. Учитывает необязательный знак <code>'+'</code> или <code>'-'</code>.<br>
+  3. Читает подряд идущие цифры, накапливая число по формуле <code>res = res * 10 + (*p - '0')</code>.<br>
+  4. Если в строке не было ни одной цифры, возвращает код ошибки <code>-1</code>; иначе записывает ответ в <code>*out_value</code> и возвращает <code>0</code>.
+</div>
+
+<h3>Краткий разбор: что нужно сделать по шагам</h3>
+<p>Стандартная библиотечная функция <code>atoi("abc")</code> возвращает <code>0</code>, и невозможно понять — то ли в строке реально был написан <code>"0"</code>, то ли произошла ошибка! Поэтому на зачётах просят написать безопасный парсер, который возвращает <b>код ошибки</b> (<code>0</code> — успех, <code>-1</code> — ошибка), а само число отдаёт через указатель <code>int *out_value</code>.</p>
+<ol>
+  <li><b>Проверить входные указатели:</b> если <code>s == NULL</code> или <code>out_value == NULL</code>, вернуть код ошибки <code>-1</code>.</li>
+  <li><b>Шаг 1 — Пропустить ведущие пробелы:</b> двигать указатель <code>p</code> вперёд, пока <code>*p != '\0' &amp;&amp; isspace((unsigned char)*p)</code>.</li>
+  <li><b>Шаг 2 — Проверить знак числа:</b> завести переменную <code>int sign = 1;</code>.
+    <ul>
+      <li>Если <code>*p == '-'</code>, ставим <code>sign = -1;</code> и сдвигаем указатель на следующий символ (<code>p++</code>).</li>
+      <li>Иначе если <code>*p == '+'</code>, оставляем <code>sign = 1;</code> и тоже сдвигаем указатель (<code>p++</code>).</li>
+    </ul>
+  </li>
+  <li><b>Шаг 3 — Прочитать подряд идущие цифры и накопить результат:</b>
+    <ul>
+      <li>Заводим аккумулятор <code>int res = 0;</code> и флаг/счётчик прочитанных цифр <code>int has_digits = 0;</code>.</li>
+      <li>Пока текущий символ — цифра (<code>isdigit((unsigned char)*p)</code>):
+        <ul>
+          <li>Отмечаем, что встретили хотя бы одну цифру: <code>has_digits = 1;</code>.</li>
+          <li>Превращаем символ цифры в число вычитанием кода нуля (<code>*p - '0'</code>) и приписываем справа к результату: <code>res = res * 10 + (*p - '0');</code>.</li>
+          <li>Сдвигаем указатель: <code>p++</code>.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><b>Шаг 4 — Проверить, была ли прочитана хотя бы одна цифра:</b> если <code>has_digits == 0</code> (например, строка была пустой, содержала только <code>"   -   "</code> или <code>"abc"</code>), возвращаем <code>-1</code>. Иначе записываем <code>*out_value = res * sign;</code> и возвращаем <code>0</code>.</li>
+</ol>
+
+<h3>Полный разбор кода на языке C</h3>
+
+<script type="text/x-c" data-f="task10_parse_int.c">#include <stdio.h>
+#include <ctype.h>   /* для функций isspace() и isdigit() */
+
+int parse_int(const char *s, int *out_value)
+{
+    /* Базовая защита от NULL-указателей */
+    if (s == NULL || out_value == NULL) {
+        return -1;
+    }
+
+    const char *p = s;
+
+    /* 1. Пропускаем все ведущие пробельные символы */
+    while (*p != '\0' && isspace((unsigned char)*p)) {
+        p++;
+    }
+
+    /* 2. Учитываем необязательный знак '+' или '-' */
+    int sign = 1;
+    if (*p == '-') {
+        sign = -1;
+        p++; /* Шагаем с минуса на первую предполагаемую цифру */
+    } else if (*p == '+') {
+        sign = 1;
+        p++; /* Шагаем с плюса на первую предполагаемую цифру */
+    }
+
+    /* 3. Читаем подряд идущие цифры и накапливаем число */
+    int res = 0;
+    int has_digits = 0; /* Флаг: нашли ли мы хотя бы одну цифру */
+
+    while (*p != '\0' && isdigit((unsigned char)*p)) {
+        has_digits = 1;
+        
+        /* 
+         * Выражение (*p - '0') переводит ASCII-код символа в цифру от 0 до 9.
+         * Умножение старого res на 10 сдвигает разряды влево:
+         * Например, для "425":
+         * 1-й шаг ('4'): res = 0 * 10 + 4 = 4
+         * 2-й шаг ('2'): res = 4 * 10 + 2 = 42
+         * 3-й шаг ('5'): res = 42 * 10 + 5 = 425
+         */
+        res = res * 10 + (*p - '0');
+        p++;
+    }
+
+    /* 4. Если ни одной цифры не встретилось — возвращаем ошибку -1 */
+    if (has_digits == 0) {
+        return -1;
+    }
+
+    /* Записываем итоговое число со знаком по адресу out_value */
+    *out_value = res * sign;
+    return 0; /* 0 означает успешное выполнение */
+}
+
+int main(void)
+{
+    /* Набор тестовых строк, включая корректные и ошибочные случаи */
+    const char *tests[] = {
+        "   -425",
+        "  +1024px",
+        "0",
+        "   -   ",
+        "abc123"
+    };
+
+    int num_tests = sizeof(tests) / sizeof(tests[0]);
+
+    for (int i = 0; i < num_tests; i++) {
+        int value = 0;
+        int status = parse_int(tests[i], &value);
+
+        if (status == 0) {
+            printf("Строка: %-10s -> УСПЕХ (код 0), число = %d\n", tests[i], value);
+        } else {
+            printf("Строка: %-10s -> ОШИБКА (код %d): нет цифр в начале\n", tests[i], status);
+        }
+    }
+
+    return 0;
+}</script>
+
+<div class="win-c out"><div class="hd"><span>Вывод программы</span></div><pre><code>Строка:    -425    -> УСПЕХ (код 0), число = -425
+Строка:   +1024px  -> УСПЕХ (код 0), число = 1024
+Строка: 0          -> УСПЕХ (код 0), число = 0
+Строка:    -       -> ОШИБКА (код -1): нет цифр в начале
+Строка: abc123     -> ОШИБКА (код -1): нет цифр в начале</code></pre></div>
+
+<table>
+  <thead>
+    <tr><th>Конструкция в коде</th><th>Зачем она нужна и как работает</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>*p - '0'</code></td>
+      <td>В таблице ASCII цифры от <code>'0'</code> (код 48) до <code>'9'</code> (код 57) идут строго по порядку. Поэтому разность <code>'7' - '0'</code> равна <code>55 - 48 = 7</code>.</td>
+    </tr>
+    <tr>
+      <td><code>res = res * 10 + (*p - '0')</code></td>
+      <td>Позиционная схема Горнера в десятичной системе счисления: каждая новая прочитанная справа цифра увеличивает вес уже накопленных разрядов в 10 раз.</td>
+    </tr>
+    <tr>
+      <td>Флаг <code>has_digits</code></td>
+      <td>Критически важен для отличия строки <code>"0"</code> от строки <code>"   +abc"</code>! В обоих случаях переменная <code>res</code> после цикла будет равна <code>0</code>, но для <code>"0"</code> флаг <code>has_digits</code> станет равен <code>1</code> (успех), а для <code>"   +abc"</code> останется равен <code>0</code> (код ошибки <code>-1</code>).</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note watch"><b>ЛОВУШКА НА ЗАЧЕТЕ</b>Почему нельзя проверять ошибку через <code>if (res == 0) return -1;</code> вместо флага <code>has_digits</code>? Потому что тогда парсер сломается на самой обычной строке <code>"0"</code> или <code>"000"</code>, посчитав ноль ошибкой! Всегда заводи отдельный флаг <code>has_digits</code> (или сравнивай указатель <code>p</code> до и после цикла чтения цифр).</div>
+</section>
+
+</div>
+
+<section style="text-align:center;color:var(--soft)">
+  <h2 style="font-style:italic">Как закрепить эти 4 задачи</h2>
+  <p>Открой свою IDE, создай пустой файл и попробуй по памяти (подглядывая только в «Краткий пошаговый разбор») написать каждую из четырёх функций самостоятельно. Если код скомпилируется без предупреждений и пройдёт все тесты в <code>main</code> — ты полностью готов к зачётным задачам по строкам!</p>
+</section>
+</main>
+
+<script>
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+document.querySelectorAll('script[type="text/x-c"]').forEach(s=>{
+ const w=document.createElement('div');w.className='win-c';
+ w.innerHTML='<div class="hd"><span>'+s.dataset.f+'</span><button>Копировать</button></div><pre><code>'+esc(s.textContent.replace(/^\n/,''))+'</code></pre>';
+ w.querySelector('button').onclick=e=>{navigator.clipboard&&navigator.clipboard.writeText(s.textContent.replace(/^\n/,''));e.target.textContent='Готово';setTimeout(()=>e.target.textContent='Копировать',1200)};
