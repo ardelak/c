@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практикум C: Средний уровень</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+.solution summary{min-height:2.75rem;padding:.45rem .2rem}
+.solution summary:focus-visible{outline:3px solid var(--deep);outline-offset:3px;border-radius:4px}
+.task p:last-child,.note p:last-child{margin-bottom:0}
+.task ul,.note ul{margin:.35rem 0 0;padding-left:1.35rem}
+.source{font-size:.84rem;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">Язык C: Учебник</a> · Практикум</div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">C · УРОВЕНЬ 2</div>
+  <h1>Практикум: задачи среднего уровня</h1>
+  <p>10 заданий на циклы, массивы, функции, строки и указатели</p>
+</header>
+
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a><a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a><a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a><a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a><a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a><a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a><a href="12-struct-union.html"><b>12</b>Структуры</a>
+</nav>
+
+<section class="obj">
+  <h2>Как работать с практикумом</h2>
+  <p>Здесь меньше пошаговой опоры: сначала сформулируйте инвариант или разложите задачу на действия, затем пишите код. После решения проверьте граничные случаи и объясните, почему выбранный цикл завершается.</p>
+  <p>Задания основаны на <code>tasks-challenge.md</code> и экзаменационном сборнике; формулировки отдельных фрагментов адаптированы к пройденным темам курса. Задачи на списки, деревья и ассемблер не включены.</p>
+</section>
+
+<nav class="grid" aria-label="Задачи среднего уровня">
+  <a href="#task1"><b>01</b>Цикл и сумма 1…100</a><a href="#task2"><b>02</b>Ветвление через switch</a>
+  <a href="#task3"><b>03</b>Пары разной чётности</a><a href="#task4"><b>04</b>Подсчёт подстроки</a>
+  <a href="#task5"><b>05</b>Короткое замыкание</a><a href="#task6"><b>06</b>Побочные эффекты</a>
+  <a href="#task7"><b>07</b>Побитовый приоритет</a><a href="#task8"><b>08</b>Трассировка static и указателей</a>
+  <a href="#task9"><b>09</b>Частоты украшений</a><a href="#task10"><b>10</b>Поля вложенной структуры</a>
+</nav>
+
+<div class="trail">
+<section class="wp" id="task1">
+  <span class="num">01</span><h2>Починить цикл суммы</h2>
+  <p class="sub">Источник: сборник задач, стр. 23, задание 6.</p>
+  <div class="task"><b>Задание.</b> Проверьте фрагмент <code>for (i = 0, sum = 0; i++, i &lt; 100; sum += i);</code>. Объясните, почему он неверен для суммы первых 100 натуральных чисел, и напишите исправленный вариант.</div>
+  <h3>Замысел решения</h3><p>Разберите три части заголовка <code>for</code> отдельно. Оператор-запятая в условии сначала меняет <code>i</code>, а точка с запятой после скобок делает тело пустым.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>В исходном варианте сложение стоит в части обновления, а не в теле.</li><li>Проверьте, включается ли число 100 в условие.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle01_sum100.c">#include <stdio.h>
+
+int main(void)
+{
+    int sum = 0;
+
+    /* Суммируем в теле цикла все числа от 1 до 100 включительно. */
+    for (int i = 1; i <= 100; ++i) {
+        sum += i;
+    }
+
+    printf("%d\n", sum); /* 5050 */
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task2">
+  <span class="num">02</span><h2>Представить диапазон через switch</h2>
+  <p class="sub">Источник: сборник задач, стр. 15–16, задание 5.</p>
+  <div class="task"><b>Задание.</b> Для <code>i</code> выполните правило: при <code>i == -1</code> положите <code>j = i</code>; при <code>1 &lt;= i &lt;= 3</code> положите <code>j = 10 - i</code>; иначе вызовите <code>abort()</code>. Используйте только один <code>switch</code>, без <code>if</code>.</div>
+  <h3>Замысел решения</h3><p><code>switch</code> сопоставляет значение с константами, а не с диапазонами. Поэтому небольшой диапазон следует перечислить отдельными метками.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Несколько меток <code>case</code> могут вести к одному блоку.</li><li>Ветка <code>default</code> соответствует запрещённым значениям.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle02_switch.c">#include <stdlib.h>
+
+int map_value(int i)
+{
+    int j;
+
+    /* Группируем три разрешённых значения в одной ветви. */
+    switch (i) {
+    case -1:
+        j = i;
+        break;
+    case 1:
+    case 2:
+    case 3:
+        j = 10 - i;
+        break;
+    default:
+        abort();
+    }
+
+    return j;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task3">
+  <span class="num">03</span><h2>Одним проходом посчитать соседние пары</h2>
+  <p class="sub">Источник: сборник задач, стр. 16, задание 6.</p>
+  <div class="task"><b>Задание.</b> Для массива <code>int a[N]</code> найдите число соседних пар с разной чётностью. Разрешён ровно один цикл <code>for</code>; другие циклы и операторы перехода использовать нельзя.</div>
+  <h3>Замысел решения</h3><p>Соседняя пара задаётся индексами <code>i</code> и <code>i + 1</code>, поэтому цикл заканчивается на предпоследнем элементе. Для каждой позиции достаточно сравнить два признака чётности.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Признак чётности удобно записать как <code>a[i] % 2 == 0</code>.</li><li>Разные булевы признаки сравниваются оператором <code>!=</code>.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle03_parity.c">#include <stdio.h>
+
+int main(void)
+{
+    int a[] = { 2, 5, 8, 11, 12, 14 };
+    int n = (int)(sizeof a / sizeof a[0]);
+    int pairs = 0;
+
+    /* Один проход проверяет n - 1 соседних пар. */
+    for (int i = 0; i + 1 < n; ++i) {
+        pairs += ((a[i] % 2 == 0) != (a[i + 1] % 2 == 0));
+    }
+
+    printf("%d\n", pairs); /* 3: меняется чётность в трёх соседних парах. */
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task4">
+  <span class="num">04</span><h2>Считать вхождения «2012»</h2>
+  <p class="sub">Источник: сборник задач, стр. 19, задание 7.</p>
+  <div class="task"><b>Задание.</b> Реализуйте <code>int count(const char *s)</code>, которая считает все вхождения подстроки <code>"2012"</code>. Пример: <code>"28012012-пересдача"</code> содержит одно вхождение. Память алгоритма не должна зависеть от длины строки.</div>
+  <h3>Замысел решения</h3><p>Просматривайте строку слева направо и на каждой позиции проверяйте, начинается ли там образец. Хранить копию строки не требуется.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Начинайте проверку с каждой позиции, а не только после совпадений.</li><li>При использовании <code>strncmp</code> подключите <code>string.h</code>.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle04_count.c">#include <stdio.h>
+#include <string.h>
+
+int count(const char *s)
+{
+    int total = 0;
+
+    if (s == NULL) {
+        return 0;
+    }
+
+    /* Сдвигаем начало проверки на один символ после каждого сравнения. */
+    for (const char *p = s; *p != '\0'; ++p) {
+        if (strncmp(p, "2012", 4) == 0) {
+            ++total;
+        }
+    }
+    return total;
+}
+
+int main(void)
+{
+    printf("%d\n", count("28012012-пересдача"));
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task5">
+  <span class="num">05</span><h2>Разобрать короткое замыкание в присваивании</h2>
+  <p class="sub">Источник: сборник задач, стр. 18, задание 3, выражение 3.</p>
+  <div class="task"><b>Задание.</b> При <code>x=11</code> и <code>y=-80</code> вычислите <code>y &lt;&lt;= (x -= 10) &amp;&amp; (x -= 11)</code>, укажите конечные значения переменных и определите, имеет ли программа гарантированный результат по стандарту C.</div>
+  <h3>Замысел решения</h3><p>Сначала определите значение левого операнда <code>&amp;&amp;</code>. Если он ненулевой, вычисляется значение всего логического выражения; правый операнд пропускается только при ложном левом.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li><code>x -= 10</code> даёт 1, поэтому правая часть <code>&amp;&amp;</code> тоже будет вычислена.</li><li>После вычисления логического выражения сдвиг на один бит выполняется для отрицательного <code>y</code>.</li><li>Отделите вычисление операндов от проверки допустимости самого сдвига.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle05_shift_review.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 11;
+    int y = -80;
+
+    /* Вычисляем только логический операнд, не выполняя опасный сдвиг. */
+    int shift = (x -= 10) && (x -= 11);
+    printf("x=%d, y=%d, величина сдвига=%d\n", x, y, shift);
+
+    /* y <<= shift здесь намеренно не исполняется: y отрицателен. */
+    puts("Сдвиг отрицательного знакового y влево: неопределённое поведение.");
+    return 0;
+}</script>
+    <p>Оба операнда <code>&amp;&amp;</code> вычисляются: после первого <code>x</code> равно 1, затем становится <code>-10</code>. Значение выражения — 1. Само присваивание <code>y &lt;&lt;= 1</code> имеет неопределённое поведение, поскольку левый операнд отрицателен.</p>
+  </details>
+</section>
+
+<section class="wp" id="task6">
+  <span class="num">06</span><h2>Сравнить выражения с побочными эффектами</h2>
+  <p class="sub">Источник: сборник задач, стр. 22, задание 3.</p>
+  <div class="task"><b>Задание.</b> Для каждого независимого выражения укажите конечные значения переменных или результат: <code>x += (y = 1), y = 2</code>; <code>x ^= (x &amp; y) + 4</code>; <code>x += ((y = 1) || (y = 2))</code>; <code>!x ? x : y</code>; <code>x %= y / 4</code>. Перед каждым выражением заново задаются <code>x=10</code> и <code>y=20</code>.</div>
+  <h3>Замысел решения</h3><p>Не переносите изменённые значения из одного пункта в другой: выражения независимы. Учитывайте, что запятая упорядочивает вычисления, а <code>||</code> при истинном левом операнде пропускает правый.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Сначала вычисляйте подвыражение в скобках.</li><li>Для составного присваивания найдите значение правой части, затем новое значение левой переменной.</li><li>Составьте отдельную мини-таблицу для каждого выражения.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle06_side_effects.c">#include <stdio.h>
+
+int main(void)
+{
+    int x, y, result;
+
+    x = 10; y = 20;
+    result = (x += (y = 1), y = 2); /* Запятая оставляет результат правого операнда. */
+    printf("1) result=%d, x=%d, y=%d\n", result, x, y);
+
+    x = 10; y = 20;
+    x ^= (x & y) + 4; /* x & y равно 0, затем x становится 10 ^ 4. */
+    printf("2) x=%d, y=%d\n", x, y);
+
+    x = 10; y = 20;
+    x += ((y = 1) || (y = 2)); /* Истинный левый операнд пропускает y = 2. */
+    printf("3) x=%d, y=%d\n", x, y);
+
+    x = 10; y = 20;
+    result = !x ? x : y; /* !10 равно 0, поэтому выбирается y. */
+    printf("4) result=%d\n", result);
+
+    x = 10; y = 20;
+    x %= y / 4; /* 20 / 4 равно 5, поэтому остаток 10 % 5 равен 0. */
+    printf("5) x=%d, y=%d\n", x, y);
+    return 0;
+}</script>
+    <p>Результаты по порядку: <code>result=2, x=11, y=2</code>; <code>x=14</code>; <code>x=11, y=1</code>; <code>result=20</code>; <code>x=0</code>. В пункте 3 второе присваивание <code>y=2</code> не выполняется из-за короткого замыкания.</p>
+  </details>
+</section>
+
+<section class="wp" id="task7">
+  <span class="num">07</span><h2>Разобрать приоритет побитовых операторов</h2>
+  <p class="sub">Источник: сборник задач, стр. 18, задание 3, выражение 2.</p>
+  <div class="task"><b>Задание.</b> При <code>x=11</code> и <code>y=-80</code> вычислите <code>x | (-y ^ 1)</code>. Поставьте скобки в соответствии с приоритетом операторов и напишите программу для проверки на GCC.</div>
+  <h3>Замысел решения</h3><p>Сначала выполняется унарный минус, затем побитовое исключающее ИЛИ <code>^</code>, после него — побитовое ИЛИ <code>|</code>. Эти операторы не являются логическими операторами.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Запишите выражение как <code>x | ((-y) ^ 1)</code>.</li><li>Вычислите каждую часть в десятичной системе и затем примените побитовые операции.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle07_bitwise.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 11;
+    int y = -80;
+    int result = x | (-y ^ 1);
+
+    printf("%d\n", result); /* 91 */
+    return 0;
+}</script>
+    <p><code>-y</code> равно 80, <code>80 ^ 1</code> равно 81, а <code>11 | 81</code> равно 91.</p>
+  </details>
+</section>
+
+<section class="wp" id="task8">
+  <span class="num">08</span><h2>Проследить static-переменную и указатель</h2>
+  <p class="sub">Источник: сборник задач, стр. 15, задание 4.</p>
+  <div class="task"><b>Задание.</b> Определите вывод программы. Отдельно записывайте значения статической переменной <code>c</code>, локального параметра <code>x</code> и указателя <code>p</code> после каждого вызова <code>f</code>.</div>
+  <div class="task"><pre><code>int x = 2, y = 1;
+int a[3] = { 1, 2 };
+int f(int x, int **p) {
+    static int c = 2;
+    if (c--) **p += x;
+    else ++x;
+    return (*p)++ - a - x;
+}</code></pre></div>
+  <h3>Замысел решения</h3><p>Локальная <code>static</code> сохраняет значение между вызовами. Выражение <code>(*p)++</code> увеличивает сам указатель, а разность указателей на элементы одного массива измеряется в элементах.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Составьте таблицу: номер вызова, <code>c</code> до ветвления, индекс <code>p</code>, массив <code>a</code>, возвращаемое значение.</li><li>В <code>main</code> есть локальная переменная <code>y</code>, она скрывает глобальную <code>y</code>.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle08_static_pointer.c">#include <stdio.h>
+
+int x = 2;
+int y = 1;
+int a[3] = { 1, 2 };
+
+int f(int x, int **p)
+{
+    static int c = 2;
+
+    if (c--) {
+        **p += x; /* Меняется элемент массива, на который указывает *p. */
+    } else {
+        ++x;
+    }
+
+    return (*p)++ - a - x; /* Возвращаем разность адресов минус параметр x. */
+}
+
+int main(void)
+{
+    int x = y;
+    int c = 0;
+    int *p = &a[x];
+
+    for (int y = 2; y >= c; --y, ++x) {
+        c = f(y, &p);
+    }
+
+    printf("%d %d %d %d %d\n", a[0], a[1], a[2], x, y);
+    return 0;
+}</script>
+    <p>Два вызова дают <code>c = -1</code>, затем <code>c = 1</code>; указатель проходит от <code>a[1]</code> к <code>a[2]</code> и <code>a[3]</code>. Поэтому исходный цикл заканчивается с <code>a = {1, 4, 1}</code> и локальным <code>x = 3</code>. Переменная цикла <code>y</code> вне цикла недоступна, поэтому в <code>printf</code> используется глобальное <code>y = 1</code>; печатается <code>1 4 1 3 1</code>.</p>
+  </details>
+</section>
+
+<section class="wp" id="task9">
+  <span class="num">09</span><h2>Ускорить подсчёт драгоценностей</h2>
+  <p class="sub">Источник: <code>tasks-challenge.md</code>, задача C; вариант с таблицей частот.</p>
+  <div class="task"><b>Задание.</b> Решите задачу о камнях и украшениях: посчитайте символы строки <code>S</code>, принадлежащие строке <code>J</code>. Вместо поиска каждой буквы через <code>strchr</code> подготовьте таблицу из 26 признаков для строчных латинских букв.</div>
+  <h3>Замысел решения</h3><p>Сначала одним проходом отметьте буквы из <code>J</code>. Затем одним проходом по <code>S</code> считайте отмеченные буквы. Повторы в <code>J</code> не увеличивают число драгоценностей.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Для буквы <code>c</code> индекс равен <code>c - 'a'</code>.</li><li>Каждый символ из <code>S</code> проверяется отдельно.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle09_jewels_table.c">#include <stdio.h>
+
+int main(void)
+{
+    char jewels[101];
+    char stones[101];
+    int is_jewel[26] = { 0 };
+    int count = 0;
+
+    if (scanf("%100s %100s", jewels, stones) != 2) {
+        return 1;
+    }
+
+    for (int i = 0; jewels[i] != '\0'; ++i) {
+        is_jewel[jewels[i] - 'a'] = 1; /* Повторная отметка безопасна. */
+    }
+    for (int i = 0; stones[i] != '\0'; ++i) {
+        count += is_jewel[stones[i] - 'a'];
+    }
+
+    printf("%d\n", count);
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task10">
+  <span class="num">10</span><h2>Доступ к полям вложенной структуры через указатель</h2>
+  <p class="sub">Источник: сборник задач, стр. 20, задание 1, выражение 4.</p>
+  <div class="task"><b>Задание.</b> Для заданных структур и значений вычислите <code>s.p.x = x + s.n-&gt;p.y</code> и перечислите изменённые поля. Затем реализуйте эту операцию в компилируемой программе.</div>
+  <h3>Замысел решения</h3><p>Поле <code>n</code> — указатель на ту же структуру, поэтому доступ к его полям идёт через <code>-&gt;</code>. Поле <code>p</code> — вложенный объект, к нему обращаются через точку.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Начальное <code>s.p.y</code> равно <code>-20</code>.</li><li>Порядок вычисления: сначала правая часть присваивания, затем запись в <code>s.p.x</code>.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="middle10_struct_pointer.c">#include <stdio.h>
+
+struct Point {
+    int x;
+    int y;
+};
+
+struct Node {
+    struct Point p;
+    struct Node *next;
+};
+
+int main(void)
+{
+    int x = 2;
+    struct Node s = { { -10, -20 }, NULL };
+    s.next = &s; /* Указатель ведёт на сам объект s. */
+
+    s.p.x = x + s.next->p.y;
+    printf("%d %d\n", s.p.x, s.p.y); /* -18 -20 */
+    return 0;
+}</script>
+  </details>
+</section>
+</div>
+
+<section class="obj">
+  <h2>Контроль перед сложным уровнем</h2>
+  <p>Убедитесь, что можете объяснить состояние переменных после каждой итерации, а не только назвать итог. В задачах с указателями проверяйте, что адрес остаётся внутри исходного массива или объекта.</p>
+  <p><a href="practice-high.html">Перейти к высокому уровню →</a></p>
+</section>
+</main>
+</body>
+</html>

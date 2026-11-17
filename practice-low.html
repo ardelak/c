@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практикум C: Начальный уровень</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+.solution summary{min-height:2.75rem;padding:.45rem .2rem}
+.solution summary:focus-visible{outline:3px solid var(--deep);outline-offset:3px;border-radius:4px}
+.task p:last-child,.note p:last-child{margin-bottom:0}
+.task ul,.note ul{margin:.35rem 0 0;padding-left:1.35rem}
+.source{font-size:.84rem;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">Язык C: Учебник</a> · Практикум</div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">C · УРОВЕНЬ 1</div>
+  <h1>Практикум: базовые задачи</h1>
+  <p>10 задач на чтение ввода, выражения, условия, циклы и строки</p>
+</header>
+
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a><a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a><a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a><a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a><a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a><a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a><a href="12-struct-union.html"><b>12</b>Структуры</a>
+</nav>
+
+<section class="obj">
+  <h2>Как работать с практикумом</h2>
+  <p>Сначала решите задачу самостоятельно, затем сверяйтесь с подсказками и только после этого открывайте модельное решение. После проверки измените входные данные и убедитесь, что программа работает не только на примере.</p>
+  <p>Задания взяты из <code>tasks-challenge.md</code> и сборника экзаменационных задач, с небольшими учебными упрощениями. Используются только темы курса 01–12. Сборка примеров: <code>gcc -Wall -Wextra -std=c11 task.c -o task</code>.</p>
+</section>
+
+<nav class="grid" aria-label="Задачи начального уровня">
+  <a href="#task1"><b>01</b>Hello, World!</a><a href="#task2"><b>02</b>Сумма A + B</a>
+  <a href="#task3"><b>03</b>Камни и украшения</a><a href="#task4"><b>04</b>Остаток от деления</a>
+  <a href="#task5"><b>05</b>Постфиксный инкремент</a><a href="#task6"><b>06</b>Тернарный оператор</a>
+  <a href="#task7"><b>07</b>Инкремент в делении</a><a href="#task8"><b>08</b>Короткое замыкание</a>
+  <a href="#task9"><b>09</b>Побитовые операторы</a><a href="#task10"><b>10</b>Префикс и постфикс</a>
+</nav>
+
+<div class="trail">
+<section class="wp" id="task1">
+  <span class="num">01</span><h2>Hello, World!</h2>
+  <p class="sub">Источник: <code>tasks-challenge.md</code>, задача A.</p>
+  <div class="task"><b>Задание.</b> Напишите программу, которая выводит ровно одну строку <code>Hello, World!</code>. Ввод не требуется.</div>
+  <h3>Замысел решения</h3><p>Точка входа — функция <code>main</code>. Для вывода используйте <code>printf</code> и строковый литерал.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Подключите <code>stdio.h</code>.</li><li>Не забудьте перевод строки <code>\n</code> и <code>return 0</code>.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task01_hello.c">#include <stdio.h>
+
+int main(void)
+{
+    /* printf выводит строку и переводит курсор на следующую строку. */
+    printf("Hello, World!\n");
+    return 0; /* Нулевой код сообщает об успешном завершении. */
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task2">
+  <span class="num">02</span><h2>Сумма A + B</h2>
+  <p class="sub">Источник: <code>tasks-challenge.md</code>, задача B.</p>
+  <div class="task"><b>Задание.</b> Прочитайте два целых числа <code>A</code> и <code>B</code> из одной строки и выведите их сумму. Каждое число по модулю не превосходит 2&nbsp;000&nbsp;000&nbsp;000.</div>
+  <h3>Замысел решения</h3><p>Числа могут быть отрицательными. Их сумма способна выйти за диапазон 32-битного <code>int</code>, поэтому для суммы используйте <code>long long</code>.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Для чтения и печати <code>long long</code> используйте спецификатор <code>%lld</code>.</li><li>Ввод <code>57 43</code> должен дать <code>100</code>.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task02_sum.c">#include <stdio.h>
+
+int main(void)
+{
+    long long a, b;
+
+    /* Проверяем, что оба числа успешно прочитаны. */
+    if (scanf("%lld %lld", &a, &b) != 2) {
+        return 1;
+    }
+
+    printf("%lld\n", a + b);
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task3">
+  <span class="num">03</span><h2>Камни и украшения</h2>
+  <p class="sub">Источник: <code>tasks-challenge.md</code>, задача C.</p>
+  <div class="task"><b>Задание.</b> Даны две строки строчных латинских букв: <code>J</code> — множество «драгоценных» букв, <code>S</code> — строка камней. Посчитайте символы <code>S</code>, которые встречаются в <code>J</code>. Повторения в <code>S</code> считаются отдельно. Длина каждой строки не больше 100.</div>
+  <h3>Замысел решения</h3><p>Перебирайте камни по одному и проверяйте каждый символ поиском в строке <code>J</code>. Важно считать каждое вхождение в <code>S</code>, а не только разные буквы.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Оставьте в массивах место для завершающего <code>'\0'</code>.</li><li><code>strchr(J, c)</code> возвращает <code>NULL</code>, если символ не найден.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task03_jewels.c">#include <stdio.h>
+#include <string.h>
+
+int main(void)
+{
+    char jewels[101];
+    char stones[101];
+    int count = 0;
+
+    if (scanf("%100s %100s", jewels, stones) != 2) {
+        return 1;
+    }
+
+    /* Каждая позиция stones — отдельный камень, даже если буква повторяется. */
+    for (const char *p = stones; *p != '\0'; ++p) {
+        if (strchr(jewels, *p) != NULL) {
+            ++count;
+        }
+    }
+
+    printf("%d\n", count);
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task4">
+  <span class="num">04</span><h2>Остаток от деления с изменением переменной</h2>
+  <p class="sub">Источник: сборник задач, стр. 15, задание 3, выражение 1.</p>
+  <div class="task"><b>Задание.</b> Для <code>x = 42</code> и <code>y = -105</code> определите результат выражения <code>y %= x / 5</code> и конечные значения переменных. Напишите программу, которая проверяет ответ.</div>
+  <h3>Замысел решения</h3><p>Сначала вычисляется целочисленное деление <code>x / 5</code>, затем оператор <code>%=</code> сохраняет остаток обратно в <code>y</code>.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>В C деление двух целых чисел отбрасывает дробную часть.</li><li>При делении на положительное число знак остатка совпадает со знаком делимого.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task04_remainder.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 42;
+    int y = -105;
+
+    y %= x / 5; /* x / 5 равно 8, а -105 % 8 равно -1. */
+    printf("x=%d, y=%d\n", x, y);
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task5">
+  <span class="num">05</span><h2>Постфиксный инкремент в присваивании</h2>
+  <p class="sub">Источник: сборник задач, стр. 22, задание 3, выражение 6.</p>
+  <div class="task"><b>Задание.</b> Пусть <code>x = 10</code>, <code>y = 20</code>. Вычислите <code>x += y++</code> и укажите значения <code>x</code> и <code>y</code> после выполнения. Проверьте рассуждение программой.</div>
+  <h3>Замысел решения</h3><p>Постфиксный <code>y++</code> сначала даёт старое значение <code>y</code> для сложения, а увеличение <code>y</code> происходит как побочный эффект.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Разложите выражение на «прибавить старое <code>y</code> к <code>x</code>» и «увеличить <code>y</code>».</li><li>Переменные <code>x</code> и <code>y</code> разные, поэтому здесь нет конфликта изменений.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task05_postfix.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 10;
+    int y = 20;
+
+    x += y++; /* x получает старое y (20), после чего y становится 21. */
+    printf("x=%d, y=%d\n", x, y);
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task6">
+  <span class="num">06</span><h2>Условный выбор выражением</h2>
+  <p class="sub">Источник: сборник задач, стр. 22, задание 3, выражение 4.</p>
+  <div class="task"><b>Задание.</b> При <code>x = 10</code> и <code>y = 20</code> определите значение <code>!x ? x : y</code>. Объясните, какая ветвь выбирается, затем выведите результат.</div>
+  <h3>Замысел решения</h3><p>Условие оператора <code>?:</code> считается истинным, если его значение не равно нулю. Выражение <code>!x</code> сначала инвертирует логическое значение <code>x</code>.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li><code>x</code> равен нулю или ненулевому значению?</li><li>Для ненулевого <code>x</code> выражение <code>!x</code> равно нулю.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task06_ternary.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 10;
+    int y = 20;
+    int result = !x ? x : y; /* !10 равно 0, поэтому выбирается y. */
+
+    printf("%d\n", result);
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task7">
+  <span class="num">07</span><h2>Инкремент внутри деления с остатком</h2>
+  <p class="sub">Источник: сборник задач, стр. 18, задание 3, выражение 1.</p>
+  <div class="task"><b>Задание.</b> При <code>x=11</code> и <code>y=-80</code> вычислите <code>y %= ++x</code>. Напишите программу, которая показывает конечные значения обеих переменных.</div>
+  <h3>Замысел решения</h3><p>Сначала префиксный инкремент увеличивает <code>x</code> и выдаёт новое значение. Оно становится делителем операции остатка.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>После <code>++x</code> делитель равен 12.</li><li>Для целочисленного деления C остаток от отрицательного делимого остаётся отрицательным.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task07_prefix_mod.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 11;
+    int y = -80;
+
+    y %= ++x; /* Сначала x становится 12; -80 % 12 равно -8. */
+    printf("x=%d, y=%d\n", x, y);
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task8">
+  <span class="num">08</span><h2>Понять короткое замыкание</h2>
+  <p class="sub">Источник: сборник задач, стр. 15, задание 3, выражение 4.</p>
+  <div class="task"><b>Задание.</b> При <code>y=-105</code> вычислите <code>(y = 1) &amp;&amp; (y = 2)</code>. Укажите значение всего выражения и конечное значение <code>y</code>.</div>
+  <h3>Замысел решения</h3><p>Оператор <code>&amp;&amp;</code> вычисляет левую часть первой. Если она истинна, выполняется правая часть; результатом будет 1, если истинны обе.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>После левого присваивания <code>y</code> равно 1, то есть левый операнд истинный.</li><li>Проверьте, будет ли вычислено присваивание справа.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task08_short_circuit.c">#include <stdio.h>
+
+int main(void)
+{
+    int y = -105;
+    int result = (y = 1) && (y = 2);
+
+    printf("result=%d, y=%d\n", result, y); /* result=1, y=2 */
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task9">
+  <span class="num">09</span><h2>Сложить побитовое выражение</h2>
+  <p class="sub">Источник: сборник задач, стр. 15, задание 3, выражение 2.</p>
+  <div class="task"><b>Задание.</b> Для <code>x=42</code> и <code>y=-105</code> вычислите <code>x ^ ~y &amp; 65</code> на GCC и напишите проверочную программу. Поясните, какие операции выполняются первыми.</div>
+  <h3>Замысел решения</h3><p>Унарное <code>~</code> имеет более высокий приоритет, чем <code>&amp;</code>, а <code>&amp;</code> — более высокий, чем <code>^</code>. Поэтому скобки в соответствии с приоритетом: <code>x ^ ((~y) &amp; 65)</code>.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Это побитовые операции, а не логические <code>&amp;&amp;</code> и <code>||</code>.</li><li>В C представление отрицательных целых зависит от реализации; учебный курс предполагает GCC на обычной платформе с дополнительным кодом.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task09_bitwise.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 42;
+    int y = -105;
+    int result = x ^ ((~y) & 65);
+
+    printf("%d\n", result); /* 106 на обычной GCC-платформе. */
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task10">
+  <span class="num">10</span><h2>Различить постфиксный и префиксный инкремент</h2>
+  <p class="sub">Источник: сборник задач, стр. 18, задание 3, выражение 5.</p>
+  <div class="task"><b>Задание.</b> При <code>x=11</code> и <code>y=-80</code> вычислите <code>x++ + --y</code>. Укажите значение выражения и конечные значения обеих переменных.</div>
+  <h3>Замысел решения</h3><p>Постфиксный инкремент использует старое значение <code>x</code>, префиксный декремент сначала уменьшает <code>y</code>. Изменяются разные объекты, поэтому неопределённого поведения из-за неупорядоченных изменений нет.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Слагаемые равны 11 и -81.</li><li>Не путайте результат выражения с состоянием переменных после него.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="task10_prefix_postfix.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 11;
+    int y = -80;
+    int result = x++ + --y;
+
+    /* x++ использует 11, а --y сначала меняет y на -81. */
+    printf("result=%d, x=%d, y=%d\n", result, x, y);
+    return 0;
+}</script>
+  </details>
+</section>
+</div>
+
+<section class="obj">
+  <h2>Самопроверка</h2>
+  <p>Перед переходом к следующему уровню проверьте крайние случаи: отрицательные числа, нулевой ввод, минимальную длину строки и массив из одного элемента. Если ошиблись, попробуйте объяснить, какой именно шаг алгоритма привёл к неверному ответу.</p>
+  <p><a href="practice-middle.html">Перейти к среднему уровню →</a></p>
+</section>
+</main>
+</body>
+</html>

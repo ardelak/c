@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практикум C: Высокий уровень</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+.solution summary{min-height:2.75rem;padding:.45rem .2rem}
+.solution summary:focus-visible{outline:3px solid var(--deep);outline-offset:3px;border-radius:4px}
+.task p:last-child,.note p:last-child{margin-bottom:0}
+.task ul,.note ul{margin:.35rem 0 0;padding-left:1.35rem}
+.source{font-size:.84rem;color:var(--soft)}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">Язык C: Учебник</a> · Практикум</div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">C · УРОВЕНЬ 3</div>
+  <h1>Практикум: сложные задачи</h1>
+  <p>10 заданий на алгоритмы, работу с памятью и анализ поведения C</p>
+</header>
+
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a><a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a><a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a><a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a><a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a><a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a><a href="12-struct-union.html"><b>12</b>Структуры</a>
+</nav>
+
+<section class="obj">
+  <h2>Как работать с практикумом</h2>
+  <p>В сложных задачах сначала зафиксируйте инвариант и ограничения, затем проверьте решение на коротком примере вручную. Не открывайте решение до попытки самостоятельно: код под спойлером — для сверки и разбора, а не для копирования без проверки.</p>
+  <p>Задания основаны на экзаменационном сборнике, а формулировки адаптированы к уже пройденным темам курса. В вопросах, исходно требующих динамической памяти, заданы варианты с ограниченными массивами или обработкой на месте; ассемблерные и древовидные задачи исключены.</p>
+</section>
+
+<nav class="grid" aria-label="Задачи высокого уровня">
+  <a href="#task1"><b>01</b>Потоковое скалярное произведение</a><a href="#task2"><b>02</b>Сопоставление знаковых элементов</a>
+  <a href="#task3"><b>03</b>Удаление слов на месте</a><a href="#task4"><b>04</b>Выражения: типы и структуры</a>
+  <a href="#task5"><b>05</b>Выражения: указатели и массивы</a><a href="#task6"><b>06</b>Частоты строк и сортировка</a>
+  <a href="#task7"><b>07</b>Открытая адресация</a><a href="#task8"><b>08</b>Трассировка цикла с указателями</a>
+  <a href="#task9"><b>09</b>Побочные эффекты и неопределённое поведение</a><a href="#task10"><b>10</b>continue и goto в трёх циклах</a>
+</nav>
+
+<div class="trail">
+<section class="wp" id="task1">
+  <span class="num">01</span><h2>Скалярное произведение потока без массива</h2>
+  <p class="sub">Источник: сборник задач, стр. 16, задание 7; сохранены ограничения на число циклов и переходы.</p>
+  <div class="task"><b>Задание.</b> Реализуйте <code>int scalar(void)</code>: функция читает ненулевые целые числа до нуля. Количество чисел чётно; ответ — сумма произведений соседних пар <code>a1*a2 + a3*a4 + ...</code>. Используйте не более одного цикла и не используйте <code>break</code>, <code>continue</code> или <code>goto</code>. Считайте, что результат помещается в <code>int</code>.</div>
+  <h3>Замысел решения</h3><p>Хранить всю последовательность не нужно: достаточно читать по два числа, умножать их и сразу прибавлять произведение к сумме. Условие цикла читает первый элемент следующей пары.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Нулевой маркер проверяется только на позиции нечётного номера.</li><li>Второй элемент каждой пары гарантирован условиями задачи.</li><li>Не забывайте вернуть накопленную сумму после завершения цикла.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high01_scalar.c">#include <stdio.h>
+
+int scalar(void)
+{
+    int total = 0;
+    int first;
+    int second;
+
+    /* Каждая итерация обрабатывает два соседних ненулевых значения. */
+    while (scanf("%d", &first) == 1 && first != 0) {
+        scanf("%d", &second);
+        total += first * second;
+    }
+
+    return total;
+}
+
+int main(void)
+{
+    printf("%d\n", scalar());
+    return 0;
+}</script>
+    <p>Для ввода <code>1 2 3 4 0</code> функция вычисляет <code>1×2 + 3×4</code> и возвращает <code>14</code>.</p>
+  </details>
+</section>
+
+<section class="wp" id="task2">
+  <span class="num">02</span><h2>Сопоставить отрицательные и положительные элементы</h2>
+  <p class="sub">Источник: сборник задач, стр. 19, задание 5; явно заданы массив и запрет переходов.</p>
+  <div class="task"><b>Задание.</b> В массиве <code>int a[N]</code> число отрицательных и положительных элементов одинаково и не равно нулю. Составьте <code>sum</code> из произведений: первый отрицательный элемент слева умножить на первый положительный справа, второй отрицательный слева — на второй положительный справа и т. д. Используйте один или несколько циклов <code>for</code>; другие виды циклов и операторы перехода запрещены.</div>
+  <h3>Замысел решения</h3><p>Найдите число пар, затем независимо сканируйте массив слева для отрицательных элементов и справа для положительных. Индексы могут пересечься физически: соответствующие элементы всё ещё задаются разными порядками обхода.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Сначала одним <code>for</code> подсчитайте отрицательные элементы.</li><li>Внутренний проход слева ищет очередное отрицательное, проход справа — очередное положительное.</li><li>Расширьте множитель до <code>long long</code> перед умножением; <code>break</code> и <code>continue</code> не нужны.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high02_pairs_for.c">#include <stdio.h>
+
+long long paired_sum(const int a[], int n)
+{
+    int pair_count = 0;
+    for (int i = 0; i < n; ++i) {
+        pair_count += a[i] < 0;
+    }
+
+    int left = 0;
+    int right = n - 1;
+    long long sum = 0;
+
+    /* Индексы сканируют массив независимо и могут пересечься. */
+    for (int pair = 0; pair < pair_count; ++pair) {
+        for (; left < n && a[left] >= 0; ++left) {
+            /* Ищем очередной отрицательный элемент слева. */
+        }
+        for (; right >= 0 && a[right] <= 0; --right) {
+            /* Ищем очередной положительный элемент справа. */
+        }
+        sum += (long long)a[left] * a[right];
+        ++left;
+        --right;
+    }
+    return sum;
+}
+
+int main(void)
+{
+    int a[] = { -2, 5, -3, 0, 7, -4, 9 };
+    int n = (int)(sizeof a / sizeof a[0]);
+
+    printf("%lld\n", paired_sum(a, n)); /* -59 */
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task3">
+  <span class="num">03</span><h2>Удалить слова, содержащие заданную подстроку</h2>
+  <p class="sub">Источник: сборник задач, стр. 16, задание 8; адаптация без динамической памяти.</p>
+  <div class="task"><b>Задание.</b> Реализуйте <code>void erase(char *s, const char *w)</code>. Строка <code>s</code> содержит непустые слова, разделённые одним пробелом без пробелов по краям; <code>w</code> — непустая строка латинских букв. Удалите все слова, содержащие <code>w</code> как подстроку, сохранив порядок остальных слов и исходный формат. Выполните обработку на месте, без временных массивов и динамической памяти.</div>
+  <h3>Замысел решения</h3><p>Используйте два указателя: <code>read</code> на текущую часть исходной строки и <code>write</code> на позицию результата. Для слова сначала проверьте наличие образца в его границах, затем либо пропустите слово, либо скопируйте его вперёд.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Сначала найдите конец слова, не меняя строку.</li><li>Сравнивайте образец с фрагментом, не выходя за конец слова.</li><li>Добавляйте пробел перед сохранённым словом, только если результат уже содержит слово.</li><li>В конце обязательно поставьте <code>'\0'</code>.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high03_erase_words.c">#include <stdio.h>
+
+int contains_range(const char *begin, const char *end, const char *needle)
+{
+    for (const char *candidate = begin; candidate < end; ++candidate) {
+        const char *p = candidate;
+        const char *q = needle;
+
+        while (p < end && *q != '\0' && *p == *q) {
+            ++p;
+            ++q;
+        }
+        if (*q == '\0') {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void erase(char *s, const char *w)
+{
+    if (s == NULL || w == NULL || *w == '\0') {
+        return;
+    }
+
+    char *read = s;
+    char *write = s;
+    int kept_word = 0;
+
+    while (*read != '\0') {
+        char *start = read;
+        while (*read != '\0' && *read != ' ') {
+            ++read;
+        }
+        char *end = read;
+
+        if (!contains_range(start, end, w)) {
+            if (kept_word) {
+                *write++ = ' ';
+            }
+            for (char *p = start; p < end; ++p) {
+                *write++ = *p;
+            }
+            kept_word = 1;
+        }
+
+        if (*read == ' ') {
+            ++read;
+        }
+    }
+    *write = '\0'; /* Убираем старый хвост после компактирования. */
+}
+
+int main(void)
+{
+    char words[] = "stone gem gemstone rock";
+    erase(words, "gem");
+    puts(words); /* stone rock */
+    return 0;
+}</script>
+  </details>
+</section>
+
+<section class="wp" id="task4">
+  <span class="num">04</span><h2>Разобрать выражения с типами и структурами</h2>
+  <p class="sub">Источник: сборник задач, стр. 20, задание 1, выражения 1–4.</p>
+  <div class="task"><b>Задание.</b> Для независимых выражений определите значение и побочные эффекты: <code>x | y ^ z</code>, <code>n + 4</code>, <code>m &lt;&lt;= 1</code> и <code>s.p.x = x + s.n-&gt;p.y</code>. Используйте объявления: <code>x=2, y=4, z=6</code>, <code>short n=0x7FFF</code>, <code>unsigned short m=0x7FFFU</code>, вложенные структуры <code>S/P</code> и указатель <code>s.n=&amp;s</code>, где <code>s.p={-10,-20}</code>.</div>
+  <h3>Замысел решения</h3><p>Сначала примените таблицу приоритетов операторов и integer promotions. Затем отдельно проследите побочные эффекты: присваивание полю структуры и запись результата сдвига обратно в <code>m</code>.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li><code>^</code> имеет более высокий приоритет, чем <code>|</code>.</li><li><code>short</code> обычно продвигается до <code>int</code> в арифметическом выражении.</li><li>Значение после unsigned-присваивания зависит от ширины <code>unsigned short</code>; ниже предполагается распространённый 16-битный тип.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high04_types_struct.c">#include <stdio.h>
+
+struct S {
+    struct P {
+        int x;
+        int y;
+    } p;
+    struct S *n;
+};
+
+int main(void)
+{
+    int x = 2, y = 4, z = 6;
+    short n = 0x7FFF;
+    unsigned short m = 0x7FFFU;
+    struct S s = { { -10, -20 }, NULL };
+    s.n = &s;
+
+    printf("1) %d\n", x | (y ^ z));     /* ^ binds more tightly than |; result is 2. */
+    printf("2) %d\n", n + 4);           /* integer promotion: 32771 */
+    printf("3) %u\n", (unsigned)(m <<= 1)); /* 65534 при 16-битном short */
+    printf("4) %d\n", s.p.x = x + s.n->p.y); /* меняет s.p.x на -18 */
+    return 0;
+}</script>
+    <p>В выражении 4 указатель <code>s.n</code> указывает на саму структуру, поэтому <code>s.n-&gt;p.y</code> равно <code>-20</code>. После присваивания <code>s.p.x</code> становится <code>-18</code>.</p>
+  </details>
+</section>
+
+<section class="wp" id="task5">
+  <span class="num">05</span><h2>Разобрать адресную арифметику и независимые выражения</h2>
+  <p class="sub">Источник: сборник задач, стр. 20, задание 1, выражения 5–8.</p>
+  <div class="task"><b>Задание.</b> Для независимых выражений определите результат и побочные эффекты либо объясните ошибку: <code>*(a + 4*x)</code>, <code>p = a + 1, **(pp = &amp;p)</code>, <code>*pp = &amp;a[2], *(*pp + y + a[2])</code> и <code>p = a + a[3], s.p.y = ++p - a</code>. Используйте <code>x=2</code>, <code>y=4</code>, массив <code>a={2,4,6,8,10,12,14,16,18,20}</code>; указатели изначально не инициализированы. Каждое выражение выполняется отдельно с исходным состоянием.</div>
+  <h3>Замысел решения</h3><p>Переводите арифметику указателей в индексы массива. Указатель разыменовывайте только после доказательства, что он инициализирован и указывает на допустимый элемент.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>В арифметике указателей прибавление <code>1</code> сдвигает адрес на один элемент, не на один байт.</li><li>Вычитание указателей одного массива даёт расстояние в элементах.</li><li>Оператор-запятая вычисляет левую часть перед правой.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high05_pointer_expr.c">#include <stdio.h>
+
+int main(void)
+{
+    unsigned int a[] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 };
+    int x = 2;
+    int y = 4;
+    unsigned int *p = NULL;
+    unsigned int **pp = NULL;
+    (void)y; /* y is used only in independent expression 7, not evaluated here. */
+
+    printf("5) %u\n", *(a + 4 * x)); /* a[8] = 18 */
+
+    /* Левый операнд запятой инициализирует p до правого операнда. */
+    printf("6) %u\n", (p = a + 1, **(pp = &p))); /* a[1] = 4 */
+
+    /* pp не инициализирован в этом независимом выражении: разыменование недопустимо. */
+    puts("7) Ошибка: pp не инициализирован; выражение не вычисляем.");
+
+    p = a + a[3]; /* a[3] равно 8, поэтому p указывает на a[8]. */
+    int distance = (int)(++p - a); /* После ++p указатель указывает на a[9]. */
+    printf("8) %d\n", distance); /* s.p.y получил бы значение 9. */
+    return 0;
+}</script>
+    <p>Результаты: <code>18</code>, <code>4</code>, неопределённое поведение из-за неинициализированного <code>pp</code>, <code>9</code>. В коде ошибочное выражение намеренно не выполняется.</p>
+  </details>
+</section>
+
+<section class="wp" id="task6">
+  <span class="num">06</span><h2>Сгруппировать строки и отсортировать по частоте</h2>
+  <p class="sub">Источник: сборник задач, стр. 20–21, задание 2; динамические массивы заменены ограниченными.</p>
+  <div class="task"><b>Задание.</b> Дан массив строк, оканчивающийся нулевым указателем. Сформируйте массив записей: каждая различная строка должна встретиться ровно один раз с числом её вхождений. Сравнение учитывает регистр. Отсортируйте записи по убыванию частоты, затем лексикографически. Для этого учебного варианта дано не более 100 строк длиной до 31 символа; используйте фиксированный буфер записей.</div>
+  <h3>Замысел решения</h3><p>Для каждой входной строки найдите уже созданную запись. Если нашли — увеличьте частоту, иначе добавьте новую запись. После группировки отсортируйте записи компаратором, который сначала сравнивает частоты, а при равенстве — строки.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Заведите структуру с массивом символов и счётчиком.</li><li><code>strcmp</code> возвращает отрицательное значение, ноль или положительное.</li><li>Фиксированные ограничения позволяют обойтись без <code>malloc</code>.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high06_string_counts.c">#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+enum { MAX_RECORDS = 100, MAX_TEXT = 32 };
+
+typedef struct {
+    char text[MAX_TEXT];
+    int frequency;
+} Record;
+
+int compare_records(const void *left, const void *right)
+{
+    const Record *a = left;
+    const Record *b = right;
+
+    if (a->frequency != b->frequency) {
+        return (a->frequency < b->frequency) - (a->frequency > b->frequency);
+    }
+    return strcmp(a->text, b->text);
+}
+
+int summarize(const char *const input[], Record output[],
+              size_t capacity, size_t *used)
+{
+    if (input == NULL || output == NULL || used == NULL) {
+        return 0;
+    }
+    *used = 0;
+
+    for (size_t i = 0; input[i] != NULL; ++i) {
+        size_t j = 0;
+        while (j < *used && strcmp(output[j].text, input[i]) != 0) {
+            ++j;
+        }
+
+        if (j < *used) {
+            ++output[j].frequency;
+        } else {
+            if (*used == capacity || strlen(input[i]) >= MAX_TEXT) {
+                return 0; /* Нарушены ограничения фиксированного буфера. */
+            }
+            snprintf(output[*used].text, sizeof output[*used].text, "%s", input[i]);
+            output[*used].frequency = 1;
+            ++*used;
+        }
+    }
+
+    qsort(output, *used, sizeof output[0], compare_records);
+    return 1;
+}
+
+int main(void)
+{
+    const char *input[] = { "pear", "apple", "pear", "plum", "apple", "pear", NULL };
+    Record result[MAX_RECORDS];
+    size_t used;
+
+    if (!summarize(input, result, MAX_RECORDS, &used)) {
+        fputs("Ошибка входных ограничений\n", stderr);
+        return 1;
+    }
+    for (size_t i = 0; i < used; ++i) {
+        printf("%s: %d\n", result[i].text, result[i].frequency);
+    }
+    return 0;
+}</script>
+    <p>Результат примера: <code>pear: 3</code>, <code>apple: 2</code>, <code>plum: 1</code>. При равной частоте лексикографически меньшая строка окажется раньше.</p>
+  </details>
+</section>
+
+<section class="wp" id="task7">
+  <span class="num">07</span><h2>Продолжить заполнение хеш-таблицы</h2>
+  <p class="sub">Источник: сборник задач, стр. 23–24, задание 9; последовательность вставки явно задана для однозначности.</p>
+  <div class="task"><b>Задание.</b> Размер таблицы — 13 ячеек, пустая ячейка обозначается <code>-1</code>. Начальное состояние: <code>T2[1]=40</code>, <code>T2[5]=14</code>, <code>T2[9]=5</code>, <code>T2[10]=36</code>, остальные ячейки пусты. Вставьте по порядку ключи <code>23, 27, 19, 18, 6</code>. Начальный индекс равен <code>K % 13</code>; при занятой ячейке переходите к <code>(I + 4) % 13</code>.</div>
+  <h3>Замысел решения</h3><p>Выполняйте вставки строго по заданному порядку. Для каждого ключа вычислите начальный индекс и повторяйте шаг пробирования, пока не найдёте пустую ячейку.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Последовательность адресов обходится полностью, потому что 4 и 13 взаимно просты.</li><li>После каждой вставки обновляйте таблицу до обработки следующего ключа.</li><li>Не перепутайте адрес поиска и значение ключа.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high07_hash.c">#include <stdio.h>
+
+enum { TABLE_SIZE = 13, EMPTY = -1 };
+
+int insert(int table[TABLE_SIZE], int key)
+{
+    int index = key % TABLE_SIZE;
+
+    /* Шаг 4 гарантирует посещение всех 13 ячеек до повтора. */
+    for (int probes = 0; probes < TABLE_SIZE; ++probes) {
+        if (table[index] == EMPTY) {
+            table[index] = key;
+            return 1;
+        }
+        index = (index + 4) % TABLE_SIZE;
+    }
+    return 0; /* Таблица заполнена. */
+}
+
+int main(void)
+{
+    int table[TABLE_SIZE] = {
+        EMPTY, 40, EMPTY, EMPTY, EMPTY, 14, EMPTY,
+        EMPTY, EMPTY, 5, 36, EMPTY, EMPTY
+    };
+    int keys[] = { 23, 27, 19, 18, 6 };
+    int n = (int)(sizeof keys / sizeof keys[0]);
+
+    for (int i = 0; i < n; ++i) {
+        if (!insert(table, keys[i])) {
+            fputs("Таблица заполнена\n", stderr);
+            return 1;
+        }
+    }
+    for (int i = 0; i < TABLE_SIZE; ++i) {
+        printf("%2d: %d\n", i, table[i]);
+    }
+    return 0;
+}</script>
+    <p>Итоговые занятые ячейки: <code>0:23</code>, <code>1:40</code>, <code>4:27</code>, <code>5:14</code>, <code>6:19</code>, <code>8:18</code>, <code>9:5</code>, <code>10:36</code>, <code>12:6</code>.</p>
+  </details>
+</section>
+
+<section class="wp" id="task8">
+  <span class="num">08</span><h2>Найти нарушение границ в трассировке</h2>
+  <p class="sub">Источник: сборник задач, стр. 18, задание 4.</p>
+  <div class="task"><b>Задание.</b> Определите, имеет ли программа гарантированный вывод. Если нет — найдите первый недопустимый шаг после которого поведение не определено.</div>
+  <div class="task"><pre><code>#include &lt;stdio.h&gt;
+
+int x = 5, y = 2;
+int a[5] = { 1, 2, 3 };
+int f(int *p, int *q) {
+    static int a = 3;
+    if (--a) return *p++ += *q--;
+    return *q++ -= *p--;
+}
+int main(void) {
+    int x = 2 * a[--y], b = 0;
+    for (int y = x; y &gt;= b; --y, ++x)
+        b = f(a + b, a + y);
+    printf("%d %d %d %d %d\n", a[0], a[1], a[2], a[3], a[4]);
+    printf("%d %d\n", x, y);
+    return 0;
+}</code></pre></div>
+  <h3>Замысел решения</h3><p>Проследите три допустимых вызова, отмечая адреса параметров до пост-/пред-инкремента. Затем проверьте индексы, вычисляемые на следующей итерации, до разыменования указателей.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>Локальная <code>static c</code> меняется между вызовами.</li><li>На третьем вызове возвращаемое значение становится отрицательным.</li><li>Вычисление <code>a + b</code> уже недопустимо, если <code>b</code> указывает за пределы массива и за позицию «после последнего».</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high08_trace_ub.c">#include <stdio.h>
+
+int main(void)
+{
+    /* Результаты первых трёх вызовов исходной программы. */
+    int a_after_three_calls[] = { 1, 2, 3, 0, -3 };
+    int b_after_third_call = -3;
+
+    printf("a[0..4] после трёх допустимых вызовов: ");
+    for (int i = 0; i < 5; ++i) {
+        printf("%d%c", a_after_three_calls[i], i == 4 ? '\n' : ' ');
+    }
+
+    /* Следующая итерация пытается вычислить a + b, то есть a - 3. */
+    if (b_after_third_call < 0) {
+        puts("Вывод исходной программы не определён: указатель выйдет за границы массива.");
+    }
+    return 0;
+}</script>
+    <p>В третьем вызове <code>b</code> становится <code>-3</code>. Следующая итерация вычисляет <code>a + b</code>, то есть адрес до начала массива; уже это указательное вычисление имеет неопределённое поведение. Следовательно, у исходной программы нет гарантированного вывода.</p>
+  </details>
+</section>
+
+<section class="wp" id="task9">
+  <span class="num">09</span><h2>Побочные эффекты и неопределённое поведение</h2>
+  <p class="sub">Источник: сборник задач, стр. 18, задание 3, выражения 3–4.</p>
+  <div class="task"><b>Задание.</b> При <code>x=11</code> и <code>y=-80</code> проанализируйте <code>y &lt;&lt;= (x -= 10) &amp;&amp; (x -= 11)</code>. Затем объясните, почему выражение <code>x++ + --x</code> не имеет переносимого результата. Не запускайте выражения с неопределённым поведением.</div>
+  <h3>Замысел решения</h3><p>Сначала разберите короткое замыкание: левая часть <code>&amp;&amp;</code> истинна, поэтому правая часть не вычисляется. Затем отдельно проверьте правила языка для сдвига отрицательного знакового значения и для двух изменений одной переменной без точки секвенирования.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>После <code>x -= 10</code> значение <code>x</code> равно 1; правая часть <code>&amp;&amp;</code> пропускается.</li><li>Отрицательный знаковый операнд нельзя безопасно сдвигать влево.</li><li>В <code>x++ + --x</code> две модификации <code>x</code> не упорядочены между собой.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high09_side_effects.c">#include <stdio.h>
+
+int main(void)
+{
+    int x = 11;
+    int y = -80;
+
+    /* Вычисляем условие отдельно: правая часть && не выполняется. */
+    int shift = (x -= 10) && (x -= 11);
+
+    /* Умножение на 2 здесь определено, если результат помещается в int. */
+    y *= shift ? 2 : 1;
+    printf("Безопасный вариант: x=%d, y=%d\n", x, y);
+
+    /* Не вычисляйте x++ + --x: две модификации x не упорядочены. */
+    puts("x++ + --x: неопределённое поведение; результата по стандарту нет.");
+    return 0;
+}</script>
+    <p>В исходном выражении после короткого замыкания попытка выполнить <code>-80 &lt;&lt; 1</code> приводит к неопределённому поведению. В модельном коде умножение на 2 показано как отдельный безопасный вариант при условии отсутствия переполнения.</p>
+  </details>
+</section>
+
+<section class="wp" id="task10">
+  <span class="num">10</span><h2>Сравнить continue и goto в трёх циклах</h2>
+  <p class="sub">Источник: сборник задач, стр. 23, задание 8.</p>
+  <div class="task"><b>Задание.</b> Для трёх фрагментов из сборника определите, эквивалентны ли <code>continue</code> и <code>goto next</code>: (а) метка внутри вложенного <code>for</code> в теле <code>while</code>; (б) метка после цикла <code>do...while</code>; (в) метка в конце тела <code>for</code>. Дайте аргумент для каждого случая.</div>
+  <h3>Замысел решения</h3><p>Определите ближайший цикл для <code>continue</code> и точное место метки для <code>goto</code>. Сравните, какие выражения управления циклом выполнятся после перехода.</p>
+  <div class="note tip"><b>ПОДСКАЗКИ</b><ul><li>В примерах (а) и (в) метка стоит в конце тела соответствующего <code>for</code>: далее выполняется шаг цикла.</li><li>В (б) метка расположена после цикла, поэтому <code>goto</code> покидает его, не проверяя условие.</li></ul></div>
+  <details class="note win solution"><summary>Показать модельное решение на C</summary>
+    <script type="text/x-c" data-f="high10_continue_goto.c">#include <stdio.h>
+
+int main(void)
+{
+    int via_continue = 0;
+    int via_goto = 0;
+
+    /* Метка в конце тела for: переход к ней затем выполняет шаг i++. */
+    for (int i = 0; i < 3; ++i) {
+        ++via_continue;
+        if (i < 2) {
+            continue;
+        }
+    }
+    for (int i = 0; i < 3; ++i) {
+        ++via_goto;
+        if (i < 2) {
+            goto next_for;
+        }
+next_for:
+        ;
+    }
+
+    int do_continue = 0;
+    int i = 0;
+    do {
+        ++do_continue;
+        ++i;
+        if (i < 3) {
+            continue;
+        }
+    } while (i < 3);
+
+    int do_goto = 0;
+    int j = 0;
+    do {
+        ++do_goto;
+        ++j;
+        if (j < 3) {
+            goto after_do;
+        }
+    } while (j < 3);
+after_do:
+    printf("for: %d/%d; do-while: %d/%d\n",
+           via_continue, via_goto, do_continue, do_goto);
+    return 0;
+}</script>
+    <p>В исходных фрагментах (а) и (в) переход к метке в конце тела <code>for</code> эквивалентен <code>continue</code>. В (б) это неверно: <code>continue</code> проверит условие <code>do...while</code>, а переход к метке после цикла выйдет из него.</p>
+  </details>
+</section>
+</div>
+
+<section class="obj">
+  <h2>Итоговый чек-лист</h2>
+  <ul>
+    <li>Для массива проверены границы индексов и указателей.</li>
+    <li>Для строки сохранён завершающий нулевой символ.</li>
+    <li>Для выражений учтены приоритет, порядок вычислений и типы.</li>
+    <li>Неопределённое поведение распознано, а не «проверено запуском».</li>
+  </ul>
+  <p><a href="practice-middle.html">Вернуться к среднему уровню ←</a></p>
+  <p><a href="index.html">Вернуться к курсу →</a></p>
+</section>
+</main>
+</body>
+</html>
