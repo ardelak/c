@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Разбор университетских задач на массивы</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+.lesson-nav{grid-template-columns:repeat(3,1fr)}
+.lesson-nav a{min-height:3.2rem}
+.lesson-nav b{font-size:.72rem}
+.task ul,.note ul{margin:.35rem 0 0;padding-left:1.35rem}
+.trace{margin:1rem 0}
+.trace td,.trace th{white-space:nowrap}
+.code-caption{margin:.9rem 0 .35rem;color:var(--soft);font-size:.9rem}
+pre{background:#111;color:#f2f2f2;border:1px solid #333;border-radius:8px;margin:1rem 0}
+details.note{padding:.65rem 1rem}
+details.note summary{cursor:pointer;font-weight:700}
+details.note summary:focus-visible{outline:3px solid var(--deep);outline-offset:3px}
+.note p:last-child{margin-bottom:0}
+@media(max-width:700px){.lesson-nav{grid-template-columns:1fr}}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .top{position:static;background:#fff}
+  .lesson-nav{display:none}
+  .wrap{max-width:none;padding:0}
+  .obj,.task,.wp{break-inside:avoid}
+  details:not([open]) > :not(summary){display:block}
+}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">Язык C</a> · Университетские задачи на массивы</div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">C<br>МАССИВЫ</div>
+  <h1>Три задачи на массивы</h1>
+  <p>Разбор кода, трассировка вычислений и объяснение решений у доски</p>
+</header>
+
+<section class="obj">
+  <h2>Цель урока</h2>
+  <p>Научиться не просто читать программу, а объяснять её по шагам: что хранится в массиве, как меняются элементы, сколько раз выполняется цикл и какой результат попадёт в файл.</p>
+  <ol>
+    <li>Сначала своими словами сформулируйте, что должна сделать задача.</li>
+    <li>Затем проследите за индексами и значениями на небольшом примере.</li>
+    <li>В конце объясните ввод, обработку, вывод и освобождение памяти.</li>
+  </ol>
+  <p>Ниже приведены полные программы из файла с заданиями без изменений. Разбор следует именно их коду и входным примерам.</p>
+</section>
+
+<nav class="grid lesson-nav" aria-label="Переход к задачам">
+  <a href="#sort"><b>01</b>Сортировка</a>
+  <a href="#prefix"><b>02</b>Последовательные суммы</a>
+  <a href="#derivative"><b>03</b>Производная</a>
+</nav>
+
+<section class="obj">
+  <h2>Общая схема программ</h2>
+  <p>Во всех трёх программах похожая структура: открыть файлы, прочитать длину, выделить память, заполнить массив, вызвать функцию обработки, вывести значения и освободить массив.</p>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Этап</th><th>Что делает программа</th><th>Что объяснить</th></tr></thead>
+    <tbody>
+      <tr><td>Открытие</td><td><code>fopen</code> связывает имена файлов с потоками <code>fin</code> и <code>fout</code>.</td><td>Далее код использует эти потоки для чтения из <code>input.txt</code> и записи в <code>output.txt</code>.</td></tr>
+      <tr><td>Размер</td><td><code>fscanf(fin, "%d", &amp;n)</code> считывает число элементов.</td><td>В корректном примере для одного целого <code>fscanf</code> возвращает <code>1</code>; значение записывается по адресу <code>&amp;n</code>.</td></tr>
+      <tr><td>Память</td><td><code>malloc(n * sizeof(type))</code> резервирует место для <code>n</code> элементов.</td><td>Тип массива в первой задаче — <code>int</code>, во второй и третьей — <code>double</code>.</td></tr>
+      <tr><td>Чтение</td><td>Цикл записывает прочитанные значения в <code>a[0]</code> ... <code>a[n - 1]</code>.</td><td>Переменная <code>q</code> получает результат очередного вызова <code>fscanf</code>; после цикла проверяется <code>q == 1</code>.</td></tr>
+      <tr><td>Обработка</td><td>Функция получает адрес первого элемента и количество элементов.</td><td>Массив передаётся по адресу, поэтому изменения внутри функции видны в <code>main</code>.</td></tr>
+      <tr><td>Вывод и очистка</td><td>Результат записывается, затем вызываются <code>free</code> и <code>fclose</code>.</td><td><code>free(a)</code> освобождает выделенную для массива память, а <code>fclose</code> закрывает оба файла.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<div class="trail">
+<section class="wp" id="sort">
+  <span class="num">01</span>
+  <h2>Сортировка массива по возрастанию</h2>
+  <p class="sub">Два вложенных цикла сравнивают элементы и меняют их местами.</p>
+  <div class="task">
+    <b>Условие.</b> Прочитать из <code>input.txt</code> длину <code>N</code> и <code>N</code> целых чисел. Отсортировать массив по возрастанию, вывести его в <code>output.txt</code>. При некорректных данных завершить программу с кодом <code>-1</code>.
+  </div>
+
+  <h3>Идея алгоритма</h3>
+  <p>Для каждой позиции <code>i</code> рассматриваем все элементы правее неё. Если находим элемент меньше <code>a[i]</code>, меняем эти два значения. После завершения прохода с данным <code>i</code> в позиции <code>i</code> стоит наименьший элемент из ещё не упорядоченной части массива.</p>
+  <div class="table-scroll">
+  <table class="trace">
+    <thead><tr><th>Шаг</th><th>Сравнение</th><th>Массив после шага</th><th>Смысл</th></tr></thead>
+    <tbody>
+      <tr><td>Старт</td><td>—</td><td><code>[1, 2, 1]</code></td><td>Массив из примера.</td></tr>
+      <tr><td><code>i=0, j=1</code></td><td><code>1 &gt; 2</code> — нет</td><td><code>[1, 2, 1]</code></td><td>Обмен не выполняется.</td></tr>
+      <tr><td><code>i=0, j=2</code></td><td><code>1 &gt; 1</code> — нет</td><td><code>[1, 2, 1]</code></td><td>Равные значения не меняются местами.</td></tr>
+      <tr><td><code>i=1, j=2</code></td><td><code>2 &gt; 1</code></td><td><code>[1, 1, 2]</code></td><td>Значения меняются местами; сортировка завершена.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p><b>Входные данные:</b> <code>3</code>, <code>1</code>, <code>2</code>, <code>1</code>. <b>Ожидаемый результат:</b> <code>1 1 2</code>.</p>
+
+  <h3>Полная программа из файла с заданиями</h3>
+  <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt; // Подключение stdlib для malloc
+
+void sort (int *a, int n);
+
+int main(void)
+{
+    FILE* fin;
+    FILE* fout;
+    int* a;  // Описание имени массива
+    int n;   	// переменная для записи длины массива
+    int i;   	// переменная для перебора элементов в цикле for
+    int q = 1;  // переменная для проверки некорректных данных
+    
+    int ret = 0; 
+    
+    fin = fopen("input.txt", "r");
+    fout = fopen("output.txt","w");
+    
+    if ((fscanf(fin, "%d", &amp;n) != EOF) &amp;&amp; n &gt; 0) 	// чтение размера массива
+    {
+        a = (int*)malloc(n*sizeof(int));     // выделение памяти для массива
+        
+        for (i = 0; i &lt; n; i++)                     //чтение массива
+            q = fscanf(fin, "%d", &amp;a[i]);
+        
+        if (q == 1)
+        {
+            sort(a, n);                             // вызов функции для обработки массива
+            
+            for (i = 0; i &lt; n; i++)                 // вывод массива
+                fprintf(fout, "%d ", a[i]);
+        }
+        else
+        {
+            ret = -1; 
+        }
+        
+        free(a);                                   //очистка памяти, выделенной под массив
+    }
+    else
+    {
+        ret = -1; 
+    }
+    
+    fclose(fin); 
+    fclose(fout);
+    
+    return ret;
+}
+
+// Обработка массива a из n элементов
+void sort (int *a, int n)
+{
+int i, j, temp;
+    for (i = 0; i &lt; n-1; i++) {
+        for (j = i+1; j &lt; n; j++) { 
+           if (a[i] &gt; a[j]) {
+             temp = a[i];
+             a[i] = a[j];
+             a[j] = temp;
+           }
+        }
+    }
+}</code></pre>
+
+  <h3>Как рассказать про функцию <code>sort</code></h3>
+  <ol>
+    <li><code>int *a</code> — адрес первого элемента; <code>n</code> — длина массива. Функции не нужна копия всех чисел.</li>
+    <li>Внешний цикл выбирает текущую позицию <code>i</code>. Последняя позиция отдельно не выбирается: если всё до неё уже упорядочено, последний элемент автоматически окажется на месте.</li>
+    <li>Внутренний цикл перебирает элементы справа, начиная с <code>i + 1</code>.</li>
+    <li>Условие <code>a[i] &gt; a[j]</code> обнаруживает пару в неправильном порядке. Переменная <code>temp</code> временно сохраняет одно значение, чтобы при обмене его не потерять.</li>
+    <li>В результате на каждой позиции последовательно закрепляется минимум оставшейся части. Два вложенных цикла дают квадратичное число сравнений: порядок роста <code>O(n²)</code>.</li>
+  </ol>
+  <div class="note tip"><b>ПРОВЕРКА</b>В примере <code>N = 3</code>; функция <code>sort</code> переставляет считанные значения <code>[1, 2, 1]</code>, после чего цикл вывода записывает <code>1 1 2</code>.</div>
+</section>
+
+<section class="wp" id="prefix">
+  <span class="num">02</span>
+  <h2>Последовательные (префиксные) суммы</h2>
+  <p class="sub">Каждый элемент заменяется суммой всех значений от начала массива до его позиции.</p>
+  <div class="task">
+    <b>Условие.</b> Прочитать массив вещественных чисел и записать в тот же массив последовательные суммы.
+  </div>
+
+  <h3>Что значит «последовательные суммы»</h3>
+  <p>Результат в позиции <code>i</code> — сумма исходных элементов от <code>a[0]</code> до <code>a[i]</code>: <code>a[0] + a[1] + ... + a[i]</code>. Поэтому в цикле начиная с индекса 1 к текущему элементу прибавляется уже накопленная сумма слева.</p>
+  <div class="table-scroll">
+  <table class="trace">
+    <thead><tr><th>Перед шагом</th><th>Действие</th><th>После шага</th></tr></thead>
+    <tbody>
+      <tr><td><code>[2, 1, 0]</code></td><td><code>a[1] = 1 + a[0] = 3</code></td><td><code>[2, 3, 0]</code></td></tr>
+      <tr><td><code>[2, 3, 0]</code></td><td><code>a[2] = 0 + a[1] = 3</code></td><td><code>[2, 3, 3]</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><b>Входные данные:</b> <code>3</code>, <code>2</code>, <code>1</code>, <code>0</code>. <b>Ожидаемый результат:</b> <code>2.000000 3.000000 3.000000</code>.</p>
+  <p>Хотя массив изменяется «на месте», нужное исходное значение не теряется: к моменту обработки <code>i</code> ячейка <code>a[i]</code> ещё содержит своё исходное значение, а <code>a[i - 1]</code> уже содержит сумму предыдущего префикса.</p>
+
+  <h3>Полная программа из файла с заданиями</h3>
+  <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt; // Подключение stdlib для malloc
+
+void f (double *a, int n);
+
+int main(void)
+{
+    FILE* fin;
+    FILE* fout;
+    double* a;  // Описание имени массива
+    int n;   	// переменная для записи длины массива
+    int i;   	// переменная для перебора элементов в цикле for
+    int q = 1;  // переменная для проверки некорректных данных
+    
+    int ret = 0; 
+    
+    fin = fopen("input.txt", "r");
+    fout = fopen("output.txt","w");
+    
+    if ((fscanf(fin, "%d", &amp;n) != EOF) &amp;&amp; n &gt; 0) 	// чтение размера массива
+    {
+        a = (double*)malloc(n*sizeof(double));     // выделение памяти для массива
+        
+        for (i = 0; i &lt; n; i++)                     //чтение массива
+            q = fscanf(fin, "%lf", &amp;a[i]);
+        
+        if (q == 1)
+        {
+            f(a, n);                                // вызов функции для обработки массива
+            
+            for (i = 0; i &lt; n; i++)                 // вывод массива
+                fprintf(fout,"%lf ", a[i]);
+        }
+        else
+        {
+            ret = -1; 
+        }
+        
+        free(a);                                   //очистка памяти, выделенной под массив
+    }
+    else
+    {
+        ret = -1; 
+    }
+    
+    fclose(fin); 
+    fclose(fout);
+    
+    return ret;
+}
+
+// Обработка массива a из n элементов
+void f (double *a, int n)
+{
+   int i;
+   for(i = 1; i &lt; n; i++){
+       a[i] += a[i-1];
+   }
+}</code></pre>
+
+  <h3>Разбор функции <code>f</code></h3>
+  <ul>
+    <li>Тип <code>double *</code> означает, что функция получает массив вещественных чисел. В <code>main</code> функция вызывается как <code>f(a, n)</code>.</li>
+    <li>Цикл начинается с <code>i = 1</code>, потому что первый префикс состоит только из <code>a[0]</code> и уже является правильным.</li>
+    <li><code>a[i] += a[i - 1]</code> — сокращённая запись <code>a[i] = a[i] + a[i - 1]</code>. Слева записывается новый префикс, справа берётся предыдущий.</li>
+    <li>После завершения цикла все ячейки массива содержат префиксные суммы. При <code>n == 1</code> тело цикла не выполняется и единственное число остаётся без изменения.</li>
+  </ul>
+  <div class="note watch"><b>НЕ ПУТАТЬ</b>Это не сумма всех элементов, записанная в одну переменную. Программа сохраняет отдельную накопленную сумму для каждого префикса.</div>
+</section>
+
+<section class="wp" id="derivative">
+  <span class="num">03</span>
+  <h2>Коэффициенты производной многочлена</h2>
+  <p class="sub">Умножаем каждый коэффициент на исходную степень; формат вывода сохраняет N ячеек и ноль в позиции 0.</p>
+  <div class="task">
+    <b>Условие.</b> Массив <code>A</code> длины <code>N</code> хранит коэффициенты многочлена <code>A[0] + A[1]x + A[2]x² + ...</code>. Записать в тот же массив коэффициенты производной.
+  </div>
+
+  <h3>Математика прежде кода</h3>
+  <p>Производная слагаемого <code>A[k]x<sup>k</sup></code> равна <code>k · A[k] · x<sup>k-1</sup></code>. Значение коэффициента нужно умножить на его исходную степень. В примере задания результат сохраняет исходную длину <code>N</code>: в ячейке <code>0</code> стоит ноль, а начиная с ячейки <code>1</code> записаны коэффициенты производной. Поэтому массив результата имеет вид <code>[0, A[1], 2·A[2], ...]</code>.</p>
+  <div class="table-scroll">
+  <table class="trace">
+    <thead><tr><th>Индекс <code>i</code></th><th>Исходное значение</th><th>Действие</th><th>Значение после шага</th></tr></thead>
+    <tbody>
+      <tr><td><code>0</code></td><td><code>1</code></td><td><code>a[0] *= 0</code></td><td><code>0</code></td></tr>
+      <tr><td><code>1</code></td><td><code>2</code></td><td><code>a[1] *= 1</code></td><td><code>2</code></td></tr>
+      <tr><td><code>2</code></td><td><code>3</code></td><td><code>a[2] *= 2</code></td><td><code>6</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Для входа из условия <code>[1, 2, 3]</code> многочлен равен <code>1 + 2x + 3x²</code>, а его производная — <code>2 + 6x</code>. По заданному формату, сохраняющему <code>N</code> ячеек, файл должен содержать <code>0.000000 2.000000 6.000000</code>.</p>
+  <div class="note tip"><b>ВАЖНО ПРО ПРЕДСТАВЛЕНИЕ</b>Если коэффициенты производной хранить в обычном формате, где индекс совпадает со степенью <code>x</code>, результат был бы <code>[2, 6]</code> и длина — <code>N - 1</code>. Но приведённый в условии пример требует <code>N</code> чисел с нулём в начале. Ниже реализован именно формат примера: исходный индекс <code>i</code> сохраняется, а позиция 0 служит нулевой ячейкой.</div>
+
+  <h3>Полная программа из файла с заданиями</h3>
+  <p><b>Входные данные:</b> <code>3</code>, <code>1</code>, <code>2</code>, <code>3</code>. <b>Ожидаемый результат:</b> <code>0.000000 2.000000 6.000000</code>.</p>
+  <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt; // Подключение stdlib для malloc
+
+void f (double *a, int n);
+
+int main(void)
+{
+    FILE* fin;
+    FILE* fout;
+    double* a;  // Описание имени массива
+    int n;   	// переменная для записи длины массива
+    int i;   	// переменная для перебора элементов в цикле for
+    int q = 1;  // переменная для проверки некорректных данных
+
+    int ret = 0;
+
+    fin = fopen("input.txt", "r");
+    fout = fopen("output.txt","w");
+
+    if ((fscanf(fin, "%d", &amp;n) != EOF) &amp;&amp; n &gt; 0) 	// чтение размера массива
+    {
+        a = (double*)malloc(n*sizeof(double));     // выделение памяти для массива
+
+        for (i = 0; i &lt; n; i++)                     //чтение массива
+            q = fscanf(fin, "%lf", &amp;a[i]);
+
+        if (q == 1)
+        {
+            f(a, n);                                // вызов функции для обработки массива
+
+            for (i = 0; i &lt; n; i++)                 // вывод массива
+                fprintf(fout,"%lf ", a[i]);
+        }
+        else
+        {
+            ret = -1;
+        }
+
+        free(a);                                   //очистка памяти, выделенной под массив
+    }
+    else
+    {
+        ret = -1;
+    }
+
+    fclose(fin);
+    fclose(fout);
+
+    return ret;
+}
+void f(double* a, int n){
+for(int i = 0 ; i &lt; n; i++){
+        a[i] *= i;
+}
+}</code></pre>
+
+  <h3>Пошаговое объяснение функции</h3>
+  <ol>
+    <li>В функции <code>f</code> цикл проходит все индексы от <code>0</code> до <code>n - 1</code>, то есть обрабатывает ровно <code>N</code> ячеек.</li>
+    <li>Выражение <code>a[i] *= i</code> эквивалентно <code>a[i] = a[i] * i</code>. Индекс <code>i</code> — степень исходного члена, поэтому значение коэффициента умножается на эту степень.</li>
+    <li>При <code>i == 0</code> ячейка становится нулём: производная постоянного слагаемого равна нулю.</li>
+    <li>Для входа <code>[1, 2, 3]</code> преобразования будут: <code>a[0] = 1·0 = 0</code>, <code>a[1] = 2·1 = 2</code>, <code>a[2] = 3·2 = 6</code>.</li>
+    <li>Цикл меняет массив на месте; затем <code>main</code> выводит все <code>N</code> значений — это соответствует приведённому примеру.</li>
+  </ol>
+  <div class="note watch"><b>ТОЧНОСТЬ ФОРМУЛИРОВКИ</b>Математически <code>2 + 6x</code> в стандартном представлении имеет коэффициенты <code>[2, 6]</code>. Ожидаемые <code>[0, 2, 6]</code> — это формат задания со сдвигом на одну позицию и нулём в ячейке 0. При защите решения объясните именно это соглашение: оно следует из примера и исходной функции <code>a[i] *= i</code>, хотя формулировка «массив коэффициентов производной» сама по себе может навести на компактный формат.</div>
+</section>
+</div>
+
+<section class="obj">
+  <h2>Как объяснить общую часть программ</h2>
+  <ul>
+    <li><code>FILE* fin</code> и <code>FILE* fout</code> — указатели на входной и выходной файлы. <code>fopen</code> открывает файлы с именами <code>input.txt</code> и <code>output.txt</code>.</li>
+    <li><code>a</code> — указатель на динамически выделенный массив; тип его элементов совпадает с задачей: <code>int</code> для сортировки и <code>double</code> для двух остальных вычислений.</li>
+    <li><code>n</code> хранит длину массива, <code>i</code> используется как индекс в циклах, а <code>q</code> сохраняет результат последнего чтения элемента через <code>fscanf</code>.</li>
+    <li><code>ret</code> изначально равен <code>0</code>. В ветках, где программа обнаруживает некорректный размер или неуспешное чтение массива, ему присваивается <code>-1</code>; затем это значение возвращается из <code>main</code>.</li>
+    <li>После обработки <code>free(a)</code> освобождает массив, а два вызова <code>fclose</code> закрывают входной и выходной файлы.</li>
+    <li>В приведённых примерах каждый результат соответствует формату задачи: целые числа выводятся через <code>%d</code>, вещественные — через <code>%lf</code>, элементы отделяются пробелом.</li>
+  </ul>
+</section>
+
+<section class="obj">
+  <h2>Самопроверка перед ответом у доски</h2>
+  <ul>
+    <li>Могу показать, какие индексы меняются на каждой итерации.</li>
+    <li>Могу объяснить, почему границы циклов не дают обратиться за пределы массива.</li>
+    <li>Могу вручную вычислить результат на коротком массиве.</li>
+    <li>Различаю содержимое исходного массива и его содержимое после изменения «на месте».</li>
+    <li>Для производной могу вывести правило <code>A[k]x^k → k·A[k]x^(k-1)</code> и объяснить, почему по примеру выводятся <code>N</code> чисел, начиная с нуля.</li>
+    <li>Могу объяснить роль <code>fin</code>, <code>fout</code>, <code>a</code>, <code>n</code>, <code>q</code> и <code>ret</code> именно в данных программах.</li>
+  </ul>
+</section>
+</main>
+</body>
+</html>
