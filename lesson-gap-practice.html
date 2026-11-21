@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Практикум C: закрываем пробелы</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+.task p:last-child,.note p:last-child{margin-bottom:0}
+.task ul,.note ul{margin:.35rem 0 0;padding-left:1.35rem}
+.task pre,.solution pre{background:#17223B;color:#F3F1E7;border:1px solid #33415C;border-radius:6px;margin:.75rem 0}
+.priority{display:inline-block;margin-left:.35rem;padding:.1rem .4rem;border-radius:4px;background:var(--wash);color:var(--deep);font:600 .65rem 'JetBrains Mono',monospace;text-transform:uppercase}
+.task-nav{margin-top:1rem}
+.task-nav a{min-height:3.2rem}
+.task-nav a b{font-size:.72rem}
+.solution summary{min-height:2.75rem;padding:.45rem .2rem}
+.solution summary:focus-visible{outline:3px solid var(--deep);outline-offset:3px;border-radius:4px}
+.top button{float:right;border:1px solid var(--rule);border-radius:4px;background:var(--card);color:var(--ink);padding:.25rem .55rem;font:inherit;cursor:pointer}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .top{position:static;background:#fff}
+  .top button,.task-nav{display:none}
+  .wrap{max-width:none;padding:0}
+  .obj,.task{box-shadow:none;break-inside:avoid}
+  .wp{break-inside:avoid}
+  details:not([open]) > :not(summary){display:block}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <a href="index.html">Язык C: Учебник</a> · Индивидуальный практикум
+  <button type="button" onclick="window.print()">Печать</button>
+</div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">C<br>10 ЗАДАЧ</div>
+  <h1>Практикум: закрываем пробелы</h1>
+  <p>Циклы, вычисления, строки и указатели — с опорой на пройденные темы</p>
+</header>
+
+<section class="obj">
+  <h2>Почему выбраны эти задачи</h2>
+  <p>В конспектах последних занятий повторяются три точки для практики: самостоятельно нормализовать и изменять строки; аккуратно вести границы циклов и накопление суммы; объяснять вычисления с остатком, инкрементом и побочными эффектами. Ранее также отмечалась ошибка в сумме массива и необходимость вынести итоговую проверку поиска за пределы цикла.</p>
+  <p>Поэтому задания 1–7 возвращают к циклам, индексам, строкам и чтению выражений. Задания 8–10 — усложнение на массивы, рекурсию и анализ состояния указателей. Последние два можно оставить на самостоятельную работу.</p>
+  <p>Практикум составлен по темам и трудностям, отмеченным в конспектах занятий; задания адаптированы для повторения и самостоятельного объяснения решения.</p>
+</section>
+
+<section class="obj">
+  <h2>Как проходить практикум</h2>
+  <ol>
+    <li>Перед кодом запишите входные данные, состояние переменных и условие остановки.</li>
+    <li>После кода проверьте обычный пример и хотя бы один граничный случай.</li>
+    <li>Для каждой задачи объясните, почему цикл не выходит за границы и где обновляется результат.</li>
+    <li>Если в выражении поведение не определено стандартом C, так и отметьте — не подбирайте «ожидаемый» вывод.</li>
+  </ol>
+  <p><b>Критерий готовности:</b> решение компилируется с предупреждениями <code>-Wall -Wextra</code>, проходит ваши тесты и может быть объяснено без чтения готового решения.</p>
+</section>
+
+<nav class="grid task-nav" aria-label="Переход к задачам">
+  <a href="#task1"><b>01</b>Границы цикла</a>
+  <a href="#task2"><b>02</b>Соседние пары</a>
+  <a href="#task3"><b>03</b>Накопление суммы</a>
+  <a href="#task4"><b>04</b>Побочные эффекты</a>
+  <a href="#task5"><b>05</b>Оператор switch</a>
+  <a href="#task6"><b>06</b>Поиск подстроки</a>
+  <a href="#task7"><b>07</b>Изменение строки</a>
+  <a href="#task8"><b>08</b>Связать элементы массива</a>
+  <a href="#task9"><b>09</b>Рекурсивный обход</a>
+  <a href="#task10"><b>10</b>Трассировка указателей</a>
+</nav>
+
+<div class="trail">
+<section class="wp" id="task1">
+  <span class="num">01</span>
+  <h2>Починить цикл суммы <span class="priority">основа</span></h2>
+  <div class="task">
+    <b>Задание.</b> Верно ли решена задача «найти сумму первых 100 натуральных чисел»? Если неверно — объясните почему.
+    <pre><code>for (i = 0, sum = 0; i++, i &lt; 100; sum += i)
+    ;</code></pre>
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Составьте таблицу значений счётчика для первой и последней итераций. Проверьте, где именно выполняется сложение и включено ли число 100.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение</summary>
+    <p>В исходном фрагменте тело цикла пустое из-за точки с запятой. Счётчик увеличивается в условии, а сложение в обновлении выполняется только после успешной проверки; поэтому суммируются 1–99, без 100. Проще сделать все три действия явными:</p>
+    <pre><code>int sum = 0;
+
+for (int i = 1; i &lt;= 100; ++i) {
+    sum += i;
+}</code></pre>
+    <p>Цикл выполняет тело 100 раз; итоговая сумма — 5050.</p>
+  </details>
+  <p><b>Проверка:</b> назовите, сколько раз выполнится тело цикла и какое значение счётчика завершит его.</p>
+</section>
+
+<section class="wp" id="task2">
+  <span class="num">02</span>
+  <h2>Посчитать пары разной чётности <span class="priority">основа</span></h2>
+  <div class="task">
+    <b>Задание.</b> С использованием единственного цикла <code>for</code> напишите фрагмент программы, который для массива <code>int a[N]</code> формирует в переменной <code>pairs</code> количество пар соседних элементов, имеющих разную чётность. Другие операторы циклов и операторы перехода использовать запрещено.
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Пара начинается в позиции <code>i</code> и использует также <code>i + 1</code>. Сначала определите последнюю допустимую позицию начала пары; затем инициализируйте счётчик до цикла.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение на C</summary>
+    <pre><code>int count_parity_changes(const int a[], int n)
+{
+    int pairs = 0;
+
+    for (int i = 0; i + 1 &lt; n; ++i) {
+        int first_is_even = a[i] % 2 == 0;
+        int second_is_even = a[i + 1] % 2 == 0;
+        if (first_is_even != second_is_even) {
+            ++pairs;
+        }
+    }
+
+    return pairs;
+}</code></pre>
+    <p>Проверяются ровно <code>n - 1</code> соседних пар. Сравнение булевых признаков чётности работает и для отрицательных значений.</p>
+  </details>
+  <p><b>Проверьте:</b> массивы длины 0 или 1, а также отрицательные числа. У отрицательных чисел остаток <code>% 2</code> может быть равен <code>-1</code>, поэтому сравнивайте признаки чётности, а не только остаток с единицей.</p>
+</section>
+
+<section class="wp" id="task3">
+  <span class="num">03</span>
+  <h2>Накопить скалярное произведение <span class="priority">основа</span></h2>
+  <div class="task">
+    <b>Задание.</b> Напишите функцию <code>int scalar(void)</code>, которая считывает со стандартного потока ввода непустую последовательность целых чисел, заканчивающуюся нулём. Ноль не входит в последовательность; количество ненулевых элементов чётно, элементы нумеруются с 1. Функция возвращает скалярное произведение двух векторов: первый составлен из элементов с нечётными номерами, второй — из элементов с чётными номерами. Разрешено использовать не более одного оператора цикла; операторы перехода запрещены.
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Элемент с нечётным номером — первый компонент очередной пары, элемент со следующим чётным номером — второй. Храните первый компонент, пока не считаете второй; после добавления произведения сбрасывайте состояние ожидания и переходите к следующей паре. Ноль завершает ввод и не должен участвовать в произведении.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение на C</summary>
+    <pre><code>#include &lt;stdio.h&gt;
+
+int scalar(void)
+{
+    int value;
+    int first = 0;
+    int have_first = 0;
+    int sum = 0;
+
+    while (scanf("%d", &amp;value) == 1 &amp;&amp; value != 0) {
+        if (!have_first) {
+            first = value;
+            have_first = 1;
+        } else {
+            sum += first * value;
+            have_first = 0;
+        }
+    }
+
+    return sum;
+}</code></pre>
+    <p>Флаг показывает, ожидает ли алгоритм первый или второй элемент пары. Для ввода <code>2 3 4 5 0</code> результат равен <code>2*3 + 4*5 = 26</code>. Предполагается, что поток содержит корректную последовательность и сумма помещается в <code>int</code>.</p>
+  </details>
+  <p><b>Проверьте:</b> минимальную допустимую последовательность из двух чисел, несколько пар и последовательность, где один из компонентов отрицательный.</p>
+</section>
+
+<section class="wp" id="task4">
+  <span class="num">04</span>
+  <h2>Разобрать побочные эффекты выражений <span class="priority">основа</span></h2>
+  <div class="task">
+    <b>Задание.</b> Пусть <code>int x = 42;</code> и <code>int y = -105;</code>. Для каждого из шести независимых выражений укажите его значение и побочные эффекты, если они есть, либо напишите «ошибка», если выражение ошибочно.
+    <pre><code>1) y %= x / 5
+2) x ^ ~y &amp; 65
+3) y &lt;&lt;= (--x || --y)
+4) (y = 1) &amp;&amp; (y = 2)
+5) x++ + --y
+6) x += y, y = x - y, x -= y</code></pre>
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Каждое выражение начинается заново с <code>x = 42</code>, <code>y = -105</code>. Для <code>++</code> и <code>--</code> отдельно отмечайте значение выражения и изменение переменной; для <code>&amp;&amp;</code> и <code>||</code> проверяйте короткое замыкание; оператор-запятая выполняет части слева направо. Побитовые операции группируйте по приоритету. Если выражение нарушает требования языка C, не выводите результат по тому, что случайно напечатал один компилятор.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение</summary>
+    <ol>
+      <li><code>x / 5</code> равно <code>8</code>; <code>-105 % 8</code> равно <code>-1</code>. Результат <code>-1</code>; после выражения <code>x = 42</code>, <code>y = -1</code>.</li>
+      <li>При представлении отрицательных чисел в дополнительном коде: <code>~(-105) = 104</code>, <code>104 &amp; 65 = 64</code>, <code>42 ^ 64 = 106</code>. Значение — <code>106</code>; переменные не меняются. Результат для отрицательного знакового операнда зависит от представления целых чисел реализацией.</li>
+      <li><code>--x</code> даёт <code>41</code>, поэтому правая часть <code>||</code> не вычисляется. Сдвиг отрицательного <code>y</code> влево имеет неопределённое поведение; значение выражения и побочные эффекты в целом нельзя считать определёнными.</li>
+      <li>Обе части <code>&amp;&amp;</code> вычисляются: сначала <code>y</code> становится <code>1</code>, затем <code>2</code>. Значение выражения — <code>1</code>; итог <code>x = 42</code>, <code>y = 2</code>.</li>
+      <li><code>x++</code> даёт старое значение <code>42</code> и увеличивает <code>x</code>; <code>--y</code> даёт <code>-106</code>. Значение — <code>-64</code>; итог <code>x = 43</code>, <code>y = -106</code>.</li>
+      <li>Оператор-запятая выполняет части слева направо: после первой части <code>x = -63</code>; вторая присваивает <code>y = 42</code>; последняя присваивает <code>x = -105</code>. Значение всего выражения — <code>-105</code>.</li>
+    </ol>
+  </details>
+  <div class="note watch"><b>ВАЖНО</b>Два изменения одной переменной в неупорядоченных частях выражения нельзя «разрешать» догадкой о порядке вычисления. Пользуйтесь правилами стандарта C, а не результатом одного запуска.</div>
+</section>
+
+<section class="wp" id="task5">
+  <span class="num">05</span>
+  <h2>Переписать условие через switch</h2>
+  <div class="task">
+    <b>Задание.</b> Перепишите фрагмент, используя единственный оператор <code>switch</code>. Дополнительные условные операторы использовать запрещено.
+    <pre><code>if (i == -1)
+    j = i;
+else if (3 &gt;= i &amp;&amp; i &gt;= 1)
+    j = 10 - i;
+else
+    abort();</code></pre>
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    <code>switch</code> сопоставляет значение с отдельными целочисленными константами, а не с диапазоном. Поэтому перечислите допустимые значения одного за другим; пустые метки <code>case</code> могут вести к общему присваиванию. Не забудьте остановить выполнение ветви после присваивания, иначе управление перейдёт к следующей метке.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение на C</summary>
+    <pre><code>#include &lt;stdlib.h&gt;
+
+switch (i) {
+case -1:
+    j = i;
+    break;
+case 1:
+case 2:
+case 3:
+    j = 10 - i;
+    break;
+default:
+    abort();
+}</code></pre>
+    <p>Ветви <code>case 1</code>, <code>case 2</code> и <code>case 3</code> объединены, потому что используют одно присваивание. <code>break</code> не даёт перейти к <code>default</code> после успешного случая.</p>
+  </details>
+  <p><b>Проверьте:</b> проследите ветви для <code>i = -1</code>, <code>i = 2</code> и значения вне разрешённых случаев.</p>
+</section>
+
+<section class="wp" id="task6">
+  <span class="num">06</span>
+  <h2>Найти все вхождения подстроки <span class="priority">строки</span></h2>
+  <div class="task">
+    <b>Задание.</b> Напишите функцию <code>int count(const char *s)</code>, которая подсчитывает все вхождения подстроки <code>"2012"</code> в строке <code>s</code>. Например, для <code>"28012012-пересдача"</code> функция должна вернуть <code>1</code>. Строка может состоять из любых символов и быть пустой или непустой. Размер требуемой функции памяти не должен зависеть от длины строки.
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Строка заканчивается на <code>'\0'</code>; при сравнении четырёх символов убедитесь, что справа достаточно символов. Если после совпадения сдвигать поиск сразу на четыре позиции, можно пропустить перекрывающиеся вхождения.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение на C</summary>
+    <pre><code>#include &lt;string.h&gt;
+
+int count(const char *s)
+{
+    int total = 0;
+
+    for (const char *p = s; *p != '\0'; ++p) {
+        if (strncmp(p, "2012", 4) == 0) {
+            ++total;
+        }
+    }
+
+    return total;
+}</code></pre>
+    <p>Проверка начинается с каждой позиции, поэтому перекрывающиеся совпадения не теряются. Строки короче четырёх символов безопасно обрабатываются <code>strncmp</code>; для <code>"2012012"</code> функция вернёт <code>2</code>.</p>
+  </details>
+  <p><b>Проверьте:</b> пустую строку, строку короче образца, совпадение в самом конце и перекрывающиеся совпадения, например в <code>"2012012"</code>.</p>
+</section>
+
+<section class="wp" id="task7">
+  <span class="num">07</span>
+  <h2>Удалить слова, содержащие образец <span class="priority">строки</span></h2>
+  <div class="task">
+    <b>Задание.</b> Напишите функцию <code>void erase(char *s, const char *w)</code>. Слово <code>w</code> — непустая строка из латинских букв. Строка <code>s</code> представляет собой последовательность слов, разделённых одним пробелом; перед первым словом и после последнего пробелов нет. Удалите из <code>s</code> все слова, в которые <code>w</code> входит как подстрока. Относительный порядок остальных слов должен сохраниться, а изменённая строка должна удовлетворять тем же ограничениям. Память под все временные массивы должна выделяться динамически и освобождаться в конце работы функции.
+  </div>
+  <ol>
+    <li>Сначала для каждого слова определите начало и конец.</li>
+    <li>Проверьте, содержит ли слово <code>w</code> как подстроку.</li>
+    <li>Перенесите оставшиеся слова в новый буфер, сохраняя исходный порядок и разделители.</li>
+    <li>Скопируйте итог обратно в <code>s</code>, добавьте <code>'\0'</code> и освободите всю динамически выделенную память.</li>
+  </ol>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Выделите один временный буфер размером не меньше исходной строки плюс завершающий нулевой символ. Обходите исходную строку указателем чтения; для каждого слова временно завершайте его нулём, чтобы вызвать <code>strstr</code>, затем восстанавливайте разделитель. В буфер записывайте только оставшиеся слова и вставляйте пробел перед словом, если в буфере уже есть хотя бы одно. Проверьте удаление первого, среднего, последнего, всех слов и отсутствие удалений. Если выделение памяти не удалось, явно сообщите об ошибке и не изменяйте исходную строку.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение на C</summary>
+    <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+void erase(char *s, const char *w)
+{
+    size_t length = strlen(s);
+    char *result = malloc(length + 1);
+    if (result == NULL) {
+        fputs("erase: allocation failed\n", stderr);
+        return;
+    }
+
+    size_t read = 0;
+    size_t write = 0;
+    int kept_word = 0;
+
+    while (read &lt; length) {
+        size_t start = read;
+        while (read &lt; length &amp;&amp; s[read] != ' ') {
+            ++read;
+        }
+
+        size_t word_length = read - start;
+        char separator = s[read];
+        s[read] = '\0';
+        int remove_word = strstr(s + start, w) != NULL;
+        s[read] = separator;
+
+        if (!remove_word) {
+            if (kept_word) {
+                result[write++] = ' ';
+            }
+            memcpy(result + write, s + start, word_length);
+            write += word_length;
+            kept_word = 1;
+        }
+
+        if (read &lt; length) {
+            ++read;
+        }
+    }
+
+    result[write] = '\0';
+    memcpy(s, result, write + 1);
+    free(result);
+}</code></pre>
+    <p>Единственный временный массив создаётся через <code>malloc</code>, а после копирования результата освобождается через <code>free</code>. При ошибке выделения функция сообщает об этом в <code>stderr</code> и оставляет <code>s</code> неизменной.</p>
+  </details>
+  <div class="note watch"><b>ГРАНИЧНЫЕ СЛУЧАИ</b>При удалении всех слов результатом должна стать пустая строка <code>""</code>. При удалении последнего слова не оставляйте пробел в конце; при сохранении слова после удалённых не оставляйте пробел в начале.</div>
+</section>
+
+<section class="wp" id="task8">
+  <span class="num">08</span>
+  <h2>Сопоставить элементы массива с двух концов <span class="priority">вызов</span></h2>
+  <div class="task">
+    <b>Задание.</b> Используя один или несколько циклов <code>for</code>, сформируйте для массива <code>int a[N]</code> сумму <code>sum = Σ xᵢyᵢ</code>, где <code>xᵢ</code> — i-й отрицательный элемент массива при просмотре от начала, а <code>yᵢ</code> — i-й положительный элемент при просмотре от конца. Положительных и отрицательных элементов в массиве одинаковое ненулевое количество. Операторы перехода и другие операторы циклов использовать запрещено.
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Ведите два независимых индекса: индекс отрицательных чисел увеличивается от нуля, индекс положительных уменьшается от <code>N - 1</code>. В каждом цикле <code>for</code> пропускайте нули и элементы неверного знака. Умножайте и продвигайте оба индекса только после того, как нашли очередную пару. Поддерживайте условия границ в заголовках циклов, чтобы не обращаться за пределы массива; не используйте <code>while</code>, <code>break</code> или <code>continue</code>.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение на C</summary>
+    <pre><code>long long sum = 0;
+int ineg = 0;
+int ipos = N - 1;
+
+for (; ineg &lt; N &amp;&amp; ipos &gt;= 0; ) {
+    for (; ineg &lt; N &amp;&amp; a[ineg] &gt;= 0; ++ineg) {
+    }
+    for (; ipos &gt;= 0 &amp;&amp; a[ipos] &lt;= 0; --ipos) {
+    }
+
+    if (ineg &lt; N &amp;&amp; ipos &gt;= 0) {
+        sum += (long long)a[ineg] * a[ipos];
+        ++ineg;
+        --ipos;
+    }
+}</code></pre>
+    <p>Внутренние циклы пропускают нули и элементы неверного знака. Внешний цикл использует только <code>for</code>, без <code>break</code> или <code>continue</code>. Предполагается, что требуемая сумма помещается в <code>long long</code>.</p>
+  </details>
+  <p><b>Проверьте:</b> граничные позиции, нули между числами и отрицательные значения в начале и конце массива. Не читайте <code>a[N]</code> или <code>a[-1]</code>.</p>
+</section>
+
+<section class="wp" id="task9">
+  <span class="num">09</span>
+  <h2>Рекурсивно обойти дерево <span class="priority">вызов</span></h2>
+  <div class="task">
+    <b>Задание.</b> Для структуры ниже напишите <code>void large_sons(struct tree *t)</code>, которая печатает в стандартный поток вывода ключи элементов дерева, у которых ключ больше ключа родителя. Корень дерева не проверяется. Дерево может быть пустым или непустым. Операторы циклов и переходов, глобальные и статические переменные использовать нельзя.
+    <pre><code>struct tree {
+    int key;
+    struct tree *left;
+    struct tree *right;
+};</code></pre>
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Базовый случай — пустой указатель. Для каждого узла отдельно проверьте существующего левого и правого ребёнка, затем рекурсивно обработайте оба поддерева.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение на C</summary>
+    <pre><code>#include &lt;stdio.h&gt;
+
+void large_sons(struct tree *t)
+{
+    if (t == NULL) {
+        return;
+    }
+
+    if (t-&gt;left != NULL &amp;&amp; t-&gt;left-&gt;key &gt; t-&gt;key) {
+        printf("%d\n", t-&gt;left-&gt;key);
+    }
+    if (t-&gt;right != NULL &amp;&amp; t-&gt;right-&gt;key &gt; t-&gt;key) {
+        printf("%d\n", t-&gt;right-&gt;key);
+    }
+
+    large_sons(t-&gt;left);
+    large_sons(t-&gt;right);
+}</code></pre>
+    <p>Для каждого узла сначала проверяются его дети, затем обходятся поддеревья. Проверка на <code>NULL</code> должна предшествовать чтению поля через указатель.</p>
+  </details>
+  <p><b>Проверьте:</b> пустое дерево, один узел, ребёнка меньше родителя и ребёнка больше родителя.</p>
+</section>
+
+<section class="wp" id="task10">
+  <span class="num">10</span>
+  <h2>Трассировать программу с указателями <span class="priority">вызов</span></h2>
+  <div class="task">
+    <b>Задание.</b> Что будет напечатано при выполнении программы?
+    <pre><code>#include &lt;stdio.h&gt;
+
+int x = 2, y = 1;
+int a[3] = { 1, 2 };
+
+int f(int x, int **p) {
+    static int c = 2;
+
+    if (c--)
+        **p += x;
+    else
+        ++x;
+
+    return (*p)++ - a - x;
+}
+
+int main(void) {
+    int x = y, c = 0;
+    int *p;
+    p = &amp;a[x];
+
+    for (int y = 2; y &gt;= c; --y, ++x)
+        c = f(y, &amp;p);
+
+    printf("%d %d %d %d %d\n", a[0], a[1], a[2], x, y);
+    return 0;
+}</code></pre>
+  </div>
+  <details class="note tip">
+    <summary><b>Подсказка</b></summary>
+    Составьте таблицу для каждой итерации: значения локальных переменных, значение <code>static c</code> до и после вызова, индекс указателя <code>p</code>, содержимое массива и значение, возвращённое функцией. В строке <code>(*p)++</code> постфиксный оператор применяется к выражению <code>*p</code>, которое имеет тип <code>int *</code>; следовательно, меняется сам указатель. Перед разыменованием проверяйте, что указатель указывает на элемент массива.
+  </details>
+  <details class="note win solution">
+    <summary>Показать модельное решение</summary>
+    <table>
+      <thead>
+        <tr><th>Вызов</th><th>Аргументы <code>(x, y)</code></th><th><code>static c</code></th><th>Массив после вызова</th><th>Итог <code>p</code></th><th>Возврат</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>(2, 2)</td><td>2 → 1</td><td>[1, 4, 0]</td><td><code>&amp;a[2]</code></td><td>-1</td></tr>
+        <tr><td>2</td><td>(1, 1)</td><td>1 → 0</td><td>[1, 4, 1]</td><td><code>&amp;a[3]</code> (за последним элементом)</td><td>1</td></tr>
+      </tbody>
+    </table>
+    <p>После второго вызова локальный счётчик цикла становится <code>y = 0</code>, а локальный <code>x = 3</code>; условие <code>0 &gt;= 1</code> ложно. Внешняя <code>y</code> в <code>main</code> не изменялась и равна <code>1</code>. Напечатанная строка: <code>1 4 1 3 1</code>.</p>
+    <p>В выражении <code>(*p)++</code> увеличивается сам указатель <code>p</code>, а не число по адресу. После последнего увеличения он указывает на допустимую позицию сразу за массивом; эта позиция не разыменовывается.</p>
+  </details>
+  <div class="note watch"><b>ПРОВЕРКА</b>Если во время трассировки обнаружили выход за границы или неопределённое поведение, итог нельзя считать надёжным только потому, что один компилятор напечатал конкретные числа.</div>
+</section>
+</div>
+
+<section class="obj">
+  <h2>Короткая самопроверка</h2>
+  <ul>
+    <li>Я могу объяснить, сколько элементов или пар проверяет мой цикл.</li>
+    <li>Я проверил пустой, короткий и предельный ввод, если он допустим условием.</li>
+    <li>Я инициализировал сумму/счётчик до цикла и обновляю его в одном понятном месте.</li>
+    <li>После изменения строки я записываю завершающий нулевой символ и сохраняю корректные пробелы.</li>
+    <li>В задаче с указателями я проверяю адрес до разыменования.</li>
+    <li>Я могу объяснить решение своими словами, не опираясь на запуск одного теста.</li>
+  </ul>
+</section>
+</main>
+</body>
+</html>
