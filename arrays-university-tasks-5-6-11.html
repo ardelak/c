@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Задачи 5, 6, 11 на массивы</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+.lesson-nav{grid-template-columns:repeat(3,1fr)}
+.lesson-nav a{min-height:3.2rem}
+.lesson-nav b{font-size:.72rem}
+.task ul,.note ul{margin:.35rem 0 0;padding-left:1.35rem}
+.trace{margin:1rem 0}
+.trace td,.trace th{white-space:nowrap;padding:.35rem .5rem}
+.code-caption{margin:.9rem 0 .35rem;color:var(--soft);font-size:.9rem}
+pre{background:#111;color:#f2f2f2;border:1px solid #333;border-radius:8px;margin:1rem 0;overflow-x:auto}
+details.note{padding:.65rem 1rem}
+details.note summary{cursor:pointer;font-weight:700}
+.note p:last-child{margin-bottom:0}
+@media(max-width:700px){.lesson-nav{grid-template-columns:1fr}}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .top{position:static;background:#fff}
+  .lesson-nav{display:none}
+  .wrap{max-width:none;padding:0}
+  .obj,.task,.wp{break-inside:avoid}
+  details:not([open]) > :not(summary){display:block}
+}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">Язык C</a> · Университетские задачи на массивы</div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">C<br>МАССИВЫ</div>
+  <h1>Три сложные задачи на массивы</h1>
+  <p>Разбор задач 5, 6, 11: проверка плотности, счастливый массив и сложение больших чисел</p>
+</header>
+
+<section class="obj">
+  <h2>Цель урока</h2>
+  <p>Научиться не просто читать программу, а объяснять её по шагам: как меняются значения массива, почему выполняются те или иные условия, и как программа вычисляет итоговый результат.</p>
+  <ol>
+    <li>Сначала своими словами сформулируйте, что должна сделать задача.</li>
+    <li>Затем проследите за индексами и значениями на конкретном примере.</li>
+    <li>В конце объясните структуру программы: ввод, сортировку, основной алгоритм и вывод.</li>
+  </ol>
+</section>
+
+<nav class="grid lesson-nav" aria-label="Переход к задачам">
+  <a href="#dense"><b>05</b>Плотный массив</a>
+  <a href="#happy"><b>06</b>Счастливый массив</a>
+  <a href="#add"><b>11</b>Сложение чисел</a>
+</nav>
+
+<div class="trail">
+
+<section class="wp" id="dense">
+  <span class="num">05</span>
+  <h2>«Плотный» массив</h2>
+  <p class="sub">Является ли отсортированный массив «плотным» (соседи отличаются не более чем на 1)?</p>
+  <div class="task">
+    <b>Условие:</b> Прочитать массив целых чисел из <code>input.txt</code>. Отсортировать по возрастанию. Проверить, является ли он «плотным» (соседние элементы отличаются не более чем на 1). Вывести 1 (да) или 0 (нет).
+  </div>
+
+  <h3>Определение и логика</h3>
+  <p><b>Плотный массив</b> — неубывающий массив без «дыр»: для всех соседних пар <code>a[i]</code> и <code>a[i+1]</code> выполняется <code>a[i+1] - a[i] ≤ 1</code>.</p>
+  <p>Примеры плотных: <code>[1, 1, 2, 2, 3]</code> (разности 0, 1, 0, 1); <code>[5, 5, 5]</code> (все разности 0).</p>
+  <p>Примеры не плотных: <code>[1, 3, 5]</code> (разности 2, 2); <code>[1, 2, 4]</code> (разность 2 между индексами 1 и 2).</p>
+
+  <h3>Пример трассировки</h3>
+  <p><b>Входные данные:</b> <code>3</code>, <code>1</code>, <code>3</code>, <code>2</code>. <b>Ожидаемый результат:</b> <code>1</code>.</p>
+  <table class="trace">
+    <thead><tr><th>Шаг</th><th>Описание</th><th>Значение переменных</th></tr></thead>
+    <tbody>
+      <tr><td>Чтение</td><td>Массив прочитан из файла</td><td><code>a[0]=1, a[1]=3, a[2]=2</code></td></tr>
+      <tr><td>После сортировки</td><td>Вызов <code>sort()</code> упорядочивает элементы</td><td><code>a[0]=1, a[1]=2, a[2]=3</code></td></tr>
+      <tr><td><code>i=1</code></td><td><code>a[1]-a[0] = 2-1 = 1 ≤ 1</code> → продолжаем</td><td><code>dense = 1</code></td></tr>
+      <tr><td><code>i=2</code></td><td><code>a[2]-a[1] = 3-2 = 1 ≤ 1</code> → продолжаем</td><td><code>dense = 1</code></td></tr>
+      <tr><td>Вывод</td><td>Массив плотный</td><td>Файл: <code>1</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Полная программа</h3>
+  <pre><code>#include&lt;stdio.h&gt;
+#include&lt;math.h&gt;
+#include&lt;stdlib.h&gt;
+#include&lt;stdint.h&gt;
+static void sort(int *a, int n){
+    for(int i = 0; i &lt; n-1; i++){
+        for(int j =  i + 1; j &lt; n; j++){
+            if(a[i] &gt; a[j] ){
+                int m = a[i];
+                a[i] = a[j];
+                a[j] = m;
+            } 
+        }
+    }
+}
+int main(void)
+{
+    FILE *fin = fopen("input.txt", "r");
+    if (fin == NULL) return -1;
+    FILE *fout = fopen("output.txt", "w");
+    if (fout == NULL) { fclose(fin); return -1; }
+
+    int status = -1;
+    int n = 0;
+    int *a = NULL;
+    if (fscanf(fin, "%d", &n) != 1 || n &lt;= 0) goto done;
+    if ((size_t)n &gt; SIZE_MAX / sizeof *a) goto done;
+    a = malloc((size_t)n * sizeof *a);
+    if (a == NULL) goto done;
+    for (int i = 0; i &lt; n; ++i)
+        if (fscanf(fin, "%d", &a[i]) != 1) goto done;
+
+    sort(a, n);
+    int dense = 1;
+   
+    for (int i = 1; i &lt; n; ++i) {
+        /* Приводим к long long, чтобы избежать переполнения int. */
+        long long gap = (long long)a[i] - a[i - 1];
+        if (gap &gt; 1) dense = 0;
+    }
+    if (fprintf(fout, "%d\n", dense) &lt; 0) goto done;
+    status = 0;
+
+done:
+    free(a);
+    if (fclose(fin) != 0) status = -1;
+    if (fclose(fout) != 0) status = -1;
+    return status;
+}</code></pre>
+
+  <h3>Как объяснить этот код</h3>
+  <ol>
+    <li><b>Функция <code>sort</code>:</b> сортирует массив так же, как в задаче 1. Используется алгоритм с двумя вложенными циклами (пузырёк).</li>
+    <li><b>Переменная <code>dense</code>:</b> флаг, изначально равный 1 (да, плотный). Если на каком-то шаге находится разность больше 1, флаг становится 0.</li>
+    <li><b>Цикл проверки:</b> проходит по всем соседним парам, начиная с индекса 1. Вычисляет <code>gap = a[i] - a[i-1]</code>.</li>
+    <li><b>Переполнение:</b> выражение приводится к <code>long long</code> перед вычитанием, чтобы избежать переполнения типа <code>int</code> при работе с крайними значениями.</li>
+    <li><b>Вывод:</b> если цикл завершился и <code>dense == 1</code>, массив плотный; иначе в файл пишется 0.</li>
+  </ol>
+  <div class="note tip"><b>КЛЮЧЕВОЙ МОМЕНТ</b>Сначала <i>сортируем</i>, потом проверяем. Только отсортированный массив имеет смысл для проверки плотности.</div>
+</section>
+
+<section class="wp" id="happy">
+  <span class="num">06</span>
+  <h2>«Счастливый» массив</h2>
+  <p class="sub">Существует ли точка раздела, где сумма левой части равна сумме правой?</p>
+  <div class="task">
+    <b>Условие:</b> Прочитать массив целых чисел. Существует ли его разбиение на две непустые части такие, что сумма левой части равна сумме правой? Вывести 1 (да) или 0 (нет).
+  </div>
+
+  <h3>Идея алгоритма</h3>
+  <p>Массив «счастлив», если существует индекс <code>k</code> (1 ≤ k &lt; n) такой, что:</p>
+  <p style="text-align:center"><code>a[0] + a[1] + ... + a[k-1] = a[k] + a[k+1] + ... + a[n-1]</code></p>
+  <p>Эквивалентно: <code>sum_left = sum_right</code> или <code>sum_left = total_sum - sum_left</code>, откуда <code>2 * sum_left = total_sum</code>.</p>
+
+  <h3>Пример</h3>
+  <p><b>Входные данные:</b> <code>4</code>, <code>2</code>, <code>3</code>, <code>1</code>, <code>4</code>. <b>Ожидаемый результат:</b> <code>1</code>.</p>
+  <table class="trace">
+    <thead><tr><th>Шаг</th><th><code>k</code></th><th>Левая часть</th><th>Правая часть</th><th>Результат</th></tr></thead>
+    <tbody>
+      <tr><td>Всего</td><td>—</td><td><code>[2, 3]</code></td><td><code>[1, 4]</code></td><td>Обе суммы = 5 ✓</td></tr>
+      <tr><td>Проверка</td><td><code>k=2</code></td><td>2 + 3 = 5</td><td>1 + 4 = 5</td><td>Массив счастлив!</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Полная программа</h3>
+  <pre><code>#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+#include&lt;stdint.h&gt;
+int happy(int *a, int n){
+    int total = 0;
+    for(int i = 0; i &lt; n; i++){
+        total += a[i];
+    }
+    int left = 0;
+    for(int j = 1; j &lt; n; ++j){
+        left += a[j-1];
+        if (left == total - left)
+            return 1;
+    }
+    return 0;
+}
+int main(void)
+{
+    FILE *fin = fopen("input.txt", "r");
+    if (fin == NULL)
+        return -1;
+
+    FILE *fout = fopen("output.txt", "w");
+    if (fout == NULL) {
+        fclose(fin);
+        return -1;
+    }
+
+    int status = -1;
+    int n = 0;
+    int *a = NULL;
+
+    if (fscanf(fin, "%d", &n) != 1 || n &lt;= 0)
+        goto done;
+
+    if ((size_t)n &gt; SIZE_MAX / sizeof *a)
+        goto done;
+
+    a = malloc((size_t)n * sizeof *a);
+    if (a == NULL)
+        goto done;
+
+    for (int i = 0; i &lt; n; ++i) {
+        if (fscanf(fin, "%d", &a[i]) != 1)
+            goto done;
+    }
+
+    if (fprintf(fout, "%d\n", happy(a, n)) &lt; 0)
+        goto done;
+
+    status = 0;
+
+done:
+    free(a);
+    if (fclose(fin) != 0)
+        status = -1;
+    if (fclose(fout) != 0)
+        status = -1;
+
+    return status;
+}</code></pre>
+
+  <h3>Как объяснить этот код</h3>
+  <ol>
+    <li><b>Первый цикл:</b> вычисляет общую сумму <code>total</code> всех элементов.</li>
+    <li><b>Второй цикл:</b> проходит позиции 1, 2, ..., n-1 (это точки раздела). На каждой позиции <code>j</code>:
+      <ul>
+        <li>Добавляет элемент <code>a[j-1]</code> к сумме левой части.</li>
+        <li>Вычисляет сумму правой части как <code>total - left</code>.</li>
+        <li>Если они равны, возвращает 1.</li>
+      </ul>
+    </li>
+    <li><b>Возврат:</b> если ни одна позиция не подошла, функция возвращает 0.</li>
+    <li><b>Сложность:</b> O(n), так как два цикла работают за линейное время.</li>
+  </ol>
+  <div class="note tip"><b>ВНИМАНИЕ НА ГРАНИЦЫ</b>Раздел должен дать две непустые части. Поэтому <code>j</code> начинается с 1 (левая часть минимум с одним элементом) и заканчивается перед <code>n</code> (правая часть минимум с одним элементом).</div>
+</section>
+
+<section class="wp" id="add">
+  <span class="num">11</span>
+  <h2>Сложение чисел длины N</h2>
+  <p class="sub">Складываем два больших чисела, представленные как массивы десятичных разрядов, справа налево с переносом.</p>
+  <div class="task">
+    <b>Условие:</b> Два массива целых чисел (элементы от 0 до 9) представляют две последовательности цифр длины N. Реализовать сложение этих чисел. Результат имеет длину N+1 (на случай переноса в старший разряд).
+  </div>
+
+  <h3>Схема алгоритма</h3>
+  <p>Два числа складываются справа налево (от младшего разряда к старшему) с накоплением переноса.</p>
+  <table class="trace">
+    <thead><tr><th>Позиция</th><th>Описание</th></tr></thead>
+    <tbody>
+      <tr><td>Справа (индекс n-1)</td><td>Складываем единицы</td></tr>
+      <tr><td>Влево (индекс n-2, ...)</td><td>Складываем десятки, сотни и т.д., плюс перенос</td></tr>
+      <tr><td>Слева (индекс 0)</td><td>Записываем последний перенос в дополнительную ячейку</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Пример трассировки</h3>
+  <p><b>Входные данные:</b> <code>3</code>, затем [1, 2, 3] и [1, 3, 7]. <b>Ожидаемый результат:</b> [0, 2, 6, 0].</p>
+  <p>Смысл: число 123 + 137 = 260. В массиве результата это [0, 2, 6, 0].</p>
+  <table class="trace">
+    <thead><tr><th>Индекс</th><th>Действие</th><th><code>a[i]</code></th><th><code>b[i]</code></th><th>sum</th><th><code>result[i+1]</code></th><th><code>carry</code></th></tr></thead>
+    <tbody>
+      <tr><td>i=2</td><td>Единицы</td><td>3</td><td>7</td><td>3+7+0=10</td><td>0</td><td>1</td></tr>
+      <tr><td>i=1</td><td>Десятки</td><td>2</td><td>3</td><td>2+3+1=6</td><td>6</td><td>0</td></tr>
+      <tr><td>i=0</td><td>Сотни</td><td>1</td><td>1</td><td>1+1+0=2</td><td>2</td><td>0</td></tr>
+      <tr><td>После цикла</td><td>Старший разряд</td><td>—</td><td>—</td><td>—</td><td><code>result[0]=0</code></td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Полная программа</h3>
+  <pre><code>#include &lt;stdint.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+static void add_digits(const int *a, const int *b, int n, int *result)
+{
+    int carry = 0;
+    /* В индексе n-1 находится разряд единиц, складываем справа налево. */
+    for (int i = n - 1; i &gt;= 0; --i) {
+        int sum = a[i] + b[i] + carry;
+        result[i + 1] = sum % 10;
+        carry = sum / 10;
+    }
+    result[0] = carry; /* В старшую ячейку записываем последний перенос. */
+}
+
+int main(void)
+{
+    FILE *fin = fopen("input.txt", "r");
+    if (fin == NULL) return -1;
+    FILE *fout = fopen("output.txt", "w");
+    if (fout == NULL) { fclose(fin); return -1; }
+
+    int status = -1, n = 0;
+    int *a = NULL, *b = NULL, *result = NULL;
+    if (fscanf(fin, "%d", &n) != 1 || n &lt;= 0) goto done;
+    if ((size_t)n &gt; SIZE_MAX / sizeof *a - 1) goto done;
+    a = malloc((size_t)n * sizeof *a);
+    b = malloc((size_t)n * sizeof *b);
+    result = calloc((size_t)n + 1, sizeof *result);
+    if (a == NULL || b == NULL || result == NULL) goto done;
+
+    for (int i = 0; i &lt; n; ++i)
+        if (fscanf(fin, "%d", &a[i]) != 1 || a[i] &lt; 0 || a[i] &gt; 9) goto done;
+    for (int i = 0; i &lt; n; ++i)
+        if (fscanf(fin, "%d", &b[i]) != 1 || b[i] &lt; 0 || b[i] &gt; 9) goto done;
+
+    add_digits(a, b, n, result);
+    for (int i = 0; i &lt; n + 1; ++i)
+        if (fprintf(fout, "%d%c", result[i], i == n ? '\n' : ' ') &lt; 0) goto done;
+    status = 0;
+
+done:
+    free(a); free(b); free(result);
+    if (fclose(fin) != 0) status = -1;
+    if (fclose(fout) != 0) status = -1;
+    return status;
+}</code></pre>
+
+  <h3>Пошаговое объяснение</h3>
+  <ol>
+    <li><b>Три массива:</b> <code>a</code> и <code>b</code> хранят две последовательности цифр, <code>result</code> (длины n+1) — результат. Индекс 0 — старший разряд.</li>
+    <li><b>Инициализация переноса:</b> <code>carry = 0</code> перед циклом.</li>
+    <li><b>Цикл с конца:</b> <code>for (int i = n - 1; i &gt;= 0; --i)</code> проходит от младшего разряда (единиц) к старшему.</li>
+    <li><b>Сумма и модуль:</b> <code>sum = a[i] + b[i] + carry</code> может быть до 9 + 9 + 1 = 19. <code>result[i+1] = sum % 10</code> даёт цифру результата, <code>carry = sum / 10</code> даёт новый перенос (0 или 1).</li>
+    <li><b>Старший разряд:</b> после цикла <code>result[0] = carry</code>. Это может быть 0 (если суммы не произошло переполнения) или 1 (если произошло).</li>
+    <li><b>Вывод:</b> все n+1 элементов пишутся в файл, разделённые пробелом (кроме последнего).</li>
+  </ol>
+  <div class="note watch"><b>ПРАВИЛО ИНДЕКСОВ</b>Если в исходных массивах <code>a</code> и <code>b</code> индекс 0 — это самый старший разряд, то <code>i</code> идёт от n-1 (младший) к 0 (старший). Результат записывается в <code>result[i+1]</code>, поэтому значения сдвигаются на 1 вправо, а <code>result[0]</code> остаётся для финального переноса.</div>
+</section>
+
+</div>
+
+<section class="obj">
+  <h2>Общие навыки для защиты</h2>
+  <ul>
+    <li><b>Задача 5 (плотный массив):</b> объяснить сортировку, концепцию «дыры» в массиве, логику проверки разности и зачем нужно приведение к <code>long long</code>.</li>
+    <li><b>Задача 6 (счастливый массив):</b> объяснить два цикла: первый для суммы, второй для поиска точки раздела; доказать, что сложность O(n).</li>
+    <li><b>Задача 11 (сложение):</b> показать движение справа налево, объяснить управление переносом, показать, почему результат на 1 ячейку больше исходных массивов.</li>
+    <li>Вручную вычислить результат на коротком входе (2–4 элемента).</li>
+    <li>Объяснить управление памятью: <code>malloc</code>, <code>calloc</code> (обнуление), <code>free</code>.</li>
+    <li>Раскрыть роль <code>goto done</code> в обработке ошибок и корректном освобождении ресурсов.</li>
+  </ul>
+</section>
+
+</main>
+</body>
+</html>
