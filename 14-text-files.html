@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Работа с текстовыми файлами</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+.top a{color:inherit;text-decoration:none}
+.stamp{text-align:center;line-height:1.25}
+details summary{cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">Язык C: Учебник · Урок 14</a></div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">УРОК 14<br>C · GCC</div>
+  <h1>Текстовые файлы</h1>
+  <p>Открытие, чтение, запись и обработка ошибок с помощью функций стандартной библиотеки C</p>
+</header>
+
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html" aria-current="page"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+
+<section class="obj">
+  <h2>Как пользоваться уроком</h2>
+  <p>Файлы сохраняют данные после завершения программы. Разберём, как открыть файл, проверить поток, прочитать или записать текст и корректно закрыть файл даже при ошибке.</p>
+  <p>Каждый блок с именем <code>.c</code> — отдельная полная программа. Сохраните один блок в файл и соберите его, например: <code>gcc -std=c11 -Wall -Wextra file.c -o file</code>. Запускайте программу из папки с входными данными: относительные имена файлов разрешаются относительно <b>текущей рабочей папки процесса</b>, а не обязательно папки с исходным кодом или исполняемым файлом.</p>
+  <p>Для выполнения примеров используйте отдельную учебную папку: программы создают или перезаписывают файлы <code>students.txt</code>, <code>result.txt</code> и <code>copy.txt</code>.</p>
+</section>
+
+<nav class="grid" aria-label="Разделы урока">
+  <a href="#basics"><b>01</b>Потоки и режимы</a>
+  <a href="#write"><b>02</b>Запись в файл</a>
+  <a href="#read"><b>03</b>Чтение строк</a>
+  <a href="#numbers"><b>04</b>Чтение чисел</a>
+  <a href="#copy"><b>05</b>Посимвольное чтение</a>
+  <a href="#errors"><b>06</b>Ошибки и EOF</a>
+  <a href="#practice"><b>07</b>Самопроверка</a>
+</nav>
+
+<div class="trail">
+<section class="wp" id="basics">
+  <span class="num">01</span>
+  <h2>Файл, поток и fopen</h2>
+  <p class="sub">Сначала открываем файл, затем работаем с потоком и закрываем его.</p>
+  <p>Функции для файлов объявлены в <code>&lt;stdio.h&gt;</code>. Вызов <code>fopen("input.txt", "r")</code> открывает текстовый файл и возвращает <code>FILE *</code> — указатель на поток, через который программа читает или записывает данные. Если открыть файл не удалось, возвращается <code>NULL</code>. Доступ к файлу через такой указатель недопустим.</p>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Режим</th><th>Для чего</th><th>Если файл уже есть</th><th>Если файла нет</th></tr></thead>
+    <tbody>
+      <tr><td><code>"r"</code></td><td>Чтение</td><td>Открывается для чтения с начала.</td><td>Открытие не удаётся.</td></tr>
+      <tr><td><code>"w"</code></td><td>Запись</td><td>Существующее содержимое уничтожается при открытии.</td><td>Создаётся, если это возможно.</td></tr>
+      <tr><td><code>"a"</code></td><td>Добавление</td><td>Новая запись идёт в конец файла.</td><td>Создаётся, если это возможно.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Для чтения и записи через один поток существуют режимы <code>"r+"</code>, <code>"w+"</code> и <code>"a+"</code>; при переключении направления работы с ними есть дополнительные правила. В этом уроке используем отдельные потоки и простые режимы из таблицы.</p>
+  <div class="note watch"><b>ОСТОРОЖНО: РЕЖИМ "w"</b>Не открывайте нужный существующий файл в режиме <code>"w"</code>, если его содержимое нужно сохранить. Очистка происходит при открытии, ещё до первого <code>fprintf</code>.</div>
+  <p>После работы успешное открытие обязательно завершают вызовом <code>fclose</code>. Он закрывает поток и выполняет необходимую запись буферизованных данных; ошибка записи может обнаружиться только на этом этапе.</p>
+</section>
+
+<section class="wp" id="write">
+  <span class="num">02</span>
+  <h2>Запись: fopen, fprintf и fclose</h2>
+  <p class="sub">Создадим текстовый файл с двумя записями.</p>
+  <script type="text/x-c" data-f="write_students.c">#include <stdio.h>
+
+int main(void)
+{
+    FILE *out = fopen("students.txt", "w");
+    if (out == NULL) {
+        fprintf(stderr, "Не удалось открыть students.txt для записи\n");
+        return 1;
+    }
+
+    int status = 0;
+    if (fprintf(out, "%s %d\n%s %d\n", "Alice", 19, "Bob", 21) < 0) {
+        fprintf(stderr, "Ошибка записи students.txt\n");
+        status = 1;
+    }
+    if (fclose(out) != 0) {
+        fprintf(stderr, "Ошибка закрытия students.txt\n");
+        status = 1;
+    }
+    return status;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Содержимое students.txt после запуска</span></div><pre><code>Alice 19
+Bob 21</code></pre></div>
+  <ol>
+    <li><code>fopen</code> создаёт файл или очищает существующий; при ошибке программа сообщает об этом через <code>stderr</code>.</li>
+    <li><code>fprintf(out, ...)</code> работает как <code>printf</code>, но записывает в выбранный поток. <code>%s</code> обозначает строку, <code>%d</code> — целое число, <code>\n</code> — конец строки.</li>
+    <li>Отрицательный результат <code>fprintf</code> означает ошибку записи. Даже при такой ошибке открытый поток нужно закрыть.</li>
+    <li><code>fclose</code> возвращает ноль при успехе; ненулевой результат тоже нужно учитывать. После вызова поток закрыт, повторно использовать <code>out</code> нельзя.</li>
+  </ol>
+  <div class="note tip"><b>ПРОВЕРКА</b>Запустите программу в отдельной папке и откройте созданный <code>students.txt</code> в текстовом редакторе. Чтобы добавлять записи вместо перезаписи, используйте <code>"a"</code>.</div>
+</section>
+
+<section class="wp" id="read">
+  <span class="num">03</span>
+  <h2>Чтение текста с помощью fgets</h2>
+  <p class="sub">Прочитаем и выведем содержимое файла, созданного предыдущей программой.</p>
+  <script type="text/x-c" data-f="read_students.c">#include <stdio.h>
+
+int main(void)
+{
+    FILE *in = fopen("students.txt", "r");
+    if (in == NULL) {
+        fprintf(stderr, "Не удалось открыть students.txt для чтения\n");
+        return 1;
+    }
+
+    char line[128];
+    int status = 0;
+    while (fgets(line, sizeof line, in) != NULL) {
+        if (fputs(line, stdout) == EOF) {
+            fprintf(stderr, "Ошибка вывода на экран\n");
+            status = 1;
+            break;
+        }
+    }
+    if (ferror(in)) {
+        fprintf(stderr, "Ошибка чтения students.txt\n");
+        status = 1;
+    }
+    if (fclose(in) != 0) {
+        fprintf(stderr, "Ошибка закрытия students.txt\n");
+        status = 1;
+    }
+    return status;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Вывод при содержимом файла из примера выше</span></div><pre><code>Alice 19
+Bob 21</code></pre></div>
+  <p><code>fgets(line, sizeof line, in)</code> читает до конца строки, конца файла или заполнения буфера: максимум <code>sizeof line - 1</code> символов, после которых добавляется завершающий <code>'\0'</code>. Если перевод строки прочитан и помещается, он сохраняется в буфере. Последняя строка файла может не содержать <code>\n</code>.</p>
+  <p>Если строка длиннее буфера, она считывается несколькими фрагментами. Поэтому этот цикл выводит содержимое целиком, но один вызов <code>fgets</code> не всегда соответствует одной полной строке файла. <code>fputs</code> не добавляет собственный перевод строки.</p>
+  <p><code>fgets</code> возвращает <code>NULL</code>, если не прочитано ни одного символа из-за конца файла или ошибки; <code>ferror(in)</code> после цикла помогает отличить ошибку чтения от обычного конца файла.</p>
+</section>
+
+<section class="wp" id="numbers">
+  <span class="num">04</span>
+  <h2>Числа из файла: fscanf</h2>
+  <p class="sub">Прочитаем два целых числа и запишем их сумму в другой файл.</p>
+  <p>Создайте в рабочей папке <code>input.txt</code> со значениями <code>12 30</code>. В этом примере предполагается, что записанные числа представимы в типе <code>int</code>; после чтения дополнительно разрешаются только значения от −1000 до 1000.</p>
+  <script type="text/x-c" data-f="sum_file.c">#include <stdio.h>
+
+int main(void)
+{
+    FILE *in = fopen("input.txt", "r");
+    if (in == NULL) {
+        fprintf(stderr, "Не удалось открыть input.txt\n");
+        return 1;
+    }
+
+    int a, b;
+    int count = fscanf(in, "%d%d", &a, &b);
+    int read_error = ferror(in);
+    int close_error = fclose(in);
+    if (read_error || close_error != 0) {
+        fprintf(stderr, "Ошибка чтения или закрытия input.txt\n");
+        return 1;
+    }
+    if (count != 2 || a < -1000 || a > 1000 || b < -1000 || b > 1000) {
+        fprintf(stderr, "Ожидаются два целых числа от -1000 до 1000\n");
+        return 1;
+    }
+
+    FILE *out = fopen("result.txt", "w");
+    if (out == NULL) {
+        fprintf(stderr, "Не удалось открыть result.txt\n");
+        return 1;
+    }
+    int status = 0;
+    if (fprintf(out, "%d\n", a + b) < 0) {
+        fprintf(stderr, "Ошибка записи result.txt\n");
+        status = 1;
+    }
+    if (fclose(out) != 0) {
+        fprintf(stderr, "Ошибка закрытия result.txt\n");
+        status = 1;
+    }
+    return status;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Содержимое result.txt</span></div><pre><code>42</code></pre></div>
+  <ol>
+    <li><code>fscanf</code> читает из <code>in</code>; каждый <code>%d</code> ожидает целое число и записывает его по переданному адресу <code>&amp;a</code> или <code>&amp;b</code>. Пробелы и переводы строк между числами пропускаются.</li>
+    <li>Результат — количество успешно присвоенных значений, здесь требуется ровно <code>2</code>. Может быть и <code>EOF</code>, если ввод закончился или произошла ошибка до первого успешного преобразования.</li>
+    <li>После проверки чтения и закрытия проверяем количество и диапазон. Благодаря сокращённому вычислению <code>||</code> неисполненные переменные не читаются, когда <code>count != 2</code>.</li>
+    <li>Только после проверки открываем <code>result.txt</code>, записываем сумму и проверяем запись и закрытие. Значения от −1000 до 1000 дают сумму, представимую в <code>int</code>.</li>
+  </ol>
+  <div class="note watch"><b>ГРАНИЦА ПРИМЕРА</b><code>fscanf</code> с <code>%d</code> не является надёжной проверкой очень больших чисел: если введённое значение не представимо в <code>int</code>, поведение не определено. Для произвольного пользовательского ввода читайте текст через <code>fgets</code> и проверяйте преобразование с помощью <code>strtol</code>, включая диапазон и лишние символы. Пример читает только первые два числа и не проверяет оставшийся текст.</div>
+</section>
+
+<section class="wp" id="copy">
+  <span class="num">05</span>
+  <h2>Посимвольное чтение: fgetc и fputc</h2>
+  <p class="sub">Скопируем текст из одного файла в другой до конца потока.</p>
+  <p>Положите текстовый файл <code>source.txt</code> в рабочую папку. Программа создаст или перезапишет <code>copy.txt</code>; используйте разные имена входного и выходного файлов.</p>
+  <script type="text/x-c" data-f="copy_text.c">#include <stdio.h>
+
+int main(void)
+{
+    FILE *in = fopen("source.txt", "r");
+    if (in == NULL) {
+        fprintf(stderr, "Не удалось открыть source.txt\n");
+        return 1;
+    }
+    FILE *out = fopen("copy.txt", "w");
+    if (out == NULL) {
+        fprintf(stderr, "Не удалось открыть copy.txt\n");
+        if (fclose(in) != 0)
+            fprintf(stderr, "Ошибка закрытия source.txt\n");
+        return 1;
+    }
+
+    int status = 0;
+    int ch;
+    while ((ch = fgetc(in)) != EOF) {
+        if (fputc(ch, out) == EOF) {
+            fprintf(stderr, "Ошибка записи copy.txt\n");
+            status = 1;
+            break;
+        }
+    }
+    if (ferror(in)) {
+        fprintf(stderr, "Ошибка чтения source.txt\n");
+        status = 1;
+    }
+    if (fclose(in) != 0) {
+        fprintf(stderr, "Ошибка закрытия source.txt\n");
+        status = 1;
+    }
+    if (fclose(out) != 0) {
+        fprintf(stderr, "Ошибка закрытия copy.txt\n");
+        status = 1;
+    }
+    return status;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Пример source.txt и получившегося copy.txt</span></div><pre><code>Hello!
+File lesson.</code></pre></div>
+  <p><code>fgetc</code> возвращает очередной символ как <code>int</code> либо специальное значение <code>EOF</code> при конце файла или ошибке. Переменная <code>ch</code> имеет тип <code>int</code>, чтобы можно было различить все значения символов и <code>EOF</code>. <code>fputc</code> записывает прочитанный символ и тоже сообщает об ошибке через <code>EOF</code>.</p>
+  <p>После цикла проверяем <code>ferror(in)</code>: нормальный конец файла не является ошибкой. Оба открытых потока закрываются независимо друг от друга; при ошибке выходной файл может остаться неполным.</p>
+  <div class="note tip"><b>ТЕКСТОВЫЙ РЕЖИМ</b>На некоторых системах библиотека преобразует окончания строк при чтении и записи текста. Этот пример копирует текст, но не гарантирует побайтовую копию любого файла; для побайтовой работы используют бинарные режимы <code>"rb"</code> и <code>"wb"</code>.</div>
+</section>
+
+<section class="wp" id="errors">
+  <span class="num">06</span>
+  <h2>Типичные ошибки</h2>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Ошибка</th><th>Почему это проблема</th><th>Как поступить</th></tr></thead>
+    <tbody>
+      <tr><td>Не проверять <code>fopen</code></td><td>Вместо потока может быть <code>NULL</code>.</td><td>Проверить указатель до любого чтения или записи.</td></tr>
+      <tr><td>Открыть файл через <code>"w"</code> для чтения</td><td>Старое содержимое уничтожится.</td><td>Для чтения используйте <code>"r"</code>; для добавления — <code>"a"</code>.</td></tr>
+      <tr><td>Читать в цикле <code>while (!feof(in))</code></td><td>Признак конца появляется после неудачной попытки чтения.</td><td>Проверять результат <code>fgets</code>, <code>fgetc</code> или <code>fscanf</code>.</td></tr>
+      <tr><td>Сохранить результат <code>fgetc</code> в <code>char</code></td><td>Можно потерять возможность корректно отличить символ от <code>EOF</code>.</td><td>Хранить результат в <code>int</code>.</td></tr>
+      <tr><td>Считать, что каждый <code>fgets</code> прочитал строку целиком</td><td>Строка может быть длиннее буфера.</td><td>Обрабатывать фрагменты или отдельно собирать длинную строку.</td></tr>
+      <tr><td>Игнорировать результат записи или <code>fclose</code></td><td>Файл может остаться неполным, даже если предыдущая операция выглядела успешной.</td><td>Проверять запись и закрытие, сообщать об ошибках.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><code>EOF</code> — признак, возвращаемый функциями ввода при конце потока или ошибке, а не обязательно символ внутри файла. Чтобы выяснить причину после неудачного чтения, используйте <code>ferror</code>; <code>feof</code> сообщает, установлен ли признак конца файла.</p>
+</section>
+
+<section class="wp" id="practice">
+  <span class="num">07</span>
+  <h2>Самопроверка и практика</h2>
+  <div class="task"><b>Задача 1.</b> В программе записи замените режим <code>"w"</code> на <code>"a"</code> и запустите её два раза. Что произойдёт с записями?</div>
+  <details class="note win">
+    <summary>Показать ответ</summary>
+    <p>Каждый запуск добавит две записи в конец файла. Существующее содержимое не будет очищено при открытии.</p>
+  </details>
+  <div class="task"><b>Задача 2.</b> В файле <code>input.txt</code> содержится только <code>12</code>. Какое значение вернёт <code>fscanf</code> в примере с суммой и появится ли новый результат?</div>
+  <details class="note win">
+    <summary>Показать ответ</summary>
+    <p>Будет присвоено одно значение, поэтому <code>fscanf</code> вернёт <code>1</code>. Программа сообщит об ошибке и не откроет <code>result.txt</code>; если он уже существовал, прежнее содержимое останется.</p>
+  </details>
+  <div class="task"><b>Задача 3.</b> Удалите учебный <code>source.txt</code> и запустите программу копирования. Почему выходной файл не открывается?</div>
+  <details class="note win">
+    <summary>Показать ответ</summary>
+    <p><code>fopen</code> в режиме чтения вернёт <code>NULL</code>. Программа сообщит об ошибке и завершится до вызова <code>fopen</code> для <code>copy.txt</code>.</p>
+  </details>
+  <h3>Перед ответом у доски</h3>
+  <ul>
+    <li>Могу объяснить разницу между <code>"r"</code>, <code>"w"</code> и <code>"a"</code>.</li>
+    <li>Знаю, что означает <code>FILE *</code> и как проверить открытие файла.</li>
+    <li>Понимаю разницу между чтением числа, фрагмента строки и одного символа.</li>
+    <li>Могу объяснить проверку конца файла, ошибки чтения, записи и закрытия.</li>
+  </ul>
+</section>
+</div>
+<section class="obj">
+  <h2>Главное в одном предложении</h2>
+  <p>Выберите нужный режим, проверьте открытие и каждую операцию, а затем закройте все открытые потоки, проверив результат закрытия.</p>
+  <p><a href="13-dynamic-memory.html">← Урок 13: динамическая память</a> · <a href="index.html">К оглавлению</a> · <a href="15-binary-files.html">Урок 15: бинарные файлы →</a></p>
+</section>
+</main>
+</body>
+</html>

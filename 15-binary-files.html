@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: Бинарные файлы</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+.top a{color:inherit;text-decoration:none}
+.stamp{text-align:center;line-height:1.25}
+details summary{cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">Язык C: Учебник · Урок 15</a></div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">УРОК 15<br>C · GCC</div>
+  <h1>Бинарные файлы</h1>
+  <p>Чтение и запись байтов, массивов и чисел: fread, fwrite и переносимость форматов</p>
+</header>
+
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html" aria-current="page"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html"><b>16</b>OpenMP и сортировки</a>
+</nav>
+
+<section class="obj">
+  <h2>Как пользоваться уроком</h2>
+  <p>В <a href="14-text-files.html">уроке 14</a> мы записывали числа как текст. Здесь рассмотрим бинарный режим: программа сохраняет и считывает данные как последовательность байтов без преобразования в текст.</p>
+  <p>Каждый блок <code>.c</code> — отдельная полная программа. Сборка: <code>gcc -std=c11 -Wall -Wextra file.c -o file</code>. Запускайте примеры в отдельной учебной рабочей папке: они создают или перезаписывают <code>numbers.bin</code> и <code>portable.bin</code>.</p>
+</section>
+
+<nav class="grid" aria-label="Разделы урока">
+  <a href="#basics"><b>01</b>Текст и байты</a>
+  <a href="#write"><b>02</b>Запись массива</a>
+  <a href="#read"><b>03</b>Чтение массива</a>
+  <a href="#portable"><b>04</b>Переносимый формат</a>
+  <a href="#seek"><b>05</b>Позиция в файле</a>
+  <a href="#errors"><b>06</b>Ошибки</a>
+  <a href="#practice"><b>07</b>Самопроверка</a>
+</nav>
+
+<div class="trail">
+<section class="wp" id="basics">
+  <span class="num">01</span>
+  <h2>Текстовый и бинарный режимы</h2>
+  <p class="sub">Данные в обоих случаях состоят из байтов; различаются способ представления и обработки.</p>
+  <p><code>fprintf(out, "%d", 123)</code> записывает текстовые цифры числа. <code>fwrite</code> может записать байты объекта <code>int</code> без преобразования в строку; результат зависит от представления типа на данной платформе. Открывать такой файл в текстовом редакторе для проверки содержимого обычно неудобно.</p>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Режим</th><th>Назначение</th></tr></thead>
+    <tbody>
+      <tr><td><code>"rb"</code></td><td>Бинарное чтение; если файл не существует, открытие не удаётся.</td></tr>
+      <tr><td><code>"wb"</code></td><td>Бинарная запись; существующий файл при открытии очищается.</td></tr>
+      <tr><td><code>"ab"</code></td><td>Бинарное добавление в конец; файл создаётся, если возможно.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Буква <code>b</code> выбирает бинарный режим. В отличие от текстового режима он не выполняет преобразование концов строк; это важно, например, в Windows. Функции находятся в <code>&lt;stdio.h&gt;</code>, а результат <code>fopen</code> и <code>fclose</code> проверяется так же, как при работе с текстом.</p>
+  <div class="note watch"><b>ВНИМАНИЕ</b>Режим <code>"wb"</code> уничтожает старое содержимое файла уже при открытии. Не используйте для упражнений ценные данные.</div>
+</section>
+
+<section class="wp" id="write">
+  <span class="num">02</span>
+  <h2>fwrite: запись массива в файл</h2>
+  <p class="sub">Записываем три целых числа в их представлении в памяти.</p>
+  <script type="text/x-c" data-f="write_binary.c">#include <stdio.h>
+
+int main(void)
+{
+    int values[] = {10, 20, 30};
+    size_t count = sizeof values / sizeof values[0];
+    FILE *out = fopen("numbers.bin", "wb");
+    if (out == NULL) {
+        fprintf(stderr, "Не удалось открыть numbers.bin для записи\n");
+        return 1;
+    }
+
+    int status = 0;
+    size_t written = fwrite(values, sizeof values[0], count, out);
+    if (written != count) {
+        fprintf(stderr, "Ошибка записи numbers.bin\n");
+        status = 1;
+    }
+    if (fclose(out) != 0) {
+        fprintf(stderr, "Ошибка закрытия numbers.bin\n");
+        status = 1;
+    }
+    return status;
+}</script>
+  <ol>
+    <li><code>values</code> — массив из трёх <code>int</code>. В месте объявления <code>sizeof values / sizeof values[0]</code> вычисляет количество его элементов.</li>
+    <li><code>fwrite(адрес, размер_элемента, количество, поток)</code> записывает данные и возвращает число <b>полностью записанных элементов</b>, а не обязательно байтов.</li>
+    <li>Если записано меньше <code>count</code> элементов, сообщаем об ошибке. Проверяем и <code>fclose</code>: ошибка буферизованной записи может обнаружиться при закрытии.</li>
+  </ol>
+  <div class="note tip"><b>ПРОВЕРКА</b>Сначала запустите эту программу. Следующая программа читает полученный <code>numbers.bin</code> из той же рабочей папки и выводит его значения.</div>
+  <div class="note watch"><b>ВАЖНО ДЛЯ ПЕРЕНОСИМОСТИ</b>Этот простой формат сохраняет внутреннее представление <code>int</code>. Размер, порядок байтов и представление чисел могут отличаться на другом компьютере или в другой среде. Не считайте такие файлы универсальным форматом обмена.</div>
+</section>
+
+<section class="wp" id="read">
+  <span class="num">03</span>
+  <h2>fread: чтение массива из файла</h2>
+  <p class="sub">Проверяем, что получили все три элемента, прежде чем их использовать.</p>
+  <script type="text/x-c" data-f="read_binary.c">#include <stdio.h>
+
+int main(void)
+{
+    int values[3];
+    size_t count = sizeof values / sizeof values[0];
+    FILE *in = fopen("numbers.bin", "rb");
+    if (in == NULL) {
+        fprintf(stderr, "Не удалось открыть numbers.bin для чтения\n");
+        return 1;
+    }
+
+    size_t read_count = fread(values, sizeof values[0], count, in);
+    int read_error = ferror(in);
+    int close_error = fclose(in);
+    if (read_error || close_error != 0) {
+        fprintf(stderr, "Ошибка чтения или закрытия numbers.bin\n");
+        return 1;
+    }
+    if (read_count != count) {
+        fprintf(stderr, "Файл слишком короткий: прочитано элементов %zu из %zu\n",
+                read_count, count);
+        return 1;
+    }
+
+    for (size_t i = 0; i < count; ++i)
+        printf("%d%c", values[i], i + 1 == count ? '\n' : ' ');
+    return 0;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Вывод после записи примера</span></div><pre><code>10 20 30</code></pre></div>
+  <p><code>fread(адрес, размер_элемента, количество, поток)</code> возвращает число <b>полностью прочитанных элементов</b>. Если возвращено меньше запрошенного, возможны конец файла или ошибка чтения. Частично прочитанный элемент нельзя считать корректно восстановленным: этот пример использует массив только при полном чтении.</p>
+  <p>Пример рассчитан на файл, созданный предыдущей программой в совместимой среде. Он проверяет наличие трёх элементов, но не проверяет лишние данные и не предназначен для произвольных или повреждённых файлов. Произвольные байты могут не быть допустимым представлением <code>int</code>.</p>
+</section>
+
+<section class="wp" id="portable">
+  <span class="num">04</span>
+  <h2>Явный формат: число из четырёх октетов</h2>
+  <p class="sub">Вместо записи внутреннего представления числа заранее задаём порядок октетов.</p>
+  <p>Пусть формат хранит беззнаковое 32-битное число как четыре 8-битных октета: сначала младший октет, затем следующие. Это порядок <b>little-endian</b>. Например, число 65537 — это <code>01 00 01 00</code> в шестнадцатеричном виде.</p>
+  <p>Пример рассчитан на платформы с 8-битным байтом и типом <code>uint32_t</code>; проверка <code>CHAR_BIT</code> явно запрещает несовместимый размер байта. Формат задаётся кодом, а не порядком байтов компьютера.</p>
+  <script type="text/x-c" data-f="portable_number.c">#include <inttypes.h>
+#include <limits.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#if CHAR_BIT != 8
+#error "Этот пример требует 8-битного байта"
+#endif
+
+int main(void)
+{
+    uint32_t number = UINT32_C(65537);
+    unsigned char bytes[4] = {
+        (unsigned char)(number & 0xffu),
+        (unsigned char)((number >> 8) & 0xffu),
+        (unsigned char)((number >> 16) & 0xffu),
+        (unsigned char)((number >> 24) & 0xffu)
+    };
+
+    FILE *out = fopen("portable.bin", "wb");
+    if (out == NULL) {
+        fprintf(stderr, "Не удалось открыть portable.bin для записи\n");
+        return 1;
+    }
+    size_t written = fwrite(bytes, 1, sizeof bytes, out);
+    int close_error = fclose(out);
+    if (written != sizeof bytes || close_error != 0) {
+        fprintf(stderr, "Ошибка записи или закрытия portable.bin\n");
+        return 1;
+    }
+
+    FILE *in = fopen("portable.bin", "rb");
+    if (in == NULL) {
+        fprintf(stderr, "Не удалось открыть portable.bin для чтения\n");
+        return 1;
+    }
+    size_t read_count = fread(bytes, 1, sizeof bytes, in);
+    int read_error = ferror(in);
+    close_error = fclose(in);
+    if (read_error || close_error != 0 || read_count != sizeof bytes) {
+        fprintf(stderr, "Ошибка чтения, короткий файл или ошибка закрытия\n");
+        return 1;
+    }
+
+    uint32_t restored = (uint32_t)bytes[0]
+                      | ((uint32_t)bytes[1] << 8)
+                      | ((uint32_t)bytes[2] << 16)
+                      | ((uint32_t)bytes[3] << 24);
+    printf("Восстановлено: %" PRIu32 "\n", restored);
+    return 0;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>Восстановлено: 65537</code></pre></div>
+  <ol>
+    <li>Маска <code>0xff</code> оставляет младшие 8 бит, а сдвиги вправо выбирают следующие октеты.</li>
+    <li><code>fwrite(bytes, 1, sizeof bytes, out)</code> записывает элементы размером один байт, поэтому результат здесь равен количеству успешно записанных байтов.</li>
+    <li>Перед восстановлением проверяется, что прочитаны все четыре байта. Сдвиги влево и побитовое ИЛИ собирают число обратно.</li>
+    <li>Тип <code>uint32_t</code> и макрос <code>PRIu32</code> из стандартных заголовков позволяют использовать ровно 32-битное беззнаковое значение и подходящий формат вывода, если платформа поддерживает этот тип.</li>
+  </ol>
+  <div class="note tip"><b>ФОРМАТ — ЭТО ДОГОВОР</b>Для настоящего формата также определяют количество записей, версию, ограничения и способ обработки повреждённых данных. Не записывайте указатели в файл как способ сохранить объекты, на которые они указывают.</div>
+  <p>Запись всей структуры через <code>fwrite(&amp;record, sizeof record, 1, out)</code> удобна только в контролируемой совместимой среде: расположение полей, выравнивание и байты заполнения, размеры типов и порядок байтов зависят от реализации. Для обмена между системами задавайте формат каждого поля явно.</p>
+</section>
+
+<section class="wp" id="seek">
+  <span class="num">05</span>
+  <h2>Позиция в файле</h2>
+  <p>При последовательной работе поток хранит текущую позицию. Для некоторых задач, например доступа к заранее известной записи, её можно изменить:</p>
+  <ul>
+    <li><code>fseek(in, 0, SEEK_SET)</code> пытается перейти к началу; ноль при успехе, ненулевой результат при ошибке.</li>
+    <li><code>ftell(in)</code> возвращает текущую позицию как <code>long</code> или <code>-1L</code> при ошибке.</li>
+    <li><code>rewind(in)</code> возвращает поток к началу и сбрасывает признаки конца и ошибки; в отличие от <code>fseek</code> эта функция не возвращает код успеха.</li>
+  </ul>
+  <p>Возможность перемещения и допустимые смещения зависят от вида потока и платформы. На двоичных потоках <code>SEEK_END</code> и вычисление больших смещений имеют ограничения переносимости; прежде чем использовать случайный доступ, проверяйте результаты и требования вашей платформы.</p>
+</section>
+
+<section class="wp" id="errors">
+  <span class="num">06</span>
+  <h2>Частые ошибки</h2>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Ошибка</th><th>Почему опасно</th><th>Что делать</th></tr></thead>
+    <tbody>
+      <tr><td>Путать элементы и байты</td><td><code>fread</code> и <code>fwrite</code> возвращают количество элементов заданного размера.</td><td>Сравнивайте результат с количеством элементов, не с размером всего массива.</td></tr>
+      <tr><td>Не проверять короткий файл</td><td>Не все данные могли быть прочитаны.</td><td>Проверить количество и <code>ferror</code> до использования результата.</td></tr>
+      <tr><td>Считать сырую структуру переносимым форматом</td><td>Размеры, выравнивание и представление зависят от платформы.</td><td>Определять формат и записывать поля явно.</td></tr>
+      <tr><td>Сохранить указатель как содержимое объекта</td><td>Адрес из другого запуска не восстанавливает данные.</td><td>Сохранять сами данные и их длину, а не адрес.</td></tr>
+      <tr><td>Не проверить <code>fclose</code></td><td>Ошибка записи может проявиться при закрытии.</td><td>Проверить и запись, и результат закрытия.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="wp" id="practice">
+  <span class="num">07</span>
+  <h2>Самопроверка</h2>
+  <div class="task"><b>Задача 1.</b> Вызов <code>fwrite(a, sizeof a[0], 3, out)</code> вернул 2. Сколько элементов полностью записано?</div>
+  <details class="note win"><summary>Показать ответ</summary><p>Два элемента, а не обязательно два байта. Это неполная запись: программа должна сообщить об ошибке.</p></details>
+  <div class="task"><b>Задача 2.</b> Почему файл с массивом <code>int</code> из первого примера нельзя безусловно читать на любой другой платформе?</div>
+  <details class="note win"><summary>Показать ответ</summary><p>Внутренние размеры, представление и порядок байтов могут различаться. Для переноса нужен явно описанный формат и согласованное кодирование.</p></details>
+  <div class="task"><b>Задача 3.</b> Что произойдёт, если <code>numbers.bin</code> отсутствует или содержит меньше трёх полных элементов?</div>
+  <details class="note win"><summary>Показать ответ</summary><p>При отсутствии файла не удастся <code>fopen</code>. При коротком файле <code>fread</code> вернёт меньше трёх элементов, и программа не станет выводить массив.</p></details>
+</section>
+</div>
+<section class="obj">
+  <h2>Главное в одном предложении</h2>
+  <p>Выбирайте бинарный режим, проверяйте количество прочитанных или записанных элементов и явно определяйте формат для обмена между системами.</p>
+  <p><a href="14-text-files.html">← Урок 14: текстовые файлы</a> · <a href="index.html">К оглавлению</a> · <a href="16-openmp-sorting.html">Урок 16: OpenMP и сортировки →</a></p>
+</section>
+</main>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Язык C: OpenMP и сортировки</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,500&family=Karla:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="code-display.js" defer></script>
+<style>
+.top a{color:inherit;text-decoration:none}
+.stamp{text-align:center;line-height:1.25}
+details summary{cursor:pointer;font-weight:700}
+</style>
+</head>
+<body>
+<div class="top"><a href="index.html">Язык C: Учебник · Урок 16</a></div>
+<main class="wrap">
+<header class="hero">
+  <div class="stamp">УРОК 16<br>C · GCC</div>
+  <h1>OpenMP и сортировки</h1>
+  <p>Потоки, общие данные и безопасное распараллеливание сортировки</p>
+</header>
+
+<nav class="grid" aria-label="Темы курса">
+  <a href="01-structure.html"><b>01</b>Структура программы</a>
+  <a href="02-types.html"><b>02</b>Базовые типы</a>
+  <a href="03-constants.html"><b>03</b>Константы</a>
+  <a href="04-arithmetic.html"><b>04</b>Арифметика</a>
+  <a href="05-logic.html"><b>05</b>Логика</a>
+  <a href="06-conditions-goto.html"><b>06</b>Условия и goto</a>
+  <a href="07-loops.html"><b>07</b>Циклы</a>
+  <a href="08-functions.html"><b>08</b>Функции</a>
+  <a href="09-scope-lifetime.html"><b>09</b>Область видимости</a>
+  <a href="10-pointers.html"><b>10</b>Указатели</a>
+  <a href="11-strings.html"><b>11</b>Строки</a>
+  <a href="12-struct-union.html"><b>12</b>Структуры и объединения</a>
+  <a href="13-dynamic-memory.html"><b>13</b>malloc / realloc / free</a>
+  <a href="14-text-files.html"><b>14</b>Текстовые файлы</a>
+  <a href="15-binary-files.html"><b>15</b>Бинарные файлы</a>
+  <a href="16-openmp-sorting.html" aria-current="page"><b>16</b>OpenMP и сортировки</a>
+</nav>
+
+<section class="obj">
+  <h2>Как пользоваться уроком</h2>
+  <p>Сначала повторим последовательную сортировку, затем разберём потоки и алгоритм, в котором сравнения соседних элементов можно выполнять параллельно без гонки данных.</p>
+  <p>Каждый блок <code>.c</code> — отдельная полная программа. Для примеров OpenMP используйте компилятор и библиотеку времени выполнения с поддержкой OpenMP, например GCC: <code>gcc -std=c11 -Wall -Wextra -fopenmp program.c -o program</code>. Флаг <code>-fopenmp</code> нужен и при сборке, и при компоновке. С другим компилятором способ настройки может отличаться.</p>
+  <p>Число потоков можно запросить переменной окружения <code>OMP_NUM_THREADS</code>. В PowerShell: <code>$env:OMP_NUM_THREADS = '4'; .\program.exe</code>. Реальное число потоков зависит также от настроек среды выполнения.</p>
+</section>
+
+<nav class="grid" aria-label="Разделы урока">
+  <a href="#sorting"><b>01</b>Сортировка</a>
+  <a href="#openmp"><b>02</b>Потоки OpenMP</a>
+  <a href="#sum"><b>03</b>reduction</a>
+  <a href="#race"><b>04</b>Гонки данных</a>
+  <a href="#parallel-sort"><b>05</b>Чёт-нечет сортировка</a>
+  <a href="#cost"><b>06</b>Сложность и скорость</a>
+  <a href="#practice"><b>07</b>Самопроверка</a>
+</nav>
+
+<div class="trail">
+<section class="wp" id="sorting">
+  <span class="num">01</span>
+  <h2>Сначала последовательная сортировка</h2>
+  <p class="sub">Соседние элементы сравниваются и при необходимости меняются местами.</p>
+  <p>Пузырьковая сортировка последовательно проходит по массиву. После каждого полного прохода наибольший элемент рассматриваемой части оказывается справа; следующему проходу можно не проверять уже отсортированный хвост.</p>
+  <script type="text/x-c" data-f="bubble_sort.c">#include <stdio.h>
+
+void bubble_sort(int *a, int n)
+{
+    for (int end = n - 1; end > 0; --end) {
+        for (int i = 0; i < end; ++i) {
+            if (a[i] > a[i + 1]) {
+                int temp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = temp;
+            }
+        }
+    }
+}
+
+int main(void)
+{
+    int a[] = {4, 1, 3, 2};
+    int n = (int)(sizeof a / sizeof a[0]);
+    bubble_sort(a, n);
+    for (int i = 0; i < n; ++i)
+        printf("%d%c", a[i], i + 1 == n ? '\n' : ' ');
+    return 0;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>1 2 3 4</code></pre></div>
+  <p>Для <code>[4, 1, 3, 2]</code> первый проход даёт <code>[1, 3, 2, 4]</code>: число 4 постепенно перемещается вправо. Следующий проход даёт <code>[1, 2, 3, 4]</code>. Два вложенных цикла выполняют <code>n(n−1)/2</code> сравнений, то есть время работы <code>O(n²)</code>; дополнительная память — <code>O(1)</code>.</p>
+</section>
+
+<section class="wp" id="openmp">
+  <span class="num">02</span>
+  <h2>Что делает OpenMP</h2>
+  <p>OpenMP позволяет обозначить параллельные области и распределить работу между потоками одной программы. Директивы записываются как <code>#pragma omp ...</code>; компилятор с поддержкой OpenMP создаёт код параллельного выполнения.</p>
+  <ul>
+    <li><code>#pragma omp parallel</code> создаёт команду потоков, каждый выполняет код параллельной области.</li>
+    <li><code>#pragma omp for</code> внутри такой области распределяет итерации цикла между потоками команды.</li>
+    <li><code>#pragma omp parallel for</code> объединяет создание команды и распределение одного цикла.</li>
+    <li>В конце <code>omp for</code> обычно есть неявный барьер: потоки ждут завершения всех итераций. С <code>nowait</code> этого ожидания нет.</li>
+  </ul>
+  <div class="note watch"><b>ПРОВЕРЬТЕ СБОРКУ</b>Если компилятор игнорирует директивы или программа собрана без нужного флага, корректность или параллельность исполнения может отличаться от ожидаемой. Используйте поддерживаемый компилятор, флаг OpenMP и проверяйте предупреждения сборки.</div>
+  <p>В пределах одной итерации порядок обычных операций сохраняется, но порядок выполнения разных итераций между потоками заранее не задан. Вывод из разных потоков может появиться в различном порядке.</p>
+</section>
+
+<section class="wp" id="sum">
+  <span class="num">03</span>
+  <h2>Пример: сумма с reduction</h2>
+  <p class="sub">Вместо одновременного изменения одной суммы каждый поток накапливает свою часть.</p>
+  <script type="text/x-c" data-f="parallel_sum.c">#include <stdio.h>
+
+int main(void)
+{
+    int values[] = {1, 2, 3, 4, 5};
+    int n = (int)(sizeof values / sizeof values[0]);
+    int sum = 0;
+
+    #pragma omp parallel for reduction(+:sum)
+    for (int i = 0; i < n; ++i)
+        sum += values[i];
+
+    printf("Сумма: %d\n", sum);
+    return 0;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Вывод</span></div><pre><code>Сумма: 15</code></pre></div>
+  <ol>
+    <li>Итерации от <code>0</code> до <code>n - 1</code> распределяются между потоками; массив в этом примере только читается.</li>
+    <li><code>reduction(+:sum)</code> создаёт частные накопители для операции сложения и объединяет их с исходной переменной по завершении области.</li>
+    <li>После окончания параллельного цикла <code>sum</code> содержит результат. В примере значения малы; для произвольных данных нужно отдельно обеспечить отсутствие переполнения.</li>
+  </ol>
+  <div class="note tip"><b>ПОЧЕМУ НЕ ПРОСТО sum += values[i]?</b>Без <code>reduction</code> несколько потоков могли бы одновременно читать и изменять общую переменную <code>sum</code>. Это гонка данных, а не просто риск получить немного неточную сумму.</div>
+</section>
+
+<section class="wp" id="race">
+  <span class="num">04</span>
+  <h2>Почему обычный пузырьковый проход нельзя просто распараллелить</h2>
+  <p>В последовательном цикле соседние итерации работают с пересекающимися парами: при <code>i = 0</code> это <code>a[0], a[1]</code>, при <code>i = 1</code> — <code>a[1], a[2]</code>. Если два потока одновременно меняют <code>a[1]</code>, возникает гонка данных. Результат программы с такой гонкой не определён.</p>
+  <p>Недостаточно поставить <code>#pragma omp parallel for</code> перед внутренним циклом из первого примера. Нужен алгоритм, в котором одновременно обрабатываемые пары не пересекаются, а между зависимыми этапами есть синхронизация.</p>
+</section>
+
+<section class="wp" id="parallel-sort">
+  <span class="num">05</span>
+  <h2>Параллельная чёт-нечет сортировка</h2>
+  <p class="sub">На каждой фазе сравниваем независимые пары, затем ждём завершения фазы.</p>
+  <p>Чёт-нечет сортировка (<i>odd-even transposition sort</i>) чередует пары <code>(0,1), (2,3), ...</code> и <code>(1,2), (3,4), ...</code>. Пары внутри одной фазы не имеют общих индексов, поэтому их можно обрабатывать параллельно. Для массива длины <code>n</code> достаточно <code>n</code> чередующихся фаз.</p>
+  <script type="text/x-c" data-f="odd_even_sort.c">#include <stdio.h>
+
+void odd_even_sort(int *a, int n)
+{
+    #pragma omp parallel default(none) shared(a, n)
+    {
+        for (int phase = 0; phase < n; ++phase) {
+            int start = phase % 2;
+            #pragma omp for
+            for (int i = start; i < n - 1; i += 2) {
+                if (a[i] > a[i + 1]) {
+                    int temp = a[i];
+                    a[i] = a[i + 1];
+                    a[i + 1] = temp;
+                }
+            }
+        }
+    }
+}
+
+int main(void)
+{
+    int a[] = {4, 1, 3, 2};
+    int n = (int)(sizeof a / sizeof a[0]);
+    odd_even_sort(a, n);
+    for (int i = 0; i < n; ++i)
+        printf("%d%c", a[i], i + 1 == n ? '\n' : ' ');
+    return 0;
+}</script>
+  <div class="win-c out"><div class="hd"><span>Вывод независимо от порядка работы потоков</span></div><pre><code>1 2 3 4</code></pre></div>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Фаза</th><th>Пары индексов</th><th>Массив после фазы</th></tr></thead>
+    <tbody>
+      <tr><td>Начало</td><td>—</td><td><code>[4, 1, 3, 2]</code></td></tr>
+      <tr><td>0: чётная</td><td><code>(0,1), (2,3)</code></td><td><code>[1, 4, 2, 3]</code></td></tr>
+      <tr><td>1: нечётная</td><td><code>(1,2)</code></td><td><code>[1, 2, 4, 3]</code></td></tr>
+      <tr><td>2: чётная</td><td><code>(0,1), (2,3)</code></td><td><code>[1, 2, 3, 4]</code></td></tr>
+      <tr><td>3: нечётная</td><td><code>(1,2)</code></td><td><code>[1, 2, 3, 4]</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>Как объяснить безопасность</h3>
+  <ol>
+    <li><code>shared(a, n)</code> разрешает потокам обращаться к одному массиву и его длине. Каждый поток выполняет внешний цикл фаз; его локальные переменные <code>phase</code> и <code>start</code> не являются общими.</li>
+    <li><code>omp for</code> распределяет пары текущей фазы. Шаг <code>i += 2</code> исключает пересечение пар; условие <code>i &lt; n - 1</code> не позволяет выйти за границу массива.</li>
+    <li>После каждой фазы неявный барьер <code>omp for</code> гарантирует завершение всех её сравнений до следующей фазы. Поэтому <code>nowait</code> здесь добавлять нельзя.</li>
+    <li>Переменная <code>temp</code> создаётся внутри итерации и не разделяется между потоками. При <code>n = 0</code> или <code>n = 1</code> обменов нет.</li>
+  </ol>
+  <p>В каждый момент фазы один элемент принадлежит не более чем одной паре. Благодаря этому потоки не изменяют одну и ту же ячейку одновременно; барьер защищает переход к следующему набору пар.</p>
+</section>
+
+<section class="wp" id="cost">
+  <span class="num">06</span>
+  <h2>Сложность и практическая скорость</h2>
+  <p>Обе показанные сортировки делают квадратичное количество сравнений: <code>O(n²)</code>. Чёт-нечет сортировка требует <code>n</code> последовательных фаз и барьера после каждой; внутри фазы сравнения независимы. Даже при нескольких потоках синхронизация и организация работы имеют стоимость.</p>
+  <p>На маленьком массиве параллельный вариант вполне может быть медленнее последовательного. Время зависит от размера данных, числа потоков, среды и компьютера. Для больших массивов обычно выбирают более эффективные алгоритмы, например сортировку слиянием или библиотечный <code>qsort</code>; параллельность сама по себе не исправляет квадратичную сложность.</p>
+  <div class="note tip"><b>КАК ПРОВЕРЯТЬ</b>Измеряйте несколько запусков на одних и тех же входных данных, отдельно от печати результатов, и проверяйте корректность отсортированного массива. Не делайте вывод об ускорении по примеру из четырёх чисел.</div>
+</section>
+
+<section class="wp" id="practice">
+  <span class="num">07</span>
+  <h2>Самопроверка</h2>
+  <div class="task"><b>Задача 1.</b> В массиве из пяти элементов перечислите пары чётной и нечётной фаз.</div>
+  <details class="note win"><summary>Показать ответ</summary><p>Чётная фаза: <code>(0,1), (2,3)</code>. Нечётная: <code>(1,2), (3,4)</code>. Пары каждой отдельной фазы не пересекаются.</p></details>
+  <div class="task"><b>Задача 2.</b> Что нарушится, если убрать барьер между фазами с помощью <code>nowait</code>?</div>
+  <details class="note win"><summary>Показать ответ</summary><p>Один поток может начать следующую фазу до завершения предыдущей. Пары разных фаз пересекаются, поэтому появится гонка за элементы массива.</p></details>
+  <div class="task"><b>Задача 3.</b> Запустите пример суммы с одним и несколькими потоками. Должен ли результат отличаться?</div>
+  <details class="note win"><summary>Показать ответ</summary><p>Нет: для этих целых чисел <code>reduction</code> объединяет частные суммы в результат 15. Число потоков и распределение итераций могут различаться.</p></details>
+  <h3>Перед ответом у доски</h3>
+  <ul>
+    <li>Могу показать зависимость соседних итераций обычного пузырькового прохода.</li>
+    <li>Могу объяснить <code>parallel</code>, <code>for</code>, <code>reduction</code> и барьер.</li>
+    <li>Могу перечислить пары двух фаз и объяснить отсутствие гонки внутри каждой.</li>
+    <li>Понимаю, что параллельная версия не обязательно быстрее на малых данных.</li>
+  </ul>
+</section>
+</div>
+<section class="obj">
+  <h2>Главное в одном предложении</h2>
+  <p>Распараллеливайте независимые операции, защищайте общие данные и синхронизируйте этапы, между которыми есть зависимости.</p>
+  <p><a href="15-binary-files.html">← Урок 15: бинарные файлы</a> · <a href="index.html">К оглавлению</a></p>
+</section>
+</main>
+</body>
+</html>
