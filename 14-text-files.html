@@ -340,29 +340,29 @@ Characters: 28</code></pre></div>
 
   <div class="task">
     <b>Задача 2. Сформировать отчёт о покупках.</b>
-    <p>Напишите программу, которая создаёт файл <code>shopping-report.txt</code>. Для каждого товара из примера запишите название, количество, цену за штуку и стоимость всей позиции. В конце добавьте общую стоимость заказа. Данные задайте в программе; если файл отчёта уже существует, замените его содержимое.</p>
+    <p>Напишите программу, которая создаёт файл <code>shopping-report.txt</code> и записывает в него названия и целые цены трёх товаров из примера. Вычислите сумму цен и запишите её в конце файла. Данные задайте в программе; если файл отчёта уже существует, замените его содержимое.</p>
   </div>
-  <div class="win-c out"><div class="hd"><span>Товары и цены</span></div><pre><code>Pen: 4 x 1.50
-Notebook: 2 x 3.25
-Folder: 3 x 2.00</code></pre></div>
-  <div class="win-c out"><div class="hd"><span>Содержимое shopping-report.txt после запуска</span></div><pre><code>Product Quantity Price Amount
-Pen 4 1.50 6.00
-Notebook 2 3.25 6.50
-Folder 3 2.00 6.00
-Total: 18.50</code></pre></div>
+  <div class="win-c out"><div class="hd"><span>Товары и цены</span></div><pre><code>Pen: 6
+Notebook: 7
+Folder: 6</code></pre></div>
+  <div class="win-c out"><div class="hd"><span>Содержимое shopping-report.txt после запуска</span></div><pre><code>Product Price
+Pen 6
+Notebook 7
+Folder 6
+Total: 19</code></pre></div>
   <details class="note tip">
     <summary>Подсказка 1</summary>
-    <p>Для создания или перезаписи отчёта используйте режим <code>"w"</code>. Для каждой позиции вычислите количество, умноженное на цену.</p>
+    <p>Для создания или перезаписи отчёта используйте режим <code>"w"</code>. Сохраните цены в переменных типа <code>int</code>.</p>
   </details>
   <details class="note tip">
     <summary>Подсказка 2</summary>
-    <p>Записывайте строки отчёта с помощью <code>fprintf</code>; для дробной цены подойдёт формат <code>%.2f</code>. Складывайте стоимости позиций в общую сумму.</p>
+    <p>Сложите цены и запишите названия, цены и сумму с помощью <code>fprintf</code>. Для целых чисел используйте формат <code>%d</code>.</p>
   </details>
   <details class="note tip">
     <summary>Подсказка 3</summary>
     <p>После строк товаров запишите общую сумму. Проверяйте результат каждого <code>fprintf</code> и результат <code>fclose</code>.</p>
   </details>
-  <p><b>Проверка себя:</b> чему равна стоимость каждой позиции и почему нужно проверять ещё и закрытие выходного файла?</p>
+  <p><b>Проверка себя:</b> чему равна сумма цен и почему нужно проверять ещё и закрытие выходного файла?</p>
 
   <div class="task">
     <b>Задача 3. Добавить недельную сводку.</b>
